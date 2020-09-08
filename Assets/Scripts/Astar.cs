@@ -13,7 +13,8 @@ public class Astar
         InvalidStartPosition,
         InvalidEndPosition,
         NoPossiblePath,
-        Timeout
+        Timeout,
+        OutOfMemory
     }
     public class Result
     {
@@ -80,18 +81,20 @@ public class Astar
             return Task.FromResult(result);
 
         }
-        const int maxEntries = 1000;
+        const int maxEntries = 100000;
         Priority_Queue.FastPriorityQueue<AstarNode> nodeQueue = new Priority_Queue.FastPriorityQueue<AstarNode>(maxEntries);
         AstarNode currentNode = new AstarNode(start, 0, 0, null);
+        nodeQueue.Enqueue(currentNode, 0);
 
         Dictionary<Vector3Int, int> mapWeights = new Dictionary<Vector3Int, int>();
 
         int steps = 0;
+        const int maxSteps = 10000;
 
         while (nodeQueue.Count > 0)
         {
             steps++;
-            if (steps > maxEntries)
+            if (steps > maxSteps)
             {
                 result.failReason = FailReason.Timeout;
                 return Task.FromResult(result);
@@ -115,11 +118,19 @@ public class Astar
                         AstarNode nextNode = new AstarNode(newPos, currentNode, end);
                         int weight;
                         bool weightExists = mapWeights.TryGetValue(newPos, out weight);
-                        if (!weightExists || nextNode.Priority < weight)
+                        if (!weightExists || nextNode.GetPriority() < weight)
                         {
                             weight = nextNode.GetPriority();
                             mapWeights[newPos] = weight;
-                            nodeQueue.Enqueue(nextNode, weight);
+                            if (nodeQueue.Count < maxEntries)
+                            {
+                                nodeQueue.Enqueue(nextNode, weight);
+                            }
+                            else
+                            {
+                                result.failReason = FailReason.OutOfMemory;
+                                return Task.FromResult(result);
+                            }
                         }
                     }
                 }
@@ -154,9 +165,9 @@ public class Astar
         * rest says yes
         */
 
-        if (delta.z != 0)
+        if (delta.y != 0)
         {
-            if (delta.z > 0)
+            if (delta.y > 0)
             {
                 // This block should have an existance guarantee
                 return GridMap.GetBlock(currentPos).supportsClimbing();

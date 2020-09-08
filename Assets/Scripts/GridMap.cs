@@ -66,7 +66,7 @@ public static class GridMap
                 {
                     Vector3Int pos = new Vector3Int(x, y, z);
 
-                    if (y == x && y == 5)
+                    if (y == x && (z == 5 || z == 10))
                     {
                         SetBlock(pos, new StairUpDownBlock());
                     }

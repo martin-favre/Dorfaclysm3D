@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ChunkMeshGenerator : MonoBehaviour
 {
-    
+
     private List<Vector3> mNewSpriteVertices = new List<Vector3>();
     private List<int> mNewSpriteTriangles = new List<int>();
     private List<Vector2> mNewSpriteUV = new List<Vector2>();
@@ -15,19 +15,17 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     public const int ChunkSize = 8;
     private int mFaceCount;
-    private const float mUnit = 0.25f;
+    private const float mUnit = 0.5f;
 
     private MeshCollider mCollider;
 
     private Mesh mMesh;
 
-    private static float Unit => mUnit;
-
     public Vector3Int ChunkOrigin { set => mChunkOrigin = value; }
 
     private Vector3Int mChunkOrigin;
 
-    
+
 
     private void Awake()
     {
@@ -42,7 +40,7 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     void Update()
     {
-        
+
     }
 
     public void GenerateMesh()
@@ -55,7 +53,7 @@ public class ChunkMeshGenerator : MonoBehaviour
                 for (int z = mChunkOrigin.z; z < mChunkOrigin.z + ChunkSize; z++)
                 {
                     //This code will run for every block in the chunk
-                    Vector3Int currPos = new Vector3Int(x,y,z);
+                    Vector3Int currPos = new Vector3Int(x, y, z);
                     Block block = GetBlock(currPos);
                     if (block == null || block.Type != Block.BlockType.airBlock)
                     {
@@ -121,48 +119,20 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     void CubeTop(Vector3Int pos, Block block)
     {
-
         mNewSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
         mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
         mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
         mNewSpriteVertices.Add(pos);
-
-        Vector2 texturePos = new Vector2(0, 0);
-
-        //if (GetBlock(x, y, z) == 1)
-        //{
-        //    texturePos = tStone;
-        //}
-        //else if (GetBlock(x, y, z) == 2)
-        //{
-        //    texturePos = tGrassTop;
-        //}
-
-        Cube(texturePos);
-
+        Cube(block.GetTexturePos());
     }
 
     void CubeNorth(Vector3Int pos, Block block)
     {
-
         mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
         mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
         mNewSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
         mNewSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z + 1));
-
-        Vector2 texturePos = new Vector2(0, 0);
-
-        //if (GetBlock(x, y, z) == 1)
-        //{
-        //    texturePos = tStone;
-        //}
-        //else if (GetBlock(x, y, z) == 2)
-        //{
-        //    texturePos = tGrass;
-        //}
-
-        Cube(texturePos);
-
+        Cube(block.GetTexturePos());
     }
 
     void CubeEast(Vector3Int pos, Block block)
@@ -173,18 +143,7 @@ public class ChunkMeshGenerator : MonoBehaviour
         mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
         mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
 
-        Vector2 texturePos = new Vector2(0, 0);
-
-        //if (Block(x, y, z) == 1)
-        //{
-        //    texturePos = tStone;
-        //}
-        //else if (Block(x, y, z) == 2)
-        //{
-        //    texturePos = tGrass;
-        //}
-
-        Cube(texturePos);
+        Cube(block.GetTexturePos());
 
     }
 
@@ -195,19 +154,8 @@ public class ChunkMeshGenerator : MonoBehaviour
         mNewSpriteVertices.Add(pos);
         mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
         mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z));
+        Cube(block.GetTexturePos());
 
-        Vector2 texturePos = new Vector2(0, 0);
-
-        //if (Block(x, y, z) == 1)
-        //{
-        //    texturePos = tStone;
-        //}
-        //else if (Block(x, y, z) == 2)
-        //{
-        //    texturePos = tGrass;
-        //}
-
-        Cube(texturePos);
 
     }
 
@@ -218,19 +166,8 @@ public class ChunkMeshGenerator : MonoBehaviour
         mNewSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
         mNewSpriteVertices.Add(pos);
         mNewSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z));
+        Cube(block.GetTexturePos());
 
-        Vector2 texturePos = new Vector2(0, 0);
-
-        //if (Block(x, y, z) == 1)
-        //{
-        //    texturePos = tStone;
-        //}
-        //else if (Block(x, y, z) == 2)
-        //{
-        //    texturePos = tGrass;
-        //}
-
-        Cube(texturePos);
 
     }
 
@@ -241,19 +178,8 @@ public class ChunkMeshGenerator : MonoBehaviour
         mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z));
         mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
         mNewSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z + 1));
+        Cube(block.GetTexturePos());
 
-        Vector2 texturePos = new Vector2(0, 0);
-
-        //if (Block(x, y, z) == 1)
-        //{
-        //    texturePos = tStone;
-        //}
-        //else if (Block(x, y, z) == 2)
-        //{
-        //    texturePos = tGrass;
-        //}
-
-        Cube(texturePos);
 
     }
 

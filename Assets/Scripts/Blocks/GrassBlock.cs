@@ -4,7 +4,7 @@ using UnityEngine;
 [System.Serializable]
 public class GrassBlock : Block
 {
-    static readonly Vector2 texturePos = new Vector2(1, 0);
+    static readonly Vector2 texturePos = new Vector2(0, 1);
     public GrassBlock() : base(BlockType.grassBlock) { }
 
     public override object Clone()

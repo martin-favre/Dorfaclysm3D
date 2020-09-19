@@ -75,7 +75,7 @@ public class Astar
             result.failReason = FailReason.InvalidStartPosition;
             return Task.FromResult(result);
         }
-        if (!GridMap.IsBlockFree(end))
+        if (!GridMap.IsPosFree(end))
         {
             result.failReason = FailReason.InvalidEndPosition;
             return Task.FromResult(result);
@@ -154,7 +154,7 @@ public class Astar
 
     private bool IsStepValid(Vector3Int newPos, Vector3Int currentPos, Vector3Int delta)
     {
-        if (!GridMap.IsBlockFree(newPos)) return false;
+        if (!GridMap.IsPosFree(newPos)) return false;
         /**
         * If I am moving up, I want to know if my current block allows it
         *     i.e. does it allow climbing?

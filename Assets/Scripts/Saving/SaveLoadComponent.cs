@@ -22,7 +22,6 @@ public class SaveLoadComponent : MonoBehaviour
         GameobjectSaveData save = new GameobjectSaveData();
         if (mPrefabName != null)
         {
-
             save.prefabPath = mPrefabName;
             print(save.prefabPath);
             if (save.prefabPath.Length == 0) throw new Exception("Invalid prefab path on object " + gameObject.name);

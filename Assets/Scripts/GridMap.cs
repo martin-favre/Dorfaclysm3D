@@ -14,13 +14,13 @@ public static class GridMap
         public bool generated;
 
     }
-    static private Vector3Int mSize = Vector3Int.zero;
-    static private Dictionary<Vector3Int, Block> mBlocks = new Dictionary<Vector3Int, Block>();
-    static private bool mGenerated = false;
+    static Vector3Int mSize = Vector3Int.zero;
+    static Dictionary<Vector3Int, Block> mBlocks = new Dictionary<Vector3Int, Block>();
+    static bool mGenerated = false;
     const int mLockTimeout = 10000; // ms
-    static ReaderWriterLockSlim mLock = new ReaderWriterLockSlim();
+    static ReaderWriterLockSlim mBlockLock = new ReaderWriterLockSlim();
     static ReaderWriterLockSlim mCallbackLock = new ReaderWriterLockSlim();
-    static private List<Action<Vector3Int>> mRunOnBlockChange = new List<Action<Vector3Int>>();
+    static List<Action<Vector3Int>> mRunOnBlockChange = new List<Action<Vector3Int>>();
 
     static GridMap()
     {
@@ -37,7 +37,7 @@ public static class GridMap
         {
             data.blocks[new SerializeableVector3Int(key)] = (Block)mBlocks[key].Clone();
         }
-        mLock.ExitReadLock();
+        mBlockLock.ExitReadLock();
         return data;
     }
 
@@ -52,7 +52,7 @@ public static class GridMap
         {
             mBlocks[key.Get()] = (Block)save.blocks[key].Clone();
         }
-        mLock.ExitWriteLock();
+        mBlockLock.ExitWriteLock();
     }
 
     public static void GenerateMap(Vector3Int size)
@@ -111,21 +111,31 @@ public static class GridMap
         mCallbackLock.ExitWriteLock();
     }
 
-    static public bool IsPosInMap(Vector3Int pos){
+    static public bool IsPosInMap(Vector3Int pos)
+    {
         GridMap.EnterReadLock();
         bool result = mBlocks.ContainsKey(pos);
-        mLock.ExitReadLock();
+        mBlockLock.ExitReadLock();
         return result;
     }
 
-    static public bool IsBlockFree(Vector3Int pos){
+    static public bool IsPosFree(Vector3Int pos)
+    {
+        if (!IsBlockFree(pos)) return false;
+        return GridActorMap.IsPosFree(pos);
+    }
+
+    static private bool IsBlockFree(Vector3Int pos)
+    {
         Block block;
         TryGetBlock(pos, out block);
-        if(block != null){
+        if (block != null)
+        {
             return block.supportsWalkingThrough();
         }
         return false; // If we don't have a block, you can't walk there
     }
+
     static public bool TryGetBlock(Vector3Int pos, out Block block)
     {
         if (!IsGenerationDone())
@@ -135,7 +145,7 @@ public static class GridMap
         }
         GridMap.EnterReadLock();
         bool result = mBlocks.TryGetValue(pos, out block);
-        mLock.ExitReadLock();
+        mBlockLock.ExitReadLock();
         return result;
     }
 
@@ -149,19 +159,18 @@ public static class GridMap
         }
         return block;
     }
-
     static private void SetSize(Vector3Int size)
     {
         EnterWriteLock();
         mSize = size;
-        mLock.ExitWriteLock();
+        mBlockLock.ExitWriteLock();
     }
 
     static public Vector3Int GetSize()
     {
         GridMap.EnterReadLock();
         Vector3Int size = mSize;
-        mLock.ExitReadLock();
+        mBlockLock.ExitReadLock();
         return size;
     }
 
@@ -169,7 +178,7 @@ public static class GridMap
     {
         GridMap.EnterReadLock();
         bool inMap = mBlocks.ContainsKey(pos);
-        mLock.ExitReadLock();
+        mBlockLock.ExitReadLock();
         return inMap;
     }
 
@@ -191,19 +200,19 @@ public static class GridMap
 
     static void EnterWriteLock()
     {
-        if (!mLock.TryEnterWriteLock(mLockTimeout)) throw new Exception("Writelock timeout");
+        if (!mBlockLock.TryEnterWriteLock(mLockTimeout)) throw new Exception("Writelock timeout");
     }
 
     static void EnterReadLock()
     {
-        if (!mLock.TryEnterReadLock(mLockTimeout)) throw new Exception("Readlock timeout");
+        if (!mBlockLock.TryEnterReadLock(mLockTimeout)) throw new Exception("Readlock timeout");
     }
 
     static public void SetBlock(Vector3Int pos, Block block)
     {
         EnterWriteLock();
         mBlocks[pos] = block;
-        mLock.ExitWriteLock();
+        mBlockLock.ExitWriteLock();
         if (IsGenerationDone())
         {
             RunCallbacks(pos);

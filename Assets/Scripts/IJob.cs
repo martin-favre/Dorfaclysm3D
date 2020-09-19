@@ -1,0 +1,3 @@
+interface IJob{
+    bool Work();
+}

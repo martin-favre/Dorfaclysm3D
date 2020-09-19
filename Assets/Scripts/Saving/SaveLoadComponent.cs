@@ -8,8 +8,7 @@ using UnityEngine;
 public class SaveLoadComponent : MonoBehaviour
 {
     // Prefab must be located under Assets/Resources/
-    public string mPrefabName;
-    public string path;
+    public string prefabName;
 
     [System.Serializable]
     public struct GameobjectSaveData
@@ -20,9 +19,9 @@ public class SaveLoadComponent : MonoBehaviour
     public GameobjectSaveData GetSave()
     {
         GameobjectSaveData save = new GameobjectSaveData();
-        if (mPrefabName != null)
+        if (prefabName != null)
         {
-            save.prefabPath = mPrefabName;
+            save.prefabPath = prefabName;
             print(save.prefabPath);
             if (save.prefabPath.Length == 0) throw new Exception("Invalid prefab path on object " + gameObject.name);
         }
@@ -57,13 +56,13 @@ public class SaveLoadComponent : MonoBehaviour
         return saves;
     }
 
-    List<ISaveable> GetSaveableComponents()
+    List<ISaveableComponent> GetSaveableComponents()
     {
-        List<ISaveable> saveables = new List<ISaveable>();
+        List<ISaveableComponent> saveables = new List<ISaveableComponent>();
         var comps = GetComponents<Component>();
         foreach (Component c in comps)
         {
-            ISaveable saveable = c as ISaveable;
+            ISaveableComponent saveable = c as ISaveableComponent;
             if (saveable != null)
             {
                 saveables.Add(saveable);
@@ -81,7 +80,7 @@ public class SaveLoadComponent : MonoBehaviour
                 Type type = Type.GetType(save.GetAssemblyName());
                 Component comp = GetComponent(type);
                 if (comp == null) throw new Exception("No component of type " + type.ToString() + " on gameobject " + gameObject.name);
-                ISaveable saveable = (ISaveable)comp;
+                ISaveableComponent saveable = (ISaveableComponent)comp;
                 if (saveable == null) throw new Exception("Component of type " + type.ToString() + " on gameobject " + gameObject.name + " is not a ISaveable");
                 saveable.Load(save);
             }

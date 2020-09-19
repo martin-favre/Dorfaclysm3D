@@ -9,20 +9,20 @@ public static class SaveLoadManager
 {
     readonly static string savePath = Application.persistentDataPath + "/save.dat";
 
-    static List<SaveLoadComponent> mComps = new List<SaveLoadComponent>();
+    static List<SaveLoadComponent> components = new List<SaveLoadComponent>();
     public static void Register(SaveLoadComponent comp)
     {
-        mComps.Add(comp);
+        components.Add(comp);
     }
     public static void Unregister(SaveLoadComponent comp)
     {
-        mComps.Remove(comp);
+        components.Remove(comp);
     }
 
     public static void RequestSave()
     {
         List<SaveLoadComponent.GameobjectSaveData> saves = new List<SaveLoadComponent.GameobjectSaveData>();
-        foreach (var comp in mComps)
+        foreach (var comp in components)
         {
             saves.Add(comp.GetSave());
         }
@@ -34,7 +34,7 @@ public static class SaveLoadManager
 
     static private void DestroyAllGameobjects()
     {
-        foreach (var comp in mComps)
+        foreach (var comp in components)
         {
             GameObject.Destroy(comp.gameObject);
         }

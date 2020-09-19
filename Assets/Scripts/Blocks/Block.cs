@@ -14,13 +14,13 @@ public abstract class Block : System.ICloneable
     }
 
 
-    private BlockType mType = BlockType.invalid;
+    private BlockType type = BlockType.invalid;
 
-    public BlockType Type { get => mType; }
+    public BlockType Type { get => type; }
 
     public Block(BlockType type)
     {
-        mType = type;
+        this.type = type;
     }
 
     // Position in the spritesheet

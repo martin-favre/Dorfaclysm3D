@@ -4,16 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 
-public class GridMapComponent : MonoBehaviour, ISaveable
+public class GridMapComponent : MonoBehaviour, ISaveableComponent
 {
 
-    static readonly Vector3Int mChunkSize = new Vector3Int(8, 8, 8);
-    public Sprite mTexture;
-    public GameObject mChunkGeneratorPrefab;
+    static readonly Vector3Int chunkSize = new Vector3Int(8, 8, 8);
+    public GameObject chunkGeneratorPrefab;
 
-    Dictionary<Vector3Int, ChunkMeshGenerator> mChunkGenerators;
+    Dictionary<Vector3Int, ChunkMeshGenerator> chunkGenerators;
 
-    Task mGenerationTask;
+    Task generationTask;
     enum State
     {
         Created,
@@ -24,7 +23,7 @@ public class GridMapComponent : MonoBehaviour, ISaveable
     }
 
 
-    State mState = State.Created;
+    State state = State.Created;
     private void Awake()
     {
     }
@@ -32,41 +31,41 @@ public class GridMapComponent : MonoBehaviour, ISaveable
     void OnBlockUpdate(Vector3Int pos)
     {
         Vector3Int size = GridMap.GetSize();
-        Vector3Int chunkMapSize = new Vector3Int(size.x / mChunkSize.x, size.y / mChunkSize.y, size.z / mChunkSize.z);
-        int index = (pos.x + size.x * (pos.y + size.y * pos.z)) / (mChunkSize.x * mChunkSize.y * mChunkSize.z);
-        Vector3Int chunkPos = new Vector3Int(pos.x / mChunkSize.x, pos.y / mChunkSize.y, pos.z / mChunkSize.z);
+        Vector3Int chunkMapSize = new Vector3Int(size.x / chunkSize.x, size.y / chunkSize.y, size.z / chunkSize.z);
+        int index = (pos.x + size.x * (pos.y + size.y * pos.z)) / (chunkSize.x * chunkSize.y * chunkSize.z);
+        Vector3Int chunkPos = new Vector3Int(pos.x / chunkSize.x, pos.y / chunkSize.y, pos.z / chunkSize.z);
         Debug.Log("Update on block " + pos + " index " + index);
         foreach (Vector3Int delta in DeltaPositions.DeltaPositions3D)
         {
             Vector3Int neighbourPos = chunkPos + delta;
             ChunkMeshGenerator neighbour;
-            mChunkGenerators.TryGetValue(neighbourPos, out neighbour);
+            chunkGenerators.TryGetValue(neighbourPos, out neighbour);
             if (neighbour != null)
             {
                 neighbour.GenerateMesh();
             }
         }
-        mChunkGenerators[chunkPos].GenerateMesh();
+        chunkGenerators[chunkPos].GenerateMesh();
     }
 
     private void createMeshCreators()
     {
-        mChunkGenerators = new Dictionary<Vector3Int, ChunkMeshGenerator>();
+        chunkGenerators = new Dictionary<Vector3Int, ChunkMeshGenerator>();
         Vector3Int mapSize = GridMap.GetSize();
-        int xSize = mapSize.x / mChunkSize.x;
-        int ySize = mapSize.y / mChunkSize.y;
-        int zSize = mapSize.z / mChunkSize.z;
+        int xSize = mapSize.x / chunkSize.x;
+        int ySize = mapSize.y / chunkSize.y;
+        int zSize = mapSize.z / chunkSize.z;
         for (int x = 0; x < xSize; x++)
         {
             for (int y = 0; y < ySize; y++)
             {
                 for (int z = 0; z < zSize; z++)
                 {
-                    GameObject newObj = (GameObject)Instantiate(mChunkGeneratorPrefab, transform);
+                    GameObject newObj = (GameObject)Instantiate(chunkGeneratorPrefab, transform);
                     newObj.transform.position = Vector3.zero;
                     ChunkMeshGenerator comp = newObj.GetComponent<ChunkMeshGenerator>();
-                    comp.ChunkOrigin = new Vector3Int(x * mChunkSize.x, y * mChunkSize.y, z * mChunkSize.z);
-                    mChunkGenerators[new Vector3Int(x, y, z)] = comp;
+                    comp.ChunkOrigin = new Vector3Int(x * chunkSize.x, y * chunkSize.y, z * chunkSize.z);
+                    chunkGenerators[new Vector3Int(x, y, z)] = comp;
                 }
             }
         }
@@ -75,35 +74,35 @@ public class GridMapComponent : MonoBehaviour, ISaveable
 
     void OnDestroy()
     {
-        if (mGenerationTask != null)
+        if (generationTask != null)
         {
-            mGenerationTask.GetAwaiter().GetResult(); // Sleep until task done
+            generationTask.GetAwaiter().GetResult(); // Sleep until task done
         }
         GridMap.UnregisterCallbackOnBlockChange(OnBlockUpdate);
     }
 
     void Update()
     {
-        switch (mState)
+        switch (state)
         {
             case State.Created:
-                mState = State.GeneratingMap;
+                state = State.GeneratingMap;
                 Debug.Log("generating new map");
-                mGenerationTask = Task.Run(() => GridMap.GenerateMap(new Vector3Int(16, 16, 16)));
+                generationTask = Task.Run(() => GridMap.GenerateMap(new Vector3Int(16, 16, 16)));
                 break;
             case State.GeneratingMap:
             case State.LoadingMap:
                 if (GridMap.IsGenerationDone())
                 {
                     print("Map finished generation");
-                    mState = State.MapGenerated;
+                    state = State.MapGenerated;
                     GridMap.RegisterCallbackOnBlockChange(OnBlockUpdate);
                 }
                 break;
             case State.MapGenerated:
                 print("Creating meshGenerators");
                 createMeshCreators();
-                mState = State.MeshGeneratorsCreated;
+                state = State.MeshGeneratorsCreated;
                 break;
             case State.MeshGeneratorsCreated:
                 break;
@@ -130,7 +129,7 @@ public class GridMapComponent : MonoBehaviour, ISaveable
     public void Load(IComponentSaveData data)
     {
         SaveData save = (SaveData)data;
-        mState = State.LoadingMap;
-        mGenerationTask = Task.Run(() => GridMap.LoadSave(save.gridmap));
+        state = State.LoadingMap;
+        generationTask = Task.Run(() => GridMap.LoadSave(save.gridmap));
     }
 }

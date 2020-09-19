@@ -179,8 +179,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 570c3e675f2809ab191ccf0f5dc785ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mPathShowerPrefab: {fileID: 7599439802860830491, guid: bcb616db04322ecc0af755705f973f78, type: 3}
-  mTargetShowerPrefab: {fileID: 5169080711337900104, guid: d0b919d41998a0b1c8ecb663321d7591, type: 3}
+  pathShowerPrefab: {fileID: 7599439802860830491, guid: bcb616db04322ecc0af755705f973f78, type: 3}
+  targetShowerPrefab: {fileID: 5169080711337900104, guid: d0b919d41998a0b1c8ecb663321d7591, type: 3}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,6 +415,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1062947670, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
+      propertyPath: prefabName
+      value: GridMap
+      objectReference: {fileID: 0}
     - target: {fileID: 4646776401343316104, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
       propertyPath: m_Name
       value: GridMap
@@ -467,5 +471,9 @@ PrefabInstance:
       propertyPath: mTexture
       value: 
       objectReference: {fileID: 21300000, guid: 8f5ce4863b0d248dabeaa580cf6a29f5, type: 3}
+    - target: {fileID: 4646776401343316107, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
+      propertyPath: chunkGeneratorPrefab
+      value: 
+      objectReference: {fileID: 8299210676744196419, guid: 293376161a56e244f94cf7924d38d86e, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}

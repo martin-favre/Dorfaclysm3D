@@ -1,5 +1,5 @@
 
-public interface ISaveable
+public interface ISaveableComponent
 {
     IComponentSaveData Save();
     void Load(IComponentSaveData data);    

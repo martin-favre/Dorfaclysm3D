@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class AStarTester : MonoBehaviour
 {
-    Vector3Int mTargetBlock = Vector3Int.zero;
-    Task<Astar.Result> mAstarTask = null;
-    public GameObject mPathShowerPrefab;
-    public GameObject mTargetShowerPrefab;
-    List<GameObject> mPathShowerObjs;
+    Vector3Int targetBlock = Vector3Int.zero;
+    Task<Astar.Result> astarTask = null;
+    public GameObject pathShowerPrefab;
+    public GameObject targetShowerPrefab;
+    List<GameObject> pathShowerObjs;
     GameObject startBlock;
 
     GameObject endBlock;
@@ -18,18 +18,18 @@ public class AStarTester : MonoBehaviour
 
     void Start()
     {
-        mPathShowerObjs = new List<GameObject>();
+        pathShowerObjs = new List<GameObject>();
         for (int i = 0; i < 100; i++)
         {
-            GameObject g = (GameObject)Instantiate(mPathShowerPrefab, transform);
+            GameObject g = (GameObject)Instantiate(pathShowerPrefab, transform);
             g.SetActive(false);
-            mPathShowerObjs.Add(g);
+            pathShowerObjs.Add(g);
         }
 
-        startBlock = (GameObject)Instantiate(mTargetShowerPrefab, transform);
+        startBlock = (GameObject)Instantiate(targetShowerPrefab, transform);
         startBlock.GetComponent<MeshRenderer>().material.color = Color.red;
         startBlock.SetActive(false);
-        endBlock = (GameObject)Instantiate(mTargetShowerPrefab, transform);
+        endBlock = (GameObject)Instantiate(targetShowerPrefab, transform);
         endBlock.SetActive(false);
         endBlock.GetComponent<MeshRenderer>().material.color = Color.blue;
 
@@ -37,7 +37,7 @@ public class AStarTester : MonoBehaviour
 
     void Update()
     {
-        if (mAstarTask == null)
+        if (astarTask == null)
         {
             // foreach (GameObject g in mPathShowerObjs)
             // {
@@ -50,7 +50,7 @@ public class AStarTester : MonoBehaviour
             if (success)
             {
                 Vector3Int start = new Vector3Int(0, 1, 0);
-                mAstarTask = Task.Run(() => new Astar().CalculatePath(start, blockPos));
+                astarTask = Task.Run(() => new Astar().CalculatePath(start, blockPos));
                 startBlock.SetActive(true);
                 startBlock.transform.position = start;
                 endBlock.SetActive(true);
@@ -59,21 +59,21 @@ public class AStarTester : MonoBehaviour
         }
         else
         {
-            if (mAstarTask.IsCompleted)
+            if (astarTask.IsCompleted)
             {
-                foreach (GameObject g in mPathShowerObjs)
+                foreach (GameObject g in pathShowerObjs)
                 {
                     g.SetActive(false);
                 }
-                Astar.Result result = mAstarTask.Result;
+                Astar.Result result = astarTask.Result;
                 if (result.foundPath)
                 {
                     int gObjIndex = 0;
                     while (result.path.Count > 0)
                     {
                         Vector3Int step = result.path.Pop();
-                        mPathShowerObjs[gObjIndex].transform.position = step;
-                        mPathShowerObjs[gObjIndex].SetActive(true);
+                        pathShowerObjs[gObjIndex].transform.position = step;
+                        pathShowerObjs[gObjIndex].SetActive(true);
                         gObjIndex++;
                     }
                 }
@@ -83,7 +83,7 @@ public class AStarTester : MonoBehaviour
                 }
                 startBlock.SetActive(false);
                 endBlock.SetActive(false);
-                mAstarTask = null;
+                astarTask = null;
             }
         }
     }

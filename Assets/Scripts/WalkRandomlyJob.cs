@@ -6,20 +6,20 @@ using StateMachineCollection;
 
 public class WalkRandomlyJob : IJob
 {
-    private StateMachine mMachine;
+    private StateMachine machine;
 
     public WalkRandomlyJob(GridActor user)
     {
         Vector3Int size = GridMap.GetSize();
         Vector3Int pos = Helpers.GetRandom(Vector3Int.zero, size);
-        mMachine = new StateMachine(new WalkRandomlyState(user, pos));
+        machine = new StateMachine(new WalkRandomlyState(user, pos));
 
     }
 
     public bool Work()
     {
-        mMachine.Update();
-        return mMachine.IsTerminated();
+        machine.Update();
+        return machine.IsTerminated();
     }
 
     private class WalkRandomlyState : WalkingState

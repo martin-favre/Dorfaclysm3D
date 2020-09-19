@@ -5,39 +5,39 @@ using System;
 
 public class GridActorMap
 {
-    const int mLockTimeout = 10000; // ms
-    static ReaderWriterLockSlim mGridActorLock = new ReaderWriterLockSlim();
-    static Dictionary<Vector3Int, List<GridActor>> mGridActors = new Dictionary<Vector3Int, List<GridActor>>();
+    const int lockTimeout = 10000; // ms
+    static ReaderWriterLockSlim gridActorLock = new ReaderWriterLockSlim();
+    static Dictionary<Vector3Int, List<GridActor>> gridActors = new Dictionary<Vector3Int, List<GridActor>>();
     static public GridActor[] GetGridActors(Vector3Int pos)
     {
-        if (!mGridActorLock.TryEnterReadLock(mLockTimeout)) throw new Exception("Readlock timeout");
-        GridActor[] actors = mGridActors[pos].ToArray();
-        mGridActorLock.ExitReadLock();
+        if (!gridActorLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
+        GridActor[] actors = gridActors[pos].ToArray();
+        gridActorLock.ExitReadLock();
         return actors;
     }
 
     static public void RegisterGridActor(GridActor actor, Vector3Int pos)
     {
-        if (!mGridActorLock.TryEnterWriteLock(mLockTimeout)) throw new Exception("Writelock timeout");
-        if (!mGridActors.ContainsKey(pos))
+        if (!gridActorLock.TryEnterWriteLock(lockTimeout)) throw new Exception("Writelock timeout");
+        if (!gridActors.ContainsKey(pos))
         {
-            mGridActors[pos] = new List<GridActor>();
+            gridActors[pos] = new List<GridActor>();
         }
-        mGridActors[pos].Add(actor);
-        mGridActorLock.ExitWriteLock();
+        gridActors[pos].Add(actor);
+        gridActorLock.ExitWriteLock();
     }
     static public void UnregisterGridActor(GridActor actor, Vector3Int pos)
     {
-        if (!mGridActorLock.TryEnterWriteLock(mLockTimeout)) throw new Exception("Writelock timeout");
-        mGridActors[pos].Remove(actor);
-        mGridActorLock.ExitWriteLock();
+        if (!gridActorLock.TryEnterWriteLock(lockTimeout)) throw new Exception("Writelock timeout");
+        gridActors[pos].Remove(actor);
+        gridActorLock.ExitWriteLock();
     }
 
     static public bool IsPosFree(Vector3Int pos)
     {
-        if (!mGridActorLock.TryEnterReadLock(mLockTimeout)) throw new Exception("Readlock timeout");
+        if (!gridActorLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
         List<GridActor> actors;
-        bool success = mGridActors.TryGetValue(pos, out actors);
+        bool success = gridActors.TryGetValue(pos, out actors);
         bool retVal = true;
         if (success)
         {
@@ -50,7 +50,7 @@ public class GridActorMap
                 }
             }
         }
-        mGridActorLock.ExitReadLock();
+        gridActorLock.ExitReadLock();
         return retVal;
     }
 

@@ -7,25 +7,25 @@ namespace StateMachineCollection
 {
     public class WaitingState : State
     {
-        State mNextState;
-        readonly float mWaitDurationSecs;
-        readonly float mStartTime;
+        State nextState;
+        readonly float waitDurationSecs;
+        readonly float startTime;
 
         // If no nextState is specified the machine will terminate on state transition instead
 
         public WaitingState(float waitDurationSecs, State nextState)
         {
-            mWaitDurationSecs = waitDurationSecs;
-            mNextState = nextState;
-            mStartTime = Time.time;
+            this.waitDurationSecs = waitDurationSecs;
+            this.nextState = nextState;
+            startTime = Time.time;
         }
         public override State OnDuring()
         {
-            if (mStartTime + mWaitDurationSecs < Time.time)
+            if (startTime + waitDurationSecs < Time.time)
             {
-                if (mNextState != null)
+                if (nextState != null)
                 {
-                    return mNextState;
+                    return nextState;
                 }
                 else
                 {

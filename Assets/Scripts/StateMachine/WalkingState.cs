@@ -5,26 +5,26 @@ namespace StateMachineCollection
 {
     public abstract class WalkingState : State
     {
-        StateMachine mMachine;
-        readonly Task<Astar.Result> mAstarTask;
-        readonly GridActor mUser;
-        readonly Vector3Int mTargetPos;
-        readonly float mTimePerStepSecs;
+        StateMachine machine;
+        readonly Task<Astar.Result> aStarTask;
+        readonly GridActor user;
+        readonly Vector3Int targetPos;
+        readonly float timePerStepSecs;
 
         public WalkingState(GridActor user, Vector3Int targetPos, float secPerStep)
         {
-            mUser = user;
-            mTargetPos = targetPos;
-            mAstarTask = Task.Run(() => new Astar().CalculatePath(mUser.GetPos(), targetPos));
-            mMachine = new StateMachine(new AwaitingAstarState(this));
-            mTimePerStepSecs = secPerStep;
+            this.user = user;
+            this.targetPos = targetPos;
+            aStarTask = Task.Run(() => new Astar().CalculatePath(this.user.GetPos(), targetPos));
+            machine = new StateMachine(new AwaitingAstarState(this));
+            timePerStepSecs = secPerStep;
         }
         public override State OnDuring()
         {
-            mMachine.Update();
-            if(mMachine.IsTerminated()){
+            machine.Update();
+            if(machine.IsTerminated()){
                 // did we find a path and did we go all the way there?
-                if(mAstarTask.Result.foundPath && mAstarTask.Result.path.Count == 0){
+                if(aStarTask.Result.foundPath && aStarTask.Result.path.Count == 0){
                     return OnReachedTarget();
                 } else {
                     return OnPathFindFail();
@@ -37,7 +37,7 @@ namespace StateMachineCollection
         public abstract State OnPathFindFail();
 
         public Astar.FailReason GetFailReason(){
-            return mAstarTask.Result.failReason;
+            return aStarTask.Result.failReason;
         }
 
         private class AwaitingAstarState : State
@@ -50,9 +50,9 @@ namespace StateMachineCollection
             }
             public override State OnDuring()
             {
-                if (mParent.mAstarTask.IsCompleted)
+                if (mParent.aStarTask.IsCompleted)
                 {
-                    if (mParent.mAstarTask.Result.foundPath)
+                    if (mParent.aStarTask.Result.foundPath)
                     {
                         return new TakeStepState(mParent);
                     }
@@ -76,11 +76,11 @@ namespace StateMachineCollection
 
             public override State OnDuring()
             {
-                if (mParent.mAstarTask.Result.path.Count > 0)
+                if (mParent.aStarTask.Result.path.Count > 0)
                 {
-                    Vector3Int nextPos = mParent.mAstarTask.Result.path.Pop();
-                    mParent.mUser.Move(nextPos);
-                    return new WaitingState(mParent.mTimePerStepSecs, new TakeStepState(mParent));
+                    Vector3Int nextPos = mParent.aStarTask.Result.path.Pop();
+                    mParent.user.Move(nextPos);
+                    return new WaitingState(mParent.timePerStepSecs, new TakeStepState(mParent));
                 } 
                 TerminateMachine();
                 return StateMachine.NoTransition();

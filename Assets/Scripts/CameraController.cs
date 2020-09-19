@@ -3,25 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour, ISaveable
+public class CameraController : MonoBehaviour, ISaveableComponent
 {
 
-    public float mTranslationSpeed = 1f;
-    public float mLookSpeedH = 4f;
-    public float mLookSpeedV = 4f;
-    public float mZomSpeed = 4f;
-    public float mDragSpeed = 12f;
+    public float translationSpeed = 1f;
+    public float lookSpeedH = 4f;
+    public float lookSpeedV = 4f;
+    public float zoomSpeed = 4f;
+    public float dragSpeed = 12f;
 
-    float mYaw = 0;
-    float mPitch = 0;
+    float yaw = 0;
+    float pitch = 0;
 
     Camera mCamera;
     // Start is called before the first frame update
     void Start()
     {
         mCamera = GetComponent<Camera>();
-        mPitch = transform.eulerAngles.x;
-        mYaw = transform.eulerAngles.y;
+        pitch = transform.eulerAngles.x;
+        yaw = transform.eulerAngles.y;
     }
 
     // Update is called once per frame
@@ -45,20 +45,20 @@ public class CameraController : MonoBehaviour, ISaveable
         //Look around with Right Mouse
         if (Input.GetMouseButton(1))
         {
-            mYaw += mLookSpeedH * Input.GetAxis("Mouse X");
-            mPitch -= mLookSpeedV * Input.GetAxis("Mouse Y");
+            yaw += lookSpeedH * Input.GetAxis("Mouse X");
+            pitch -= lookSpeedV * Input.GetAxis("Mouse Y");
 
-            transform.eulerAngles = new Vector3(mPitch, mYaw, 0f);
+            transform.eulerAngles = new Vector3(pitch, yaw, 0f);
         }
 
         //drag camera around with Middle Mouse
         if (Input.GetMouseButton(2))
         {
-            transform.Translate(-Input.GetAxisRaw("Mouse X") * Time.deltaTime * mDragSpeed, -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * mDragSpeed, 0);
+            transform.Translate(-Input.GetAxisRaw("Mouse X") * Time.deltaTime * dragSpeed, -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * dragSpeed, 0);
         }
 
         //Zoom in and out with Mouse Wheel
-        transform.Translate(0, 0, Input.GetAxis("Mouse ScrollWheel") * mZomSpeed, Space.Self);
+        transform.Translate(0, 0, Input.GetAxis("Mouse ScrollWheel") * zoomSpeed, Space.Self);
 
     }
 
@@ -76,7 +76,7 @@ public class CameraController : MonoBehaviour, ISaveable
     {
         if (mCamera)
         {
-            mCamera.transform.Translate(dir * mTranslationSpeed);
+            mCamera.transform.Translate(dir * translationSpeed);
         }
     }
 

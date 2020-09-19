@@ -4,12 +4,12 @@ using UnityEngine;
 public class GridActor
 {
 
-    GameObject mOwner;
-    Vector3Int mGridPosition;
+    GameObject owner;
+    Vector3Int gridPosition;
     public GridActor(GameObject owner, Vector3Int gridPosition)
     {
-        mOwner = owner;
-        mGridPosition = gridPosition;
+        this.owner = owner;
+        this.gridPosition = gridPosition;
         RegisterMe();
     }
 
@@ -21,7 +21,7 @@ public class GridActor
     public void Move(Vector3Int newPos)
     {
         UnregisterMe();
-        mGridPosition = newPos;
+        gridPosition = newPos;
         RegisterMe();
     }
 
@@ -31,20 +31,20 @@ public class GridActor
     }
     public GameObject GetOwner()
     {
-        return mOwner;
+        return owner;
     }
 
     public Vector3Int GetPos(){
-        return mGridPosition;
+        return gridPosition;
     }
 
     void RegisterMe()
     {
-        GridActorMap.RegisterGridActor(this, mGridPosition);
+        GridActorMap.RegisterGridActor(this, gridPosition);
     }
     void UnregisterMe()
     {
-        GridActorMap.UnregisterGridActor(this, mGridPosition);
+        GridActorMap.UnregisterGridActor(this, gridPosition);
     }
 
 

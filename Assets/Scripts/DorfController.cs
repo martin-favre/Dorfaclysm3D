@@ -6,10 +6,10 @@ using UnityEngine;
 
 public class DorfController : MonoBehaviour
 {
-    GridActor mGridActor;
+    GridActor gridActor;
     const string prefabName = "Prefabs/Dorf";
     static GameObject prefabObj;
-    StateMachine mStateMachine;
+    StateMachine stateMachine;
     private DorfController() { }
 
     public static DorfController InstantiateDorf(Vector3Int spawnPos)
@@ -23,20 +23,20 @@ public class DorfController : MonoBehaviour
         if (!obj) throw new System.Exception("Could not instantiate prefab " + prefabName);
         DorfController dorf = obj.GetComponent<DorfController>();
         if (!dorf) throw new System.Exception("No DorfController Component on " + prefabName);
-        dorf.mGridActor = new GridActor(obj, spawnPos);
+        dorf.gridActor = new GridActor(obj, spawnPos);
         return dorf;
     }
 
     void Start()
     {
-        mStateMachine = new StateMachine(new ChoosingJobState(mGridActor));
+        stateMachine = new StateMachine(new ChoosingJobState(gridActor));
     }
 
     void Update()
     {
-        if (!mStateMachine.IsTerminated())
+        if (!stateMachine.IsTerminated())
         {
-            mStateMachine.Update();
+            stateMachine.Update();
         }
         else
         {
@@ -44,7 +44,7 @@ public class DorfController : MonoBehaviour
         }
 
         // Update the visual position
-        transform.position = mGridActor.GetPos() + new Vector3(.5f, 1, .5f);
+        transform.position = gridActor.GetPos() + new Vector3(.5f, 1, .5f);
     }
 
     private class ChoosingJobState : State

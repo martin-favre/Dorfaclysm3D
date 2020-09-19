@@ -6,31 +6,31 @@ using UnityEngine;
 public class ChunkMeshGenerator : MonoBehaviour
 {
 
-    private List<Vector3> mNewSpriteVertices = new List<Vector3>();
-    private List<int> mNewSpriteTriangles = new List<int>();
-    private List<Vector2> mNewSpriteUV = new List<Vector2>();
+    private List<Vector3> newSpriteVertices = new List<Vector3>();
+    private List<int> newSpriteTriangles = new List<int>();
+    private List<Vector2> newSpriteUV = new List<Vector2>();
 
-    private List<Vector3> mNewCollVertices = new List<Vector3>();
-    private List<int> mNewCollTriangles = new List<int>();
+    private List<Vector3> newCollVertices = new List<Vector3>();
+    private List<int> newCollTriangles = new List<int>();
 
-    public const int ChunkSize = 8;
-    private int mFaceCount;
-    private const float mUnit = 0.5f;
+    public const int chunkSize = 8;
+    private int faceCount;
+    private const float unit = 0.5f;
 
-    private MeshCollider mCollider;
+    private MeshCollider meshCollider;
 
-    private Mesh mMesh;
+    private Mesh mesh;
 
-    public Vector3Int ChunkOrigin { set => mChunkOrigin = value; }
+    public Vector3Int ChunkOrigin { set => chunkOrigin = value; }
 
-    private Vector3Int mChunkOrigin;
+    private Vector3Int chunkOrigin;
 
 
 
     private void Awake()
     {
-        mMesh = GetComponent<MeshFilter>().mesh;
-        mCollider = GetComponent<MeshCollider>();
+        mesh = GetComponent<MeshFilter>().mesh;
+        meshCollider = GetComponent<MeshCollider>();
     }
 
     void Start()
@@ -46,11 +46,11 @@ public class ChunkMeshGenerator : MonoBehaviour
     public void GenerateMesh()
     {
 
-        for (int x = mChunkOrigin.x; x < mChunkOrigin.x + ChunkSize; x++)
+        for (int x = chunkOrigin.x; x < chunkOrigin.x + chunkSize; x++)
         {
-            for (int y = mChunkOrigin.y; y < mChunkOrigin.y + ChunkSize; y++)
+            for (int y = chunkOrigin.y; y < chunkOrigin.y + chunkSize; y++)
             {
-                for (int z = mChunkOrigin.z; z < mChunkOrigin.z + ChunkSize; z++)
+                for (int z = chunkOrigin.z; z < chunkOrigin.z + chunkSize; z++)
                 {
                     //This code will run for every block in the chunk
                     Vector3Int currPos = new Vector3Int(x, y, z);
@@ -119,29 +119,29 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     void CubeTop(Vector3Int pos, Block block)
     {
-        mNewSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
-        mNewSpriteVertices.Add(pos);
+        newSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
+        newSpriteVertices.Add(pos);
         Cube(block.GetTexturePos());
     }
 
     void CubeNorth(Vector3Int pos, Block block)
     {
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
-        mNewSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
-        mNewSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z + 1));
         Cube(block.GetTexturePos());
     }
 
     void CubeEast(Vector3Int pos, Block block)
     {
 
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z));
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
 
         Cube(block.GetTexturePos());
 
@@ -150,10 +150,10 @@ public class ChunkMeshGenerator : MonoBehaviour
     void CubeSouth(Vector3Int pos, Block block)
     {
 
-        mNewSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z));
-        mNewSpriteVertices.Add(pos);
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z));
+        newSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z));
+        newSpriteVertices.Add(pos);
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z));
         Cube(block.GetTexturePos());
 
 
@@ -162,10 +162,10 @@ public class ChunkMeshGenerator : MonoBehaviour
     void CubeWest(Vector3Int pos, Block block)
     {
 
-        mNewSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z + 1));
-        mNewSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
-        mNewSpriteVertices.Add(pos);
-        mNewSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z));
+        newSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
+        newSpriteVertices.Add(pos);
+        newSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z));
         Cube(block.GetTexturePos());
 
 
@@ -174,10 +174,10 @@ public class ChunkMeshGenerator : MonoBehaviour
     void CubeBot(Vector3Int pos, Block block)
     {
 
-        mNewSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z));
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z));
-        mNewSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
-        mNewSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z));
+        newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
+        newSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z + 1));
         Cube(block.GetTexturePos());
 
 
@@ -186,37 +186,37 @@ public class ChunkMeshGenerator : MonoBehaviour
     void Cube(Vector2 texturePos)
     {
 
-        mNewSpriteTriangles.Add(mFaceCount * 4); //1
-        mNewSpriteTriangles.Add(mFaceCount * 4 + 1); //2
-        mNewSpriteTriangles.Add(mFaceCount * 4 + 2); //3
-        mNewSpriteTriangles.Add(mFaceCount * 4); //1
-        mNewSpriteTriangles.Add(mFaceCount * 4 + 2); //3
-        mNewSpriteTriangles.Add(mFaceCount * 4 + 3); //4
+        newSpriteTriangles.Add(faceCount * 4); //1
+        newSpriteTriangles.Add(faceCount * 4 + 1); //2
+        newSpriteTriangles.Add(faceCount * 4 + 2); //3
+        newSpriteTriangles.Add(faceCount * 4); //1
+        newSpriteTriangles.Add(faceCount * 4 + 2); //3
+        newSpriteTriangles.Add(faceCount * 4 + 3); //4
 
-        mNewSpriteUV.Add(new Vector2(mUnit * texturePos.x + mUnit, mUnit * texturePos.y));
-        mNewSpriteUV.Add(new Vector2(mUnit * texturePos.x + mUnit, mUnit * texturePos.y + mUnit));
-        mNewSpriteUV.Add(new Vector2(mUnit * texturePos.x, mUnit * texturePos.y + mUnit));
-        mNewSpriteUV.Add(new Vector2(mUnit * texturePos.x, mUnit * texturePos.y));
+        newSpriteUV.Add(new Vector2(unit * texturePos.x + unit, unit * texturePos.y));
+        newSpriteUV.Add(new Vector2(unit * texturePos.x + unit, unit * texturePos.y + unit));
+        newSpriteUV.Add(new Vector2(unit * texturePos.x, unit * texturePos.y + unit));
+        newSpriteUV.Add(new Vector2(unit * texturePos.x, unit * texturePos.y));
 
-        mFaceCount++; // Add this line
+        faceCount++; // Add this line
     }
     void UpdateMesh()
     {
 
-        mMesh.Clear();
-        mMesh.vertices = mNewSpriteVertices.ToArray();
-        mMesh.uv = mNewSpriteUV.ToArray();
-        mMesh.triangles = mNewSpriteTriangles.ToArray();
-        mMesh.Optimize();
-        mMesh.RecalculateNormals();
+        mesh.Clear();
+        mesh.vertices = newSpriteVertices.ToArray();
+        mesh.uv = newSpriteUV.ToArray();
+        mesh.triangles = newSpriteTriangles.ToArray();
+        mesh.Optimize();
+        mesh.RecalculateNormals();
 
-        mCollider.sharedMesh = null;
-        mCollider.sharedMesh = mMesh;
+        meshCollider.sharedMesh = null;
+        meshCollider.sharedMesh = mesh;
 
-        mNewSpriteVertices.Clear();
-        mNewSpriteUV.Clear();
-        mNewSpriteTriangles.Clear();
-        mFaceCount = 0;
+        newSpriteVertices.Clear();
+        newSpriteUV.Clear();
+        newSpriteTriangles.Clear();
+        faceCount = 0;
 
     }
 

@@ -8,24 +8,24 @@ namespace StateMachineCollection
     public abstract class State
     {
 
-        private bool mMachineTerminated = false;
+        private bool machineTerminated = false;
         public virtual void OnEntry() { }
         public abstract State OnDuring();
         public virtual void OnExit() { }
         protected void TerminateMachine()
         {
-            mMachineTerminated = true;
+            machineTerminated = true;
         }
         public bool IsMachineTerminated()
         {
-            return mMachineTerminated;
+            return machineTerminated;
         }
     }
 
     public class StateMachine
     {
 
-        State mActiveState;
+        State activeState;
         public StateMachine(State initialState)
         {
             TransitToState(initialState);
@@ -33,17 +33,17 @@ namespace StateMachineCollection
 
         public bool IsTerminated()
         {
-            return mActiveState.IsMachineTerminated();
+            return activeState.IsMachineTerminated();
         }
 
         public void Update()
         {
-            if (!mActiveState.IsMachineTerminated())
+            if (!activeState.IsMachineTerminated())
             {
-                State nextState = mActiveState.OnDuring();
+                State nextState = activeState.OnDuring();
                 if (nextState != null)
                 {
-                    mActiveState.OnExit();
+                    activeState.OnExit();
                     TransitToState(nextState);
                 }
 
@@ -52,10 +52,10 @@ namespace StateMachineCollection
 
         private void TransitToState(State nextState)
         {
-            mActiveState = nextState;
-            if (!mActiveState.IsMachineTerminated())
+            activeState = nextState;
+            if (!activeState.IsMachineTerminated())
             {
-                mActiveState.OnEntry();
+                activeState.OnEntry();
             }
 
         }

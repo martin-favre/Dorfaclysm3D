@@ -53,7 +53,7 @@ public class DorfController : MonoBehaviour, ISaveableComponent
         }
 
         // Update the visual position
-        transform.position = gridActor.GetPos() + new Vector3(.5f, 1, .5f);
+        // transform.position = gridActor.GetPos() + new Vector3(.5f, 1, .5f);
     }
 
     public IGenericSaveData Save()

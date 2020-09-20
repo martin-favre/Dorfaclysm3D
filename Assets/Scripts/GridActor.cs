@@ -10,8 +10,8 @@ public class GridActor : MonoBehaviour, ISaveableComponent
 
     }
 
-    GameObject owner;
-    Vector3Int gridPosition;
+    // public to be viewed in inspector
+    public Vector3Int gridPosition;
     bool registered = false;
 
     void Start()
@@ -35,10 +35,6 @@ public class GridActor : MonoBehaviour, ISaveableComponent
     public bool IsBlocking()
     {
         return false;
-    }
-    public GameObject GetOwner()
-    {
-        return owner;
     }
 
     public Vector3Int GetPos()

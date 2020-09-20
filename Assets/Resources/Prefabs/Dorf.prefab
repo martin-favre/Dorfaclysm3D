@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1168987304}
   - component: {fileID: -2174884639828253386}
   - component: {fileID: 1175751084443025799}
+  - component: {fileID: 3197654349320280901}
   m_Layer: 0
   m_Name: Dorf
   m_TagString: Untagged
@@ -121,3 +122,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73d7a994699b86940b738c0d08252504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gridPosition: {x: 0, y: 0, z: 0}
+--- !u!114 &3197654349320280901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7398496479924756664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2ba9956d299aade2acd516b666ec2f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5

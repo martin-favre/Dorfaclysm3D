@@ -1,40 +1,25 @@
 
 using UnityEngine;
 
-public class GridActor
+public class GridActor : MonoBehaviour, ISaveableComponent
 {
     [System.Serializable]
-    public class SaveData
+    public class SaveData : GenericSaveData<GridActor>
     {
         public SerializeableVector3Int position;
-    }
 
+    }
 
     GameObject owner;
     Vector3Int gridPosition;
-    public GridActor(GameObject owner, Vector3Int gridPosition)
+    bool registered = false;
+
+    void Start()
     {
-        this.owner = owner;
-        this.gridPosition = gridPosition;
         RegisterMe();
     }
 
-    public GridActor(GameObject owner, SaveData save) {
-        SaveData savedata = (SaveData) save;
-        gridPosition = savedata.position.Get();
-        RegisterMe();
-    }   
-
-
-    public SaveData GetSave()
-    {
-        SaveData save = new SaveData();
-        save.position = new SerializeableVector3Int(gridPosition);
-        return save;
-    }
-
-
-    ~GridActor()
+    void OnDestroy()
     {
         UnregisterMe();
     }
@@ -44,6 +29,7 @@ public class GridActor
         UnregisterMe();
         gridPosition = newPos;
         RegisterMe();
+
     }
 
     public bool IsBlocking()
@@ -63,11 +49,26 @@ public class GridActor
     void RegisterMe()
     {
         GridActorMap.RegisterGridActor(this, gridPosition);
+        registered = true;
     }
     void UnregisterMe()
     {
-        GridActorMap.UnregisterGridActor(this, gridPosition);
+        if (registered)
+        {
+            GridActorMap.UnregisterGridActor(this, gridPosition);
+        }
     }
 
+    public IGenericSaveData Save()
+    {
+        SaveData save = new SaveData();
+        save.position = new SerializeableVector3Int(gridPosition);
+        return save;
+    }
 
+    public void Load(IGenericSaveData data)
+    {
+        SaveData savedata = (SaveData)data;
+        Move(savedata.position.Get());
+    }
 }

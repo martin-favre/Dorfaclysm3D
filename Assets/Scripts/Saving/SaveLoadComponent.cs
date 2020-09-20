@@ -52,6 +52,7 @@ public class SaveLoadComponent : MonoBehaviour
         foreach (var saveable in saveables)
         {
             saves[i] = saveable.Save();
+            i++;
         }
         return saves;
     }
@@ -86,7 +87,7 @@ public class SaveLoadComponent : MonoBehaviour
             }
             catch (Exception e)
             {
-                Debug.LogError("Error when loading component: " + e.ToString());
+                Debug.LogError("Error when loading component due to " + e.ToString());
             }
         }
 

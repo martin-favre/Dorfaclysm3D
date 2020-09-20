@@ -24,6 +24,7 @@ namespace StateMachineCollection
 
         public WalkingState(GridActor user, Vector3Int targetPos, float secPerStep)
         {
+            Debug.Assert(user != null);
             this.user = user;
             this.targetPos = targetPos;
 

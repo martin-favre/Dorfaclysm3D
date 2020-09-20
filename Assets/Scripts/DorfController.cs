@@ -11,7 +11,6 @@ public class DorfController : MonoBehaviour, ISaveableComponent
     private class SaveData : GenericSaveData<DorfController>
     {
         public IGenericSaveData currentStateSave;
-        public GridActor.SaveData gridActorSave;
     }
 
     GridActor gridActor;
@@ -31,14 +30,15 @@ public class DorfController : MonoBehaviour, ISaveableComponent
         if (!obj) throw new System.Exception("Could not instantiate prefab " + prefabName);
         DorfController dorf = obj.GetComponent<DorfController>();
         if (!dorf) throw new System.Exception("No DorfController Component on " + prefabName);
-        dorf.gridActor = new GridActor(obj, spawnPos);
+        dorf.gridActor = dorf.GetComponent<GridActor>();
+        if (!dorf.gridActor) throw new System.Exception("No GridActor on prefab " + prefabName);
+        dorf.gridActor.Move(spawnPos);
         dorf.stateMachine = new StateMachine(new ChoosingJobState(dorf.gridActor));
         return dorf;
     }
 
     void Start()
     {
-
     }
 
     void Update()
@@ -60,14 +60,13 @@ public class DorfController : MonoBehaviour, ISaveableComponent
     {
         SaveData save = new SaveData();
         save.currentStateSave = stateMachine.GetSave();
-        save.gridActorSave = gridActor.GetSave();
         return save;
     }
 
     public void Load(IGenericSaveData data)
     {
+        gridActor = GetComponent<GridActor>();
         SaveData save = (SaveData)data;
-        this.gridActor = new GridActor(gameObject, save.gridActorSave);
         this.stateMachine = new StateMachine(LoadState(save.currentStateSave));
     }
 
@@ -90,16 +89,29 @@ public class DorfController : MonoBehaviour, ISaveableComponent
 
     private class ChoosingJobState : State
     {
+        [System.Serializable]
+        private class SaveData : GenericSaveData<ChoosingJobState>
+        {
+            public IGenericSaveData parent;
+        }
+
         GridActor actor;
         public ChoosingJobState(GridActor actor)
         {
             this.actor = actor;
         }
 
-        public ChoosingJobState(GridActor actor, IGenericSaveData save) : base(save)
+        public ChoosingJobState(GridActor actor, IGenericSaveData save) : base(((SaveData)save).parent)
         {
             this.actor = actor;
         }
+        public override IGenericSaveData GetSave()
+        {
+            SaveData save = new SaveData();
+            save.parent = base.GetSave();
+            return save;
+        }
+
 
         public override State OnDuring()
         {

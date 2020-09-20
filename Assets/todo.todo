@@ -9,10 +9,10 @@
     ✔ Port GridActor @done(20-09-19 11:25)
     ☐ Port RequestSystem
     ✔ Port Jobsystem @done(20-09-19 11:25)
-    ☐ Make DorfController Save/Loadable
+    ✔ Make DorfController Save/Loadable @done(20-09-20 21:12)
     ☐ Make Dorfs mine blocks
         ☐ Be able to shift which y-level we're looking at by scrolling
         ☐ Post MiningRequest when clicking a block
         ☐ Create MiningJob
         ☐ Start Miningjob when MiningRequest is availables
-☐ Make DorfControllers movement smooth
+✔ Make DorfControllers movement smooth @done(20-09-20 21:11)

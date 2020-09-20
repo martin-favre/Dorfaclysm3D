@@ -1,6 +1,6 @@
 
 public interface ISaveableComponent
 {
-    IComponentSaveData Save();
-    void Load(IComponentSaveData data);    
+    IGenericSaveData Save();
+    void Load(IGenericSaveData data);    
 }

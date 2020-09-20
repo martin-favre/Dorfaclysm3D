@@ -14,7 +14,7 @@ public class SaveLoadComponent : MonoBehaviour
     public struct GameobjectSaveData
     {
         public string prefabPath;
-        public IComponentSaveData[] saves;
+        public IGenericSaveData[] saves;
     }
     public GameobjectSaveData GetSave()
     {
@@ -44,10 +44,10 @@ public class SaveLoadComponent : MonoBehaviour
         SaveLoadManager.Unregister(this);
     }
 
-    IComponentSaveData[] GetSavesFromComponents()
+    IGenericSaveData[] GetSavesFromComponents()
     {
         var saveables = GetSaveableComponents();
-        IComponentSaveData[] saves = new IComponentSaveData[saveables.Count];
+        IGenericSaveData[] saves = new IGenericSaveData[saveables.Count];
         int i = 0;
         foreach (var saveable in saveables)
         {
@@ -77,7 +77,7 @@ public class SaveLoadComponent : MonoBehaviour
         {
             try
             {
-                Type type = Type.GetType(save.GetAssemblyName());
+                Type type = save.GetSaveType();
                 Component comp = GetComponent(type);
                 if (comp == null) throw new Exception("No component of type " + type.ToString() + " on gameobject " + gameObject.name);
                 ISaveableComponent saveable = (ISaveableComponent)comp;

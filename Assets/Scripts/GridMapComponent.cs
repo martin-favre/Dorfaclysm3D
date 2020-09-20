@@ -110,23 +110,19 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     }
 
     [System.Serializable]
-    private class SaveData : IComponentSaveData
+    private class SaveData : GenericSaveData<GridMapComponent>
     {
-        public string GetAssemblyName()
-        {
-            return typeof(GridMapComponent).AssemblyQualifiedName;
-        }
         public object gridmap;
     }
 
-    public IComponentSaveData Save()
+    public IGenericSaveData Save()
     {
         SaveData save = new SaveData();
         save.gridmap = GridMap.GetSave();
         return save;
     }
 
-    public void Load(IComponentSaveData data)
+    public void Load(IGenericSaveData data)
     {
         SaveData save = (SaveData)data;
         state = State.LoadingMap;

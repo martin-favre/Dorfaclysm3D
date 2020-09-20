@@ -114,5 +114,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c88621feccaf8d8b1a2af97760bcc5be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mPrefabName: Main Camera
-  path: 
+  prefabName: Main Camera

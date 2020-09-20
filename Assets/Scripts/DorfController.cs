@@ -1,11 +1,19 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StateMachineCollection;
 using UnityEngine;
 
-public class DorfController : MonoBehaviour
+public class DorfController : MonoBehaviour, ISaveableComponent
 {
+    [System.Serializable]
+    private class SaveData : GenericSaveData<DorfController>
+    {
+        public IGenericSaveData currentStateSave;
+        public GridActor.SaveData gridActorSave;
+    }
+
     GridActor gridActor;
     const string prefabName = "Prefabs/Dorf";
     static GameObject prefabObj;
@@ -24,12 +32,13 @@ public class DorfController : MonoBehaviour
         DorfController dorf = obj.GetComponent<DorfController>();
         if (!dorf) throw new System.Exception("No DorfController Component on " + prefabName);
         dorf.gridActor = new GridActor(obj, spawnPos);
+        dorf.stateMachine = new StateMachine(new ChoosingJobState(dorf.gridActor));
         return dorf;
     }
 
     void Start()
     {
-        stateMachine = new StateMachine(new ChoosingJobState(gridActor));
+
     }
 
     void Update()
@@ -47,32 +56,96 @@ public class DorfController : MonoBehaviour
         transform.position = gridActor.GetPos() + new Vector3(.5f, 1, .5f);
     }
 
+    public IGenericSaveData Save()
+    {
+        SaveData save = new SaveData();
+        save.currentStateSave = stateMachine.GetSave();
+        save.gridActorSave = gridActor.GetSave();
+        return save;
+    }
+
+    public void Load(IGenericSaveData data)
+    {
+        SaveData save = (SaveData)data;
+        this.gridActor = new GridActor(gameObject, save.gridActorSave);
+        this.stateMachine = new StateMachine(LoadState(save.currentStateSave));
+    }
+
+    private State LoadState(IGenericSaveData currentStateSave)
+    {
+        Type type = currentStateSave.GetSaveType();
+        if (type == typeof(ChoosingJobState))
+        {
+            return new ChoosingJobState(gridActor, currentStateSave);
+        }
+        else if (type == typeof(DoJobState))
+        {
+            return new DoJobState(gridActor, currentStateSave);
+        }
+        else
+        {
+            throw new Exception("Unknown state type " + type.ToString());
+        }
+    }
+
     private class ChoosingJobState : State
     {
-        GridActor mActor;
+        GridActor actor;
         public ChoosingJobState(GridActor actor)
         {
-            mActor = actor;
+            this.actor = actor;
         }
+
+        public ChoosingJobState(GridActor actor, IGenericSaveData save) : base(save)
+        {
+            this.actor = actor;
+        }
+
         public override State OnDuring()
         {
-            return new DoJobState(new WalkRandomlyJob(mActor), mActor);
+            return new DoJobState(new WalkRandomlyJob(actor), actor);
         }
     }
 
     private class DoJobState : State
     {
-        GridActor mActor;
-        IJob mWork;
+        [System.Serializable]
+        private class SaveData : GenericSaveData<DoJobState>
+        {
+            public IGenericSaveData parent;
+            public IGenericSaveData workSave;
+        }
+        GridActor actor;
+        IJob work;
+
+        public DoJobState(GridActor actor, IGenericSaveData save) : base(((SaveData)save).parent)
+        {
+            this.actor = actor;
+            this.work = LoadWork(((SaveData)save).workSave);
+        }
+
+        private IJob LoadWork(IGenericSaveData workSave)
+        {
+            return new WalkRandomlyJob(this.actor, workSave);
+        }
+
         public DoJobState(IJob work, GridActor actor)
         {
-            mActor = actor;
-            mWork = work;
+            this.actor = actor;
+            this.work = work;
+        }
+        public override IGenericSaveData GetSave()
+        {
+            SaveData save = new SaveData();
+            save.parent = base.GetSave();
+            save.workSave = this.work.GetSave();
+            return save;
         }
         public override State OnDuring()
         {
-            if(mWork.Work()){
-                return new ChoosingJobState(mActor);
+            if (work.Work())
+            {
+                return new ChoosingJobState(actor);
             }
             return StateMachine.NoTransition();
         }

@@ -11,8 +11,14 @@ public class GridActorMap
     static public GridActor[] GetGridActors(Vector3Int pos)
     {
         if (!gridActorLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
-        GridActor[] actors = gridActors[pos].ToArray();
-        gridActorLock.ExitReadLock();
+        GridActor[] actors;
+        try {
+            actors = gridActors[pos].ToArray();
+        } finally {
+            gridActorLock.ExitReadLock();
+        }
+        
+        
         return actors;
     }
 
@@ -29,8 +35,15 @@ public class GridActorMap
     static public void UnregisterGridActor(GridActor actor, Vector3Int pos)
     {
         if (!gridActorLock.TryEnterWriteLock(lockTimeout)) throw new Exception("Writelock timeout");
-        gridActors[pos].Remove(actor);
-        gridActorLock.ExitWriteLock();
+        try
+        {
+            gridActors[pos].Remove(actor);
+        }
+        finally
+        {
+            gridActorLock.ExitWriteLock();
+        }
+
     }
 
     static public bool IsPosFree(Vector3Int pos)

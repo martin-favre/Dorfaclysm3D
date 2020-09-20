@@ -82,17 +82,12 @@ public class CameraController : MonoBehaviour, ISaveableComponent
 
 
     [System.Serializable]
-    private struct SaveData : IComponentSaveData
+    private class SaveData : GenericSaveData<CameraController>
     {
         public SerializeableVector3 pos;
         public SerializeableQuaternion rot;
-
-        public string GetAssemblyName()
-        {
-            return typeof(CameraController).AssemblyQualifiedName;
-        }
     }
-    public IComponentSaveData Save()
+    public IGenericSaveData Save()
     {
         var save = new SaveData();
         save.pos = new SerializeableVector3(transform.position);
@@ -100,7 +95,7 @@ public class CameraController : MonoBehaviour, ISaveableComponent
         return save;
     }
 
-    public void Load(IComponentSaveData data)
+    public void Load(IGenericSaveData data)
     {
         var save = (SaveData)data;
         transform.position = save.pos.Get();

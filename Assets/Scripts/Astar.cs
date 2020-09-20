@@ -16,11 +16,13 @@ public class Astar
         Timeout,
         OutOfMemory
     }
+
+    [System.Serializable]
     public class Result
     {
         public bool foundPath = false;
         public FailReason failReason = FailReason.NoFail;
-        public Stack<Vector3Int> path = new Stack<Vector3Int>();
+        public Stack<SerializeableVector3Int> path = new Stack<SerializeableVector3Int>();
     }
 
     private class AstarNode : FastPriorityQueueNode
@@ -70,7 +72,7 @@ public class Astar
         Result result = new Result();
         if (!GridMap.IsPosInMap(start))
         {
-            // explicitly don't care if our own block is passable.
+            // explicitly don't care if our own block is passable, it just have to exist.
             // Will help if unit for some reason gets stuck inside a block
             result.failReason = FailReason.InvalidStartPosition;
             return Task.FromResult(result);
@@ -146,7 +148,7 @@ public class Astar
         while (currentNode.GetParent() != null)
         {
             Vector3Int pos = currentNode.GetPos();
-            result.path.Push(pos);
+            result.path.Push(new SerializeableVector3Int(pos));
             currentNode = currentNode.GetParent();
         }
         result.foundPath = true;

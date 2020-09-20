@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7398496479924756666}
   - component: {fileID: 7398496479924756665}
   - component: {fileID: 1168987304}
+  - component: {fileID: -2174884639828253386}
   m_Layer: 0
   m_Name: Dorf
   m_TagString: Untagged
@@ -94,3 +95,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46ac835ba6f7b764eadb28ea3ba2a8f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-2174884639828253386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7398496479924756664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c88621feccaf8d8b1a2af97760bcc5be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabName: Dorf

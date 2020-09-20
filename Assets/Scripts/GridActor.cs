@@ -3,6 +3,12 @@ using UnityEngine;
 
 public class GridActor
 {
+    [System.Serializable]
+    public class SaveData
+    {
+        public SerializeableVector3Int position;
+    }
+
 
     GameObject owner;
     Vector3Int gridPosition;
@@ -12,6 +18,21 @@ public class GridActor
         this.gridPosition = gridPosition;
         RegisterMe();
     }
+
+    public GridActor(GameObject owner, SaveData save) {
+        SaveData savedata = (SaveData) save;
+        gridPosition = savedata.position.Get();
+        RegisterMe();
+    }   
+
+
+    public SaveData GetSave()
+    {
+        SaveData save = new SaveData();
+        save.position = new SerializeableVector3Int(gridPosition);
+        return save;
+    }
+
 
     ~GridActor()
     {
@@ -34,7 +55,8 @@ public class GridActor
         return owner;
     }
 
-    public Vector3Int GetPos(){
+    public Vector3Int GetPos()
+    {
         return gridPosition;
     }
 

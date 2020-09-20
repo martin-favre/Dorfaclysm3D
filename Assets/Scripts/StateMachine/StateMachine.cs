@@ -9,6 +9,13 @@ namespace StateMachineCollection
     {
 
         private bool machineTerminated = false;
+
+        public State() { }
+        public State(IGenericSaveData save)
+        {
+            SaveData saveData = (SaveData)save;
+            this.machineTerminated = saveData.machineTerminated;
+        }
         public virtual void OnEntry() { }
         public abstract State OnDuring();
         public virtual void OnExit() { }
@@ -20,15 +27,34 @@ namespace StateMachineCollection
         {
             return machineTerminated;
         }
+
+
+        [System.Serializable]
+        private class SaveData : GenericSaveData<State>
+        {
+            public bool machineTerminated;
+        }
+
+        public virtual IGenericSaveData GetSave()
+        {
+            SaveData save = new SaveData();
+            save.machineTerminated = machineTerminated;
+            return save;
+        }
     }
 
     public class StateMachine
     {
-
-        State activeState;
+        State activeState; 
         public StateMachine(State initialState)
         {
+            if (initialState == null) throw new System.Exception("Initial state is null");
             TransitToState(initialState);
+        }
+
+        public IGenericSaveData GetSave()
+        {
+            return activeState.GetSave();
         }
 
         public bool IsTerminated()
@@ -38,6 +64,7 @@ namespace StateMachineCollection
 
         public void Update()
         {
+
             if (!activeState.IsMachineTerminated())
             {
                 State nextState = activeState.OnDuring();
@@ -46,7 +73,6 @@ namespace StateMachineCollection
                     activeState.OnExit();
                     TransitToState(nextState);
                 }
-
             }
         }
 

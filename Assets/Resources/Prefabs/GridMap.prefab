@@ -44,8 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3cbc8af14c418741b5e398946f9c138, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mTexture: {fileID: 0}
-  mChunkGeneratorPrefab: {fileID: 8299210676744196419, guid: 293376161a56e244f94cf7924d38d86e, type: 3}
+  chunkGeneratorPrefab: {fileID: 8299210676744196419, guid: 293376161a56e244f94cf7924d38d86e, type: 3}
 --- !u!114 &1062947670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58,5 +57,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c88621feccaf8d8b1a2af97760bcc5be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mPrefabName: GridMap
-  path: 
+  prefabName: GridMap

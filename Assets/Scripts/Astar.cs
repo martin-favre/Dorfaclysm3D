@@ -22,7 +22,7 @@ public class Astar
     {
         public bool foundPath = false;
         public FailReason failReason = FailReason.NoFail;
-        public Stack<SerializeableVector3Int> path = new Stack<SerializeableVector3Int>();
+        public Stack<Vector3Int> path = new Stack<Vector3Int>();
     }
 
     private class AstarNode : FastPriorityQueueNode
@@ -148,7 +148,7 @@ public class Astar
         while (currentNode.GetParent() != null)
         {
             Vector3Int pos = currentNode.GetPos();
-            result.path.Push(new SerializeableVector3Int(pos));
+            result.path.Push(pos);
             currentNode = currentNode.GetParent();
         }
         result.foundPath = true;

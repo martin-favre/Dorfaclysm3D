@@ -6,7 +6,7 @@ public class GridActor : MonoBehaviour, ISaveableComponent
     [System.Serializable]
     public class SaveData : GenericSaveData<GridActor>
     {
-        public SerializeableVector3Int position;
+        public Vector3Int position;
 
     }
 
@@ -58,13 +58,13 @@ public class GridActor : MonoBehaviour, ISaveableComponent
     public IGenericSaveData Save()
     {
         SaveData save = new SaveData();
-        save.position = new SerializeableVector3Int(gridPosition);
+        save.position = (gridPosition);
         return save;
     }
 
     public void Load(IGenericSaveData data)
     {
         SaveData savedata = (SaveData)data;
-        Move(savedata.position.Get());
+        Move(savedata.position);
     }
 }

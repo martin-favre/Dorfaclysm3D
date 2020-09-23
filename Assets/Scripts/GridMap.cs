@@ -9,8 +9,8 @@ public static class GridMap
     [System.Serializable]
     private class SaveData
     {
-        public SerializeableVector3Int size;
-        public Dictionary<SerializeableVector3Int, Block> blocks;
+        public Vector3Int size;
+        public Dictionary<Vector3Int, Block> blocks;
         public bool generated;
 
     }
@@ -30,12 +30,12 @@ public static class GridMap
     {
         SaveData data = new SaveData();
         EnterReadLock();
-        data.size = new SerializeableVector3Int(mapSize);
+        data.size = mapSize;
         data.generated = generated;
-        data.blocks = new Dictionary<SerializeableVector3Int, Block>();
+        data.blocks = new Dictionary<Vector3Int, Block>();
         foreach (var key in blocks.Keys)
         {
-            data.blocks[new SerializeableVector3Int(key)] = (Block)blocks[key].Clone();
+            data.blocks[key] = (Block)blocks[key].Clone();
         }
         blockLock.ExitReadLock();
         return data;
@@ -45,13 +45,9 @@ public static class GridMap
     {
         SaveData save = (SaveData)data;
         EnterWriteLock();
-        mapSize = save.size.Get();
+        mapSize = save.size;
         generated = save.generated;
-        blocks.Clear();
-        foreach (var key in save.blocks.Keys)
-        {
-            blocks[key.Get()] = (Block)save.blocks[key].Clone();
-        }
+        blocks = save.blocks;
         blockLock.ExitWriteLock();
     }
 

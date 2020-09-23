@@ -12,7 +12,7 @@ namespace StateMachineCollection
             public IGenericSaveData parent;
             public IGenericSaveData activeState;
             public float timePerStepSecs;
-            public SerializeableVector3Int targetPos;
+            public Vector3Int targetPos;
             public Astar.Result astarResult;
         }
 
@@ -37,7 +37,7 @@ namespace StateMachineCollection
             this.user = user;
             SaveData saveData = (SaveData)save;
             this.timePerStepSecs = saveData.timePerStepSecs;
-            this.targetPos = saveData.targetPos.Get();
+            this.targetPos = saveData.targetPos;
             this.astarResult = saveData.astarResult;
 
             if (saveData.activeState != null)
@@ -82,7 +82,7 @@ namespace StateMachineCollection
             save.parent = base.GetSave();
             save.activeState = machine.GetSave();
             save.timePerStepSecs = timePerStepSecs;
-            save.targetPos = new SerializeableVector3Int(targetPos);
+            save.targetPos = targetPos;
             if (astarResult != null)
             {
                 save.astarResult = astarResult;
@@ -187,7 +187,7 @@ namespace StateMachineCollection
             {
                 if (parent.astarResult.path.Count > 0)
                 {
-                    Vector3Int nextPos = parent.astarResult.path.Pop().Get();
+                    Vector3Int nextPos = parent.astarResult.path.Pop();
                     parent.user.Move(nextPos);
                     return new WaitABitState(parent);
                 }

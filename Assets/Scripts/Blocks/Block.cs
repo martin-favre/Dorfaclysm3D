@@ -14,7 +14,7 @@ public abstract class Block : System.ICloneable
     }
 
 
-    private BlockType type = BlockType.invalid;
+    private readonly BlockType type = BlockType.invalid;
 
     public BlockType Type { get => type; }
 

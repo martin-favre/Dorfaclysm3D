@@ -4,7 +4,7 @@ using UnityEngine;
 [System.Serializable]
 public class RockBlock : Block
 {
-    static readonly Vector2 texturePos = new Vector2(1, 1);
+    static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.RockBlock);
     public RockBlock() : base(BlockType.rockBlock)
     {
 

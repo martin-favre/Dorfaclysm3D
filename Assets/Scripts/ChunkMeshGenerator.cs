@@ -25,8 +25,6 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     private Vector3Int chunkOrigin;
 
-
-
     private void Awake()
     {
         mesh = GetComponent<MeshFilter>().mesh;

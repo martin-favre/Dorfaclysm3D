@@ -71,7 +71,7 @@ public class AStarTester : MonoBehaviour
                     int gObjIndex = 0;
                     while (result.path.Count > 0)
                     {
-                        Vector3Int step = result.path.Pop().Get();
+                        Vector3Int step = result.path.Pop();
                         pathShowerObjs[gObjIndex].transform.position = step;
                         pathShowerObjs[gObjIndex].SetActive(true);
                         gObjIndex++;

@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using UnityEngine;
-using UnityEditor;
 using System;
+using System.Runtime.Serialization;
 
 public static class SaveLoadManager
 {
@@ -26,7 +26,7 @@ public static class SaveLoadManager
         {
             saves.Add(comp.GetSave());
         }
-        BinaryFormatter bf = new BinaryFormatter();
+        BinaryFormatter bf = CreateBinaryFormatter();
         FileStream file = File.Open(savePath, FileMode.OpenOrCreate);
         bf.Serialize(file, saves);
         file.Close();
@@ -48,7 +48,7 @@ public static class SaveLoadManager
             Debug.Log("There's no save to load");
             return;
         }
-        BinaryFormatter bf = new BinaryFormatter();
+        BinaryFormatter bf = CreateBinaryFormatter();
         FileStream file = File.Open(savePath, FileMode.Open);
         List<SaveLoadComponent.GameobjectSaveData> saves = bf.Deserialize(file) as List<SaveLoadComponent.GameobjectSaveData>;
         Debug.Log("Size is " + saves.Count);
@@ -70,5 +70,17 @@ public static class SaveLoadManager
         }
 
         file.Close();
+    }
+
+    private static BinaryFormatter CreateBinaryFormatter()
+    {
+        BinaryFormatter form = new BinaryFormatter();
+        SurrogateSelector ss = new SurrogateSelector();
+        Vector3IntSerializationSurrogate v3ss = new Vector3IntSerializationSurrogate();
+        ss.AddSurrogate(typeof(Vector3Int), 
+                new StreamingContext(StreamingContextStates.All), 
+                v3ss);
+        form.SurrogateSelector = ss;
+        return form; 
     }
 }

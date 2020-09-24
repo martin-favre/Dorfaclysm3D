@@ -12,8 +12,9 @@
     ✔ Make DorfController Save/Loadable @done(20-09-20 21:12)
     ☐ Make Dorfs mine blocks
         ☐ Be able to shift which y-level we're looking at by scrolling
-        ☐ Post MiningRequest when clicking a block
-        ☐ Create MiningJob
-        ☐ Start Miningjob when MiningRequest is availables
+        ✔ Post MiningRequest when clicking a block @done(20-09-24 08:10)
+        ✔ Create MiningJob @done(20-09-24 08:10)
+        ✔ Start Miningjob when MiningRequest is availables @done(20-09-24 08:10)
+        ☐ Visualize blocks marked for mining
 ✔ Make DorfControllers movement smooth @done(20-09-20 21:11)
 ☐ Why do dorf with walkrandomlyjob stop and wait for so long

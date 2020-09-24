@@ -58,12 +58,30 @@ public class WalkRandomlyJob : IJob
 
     private class WalkRandomlyState : WalkingState
     {
-        public WalkRandomlyState(GridActor user, Vector3Int targetPos) : base(user, targetPos, 0.2f)
+        Vector3Int targetPos;
+        public WalkRandomlyState(GridActor user, Vector3Int targetPos) : base(user, 0.2f)
         {
+            this.targetPos = targetPos;
         }
 
         public WalkRandomlyState(GridActor user, IGenericSaveData save) : base(user, save)
         {
+        }
+
+        public override Vector3Int GetTargetPos()
+        {
+            Vector3Int actualPos;
+            bool success = GridMapHelper.GetClosestPassablePosition(targetPos, 5, out actualPos);
+            if (success)
+            {
+                return actualPos;
+            }
+            else
+            {
+                OnPathFindFail();
+                return targetPos;
+            }
+
         }
 
         public override State OnPathFindFail()

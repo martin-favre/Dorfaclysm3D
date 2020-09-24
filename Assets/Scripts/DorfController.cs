@@ -115,7 +115,13 @@ public class DorfController : MonoBehaviour, ISaveableComponent
 
         public override State OnDuring()
         {
-            return new DoJobState(new WalkRandomlyJob(actor), actor);
+            IJob job;
+            if(MiningRequestPool.Instance.HasRequests()){
+                job = new MiningJob(actor, MiningRequestPool.Instance.GetRequest(actor));
+            } else {
+                job = new WalkRandomlyJob(actor);
+            }
+            return new DoJobState(job, actor);
         }
     }
 

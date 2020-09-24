@@ -7,7 +7,7 @@ public static class GridMapHelper
 {
     public static bool GetClosestPassablePosition(Vector3Int origin, int maxSearchDepth, out Vector3Int result)
     {
-        SortedSet<Vector3Int> failedPositions = new SortedSet<Vector3Int>();
+        HashSet<Vector3Int> failedPositions = new HashSet<Vector3Int>();
         Stack<Tuple<Vector3Int, int>> testPositions = new Stack<Tuple<Vector3Int, int>>(); // stack of positions and their depth
         testPositions.Push(new Tuple<Vector3Int, int>(origin, 0));
 

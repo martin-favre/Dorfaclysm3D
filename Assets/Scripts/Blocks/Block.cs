@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [System.Serializable]
-public abstract class Block : System.ICloneable
+public abstract class Block : System.ICloneable, System.IEquatable<Block>
 {
     public enum BlockType
     {
@@ -38,5 +38,21 @@ public abstract class Block : System.ICloneable
     public abstract bool isVisible();
 
     public abstract object Clone();
+
+    public bool Equals(Block other)
+    {
+        return other.type == type;
+    }
+
+    public override bool Equals(object obj)
+    {
+        Block b = (Block)obj;
+        return b.type == type;
+    }
+    
+    public override int GetHashCode()
+    {
+        return type.GetHashCode();
+    }
 }
 

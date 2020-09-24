@@ -18,6 +18,8 @@ public class MiningRequest : PlayerRequest
 
     public override bool Equals(object other)
     {
+        // explicitly ignore blocktype, we can't have two
+        // mining requests on the same block.
         return Position == ((MiningRequest)other).Position;
     }
 
@@ -28,6 +30,6 @@ public class MiningRequest : PlayerRequest
 
     public override int GetHashCode()
     {
-        throw new System.NotImplementedException();
+        return position.GetHashCode();
     }
 }

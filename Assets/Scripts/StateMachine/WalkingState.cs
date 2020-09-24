@@ -19,14 +19,13 @@ namespace StateMachineCollection
         readonly StateMachine machine;
         Astar.Result astarResult;
         readonly GridActor user;
-        readonly Vector3Int targetPos;
+        Vector3Int targetPos;
         readonly float timePerStepSecs;
 
-        public WalkingState(GridActor user, Vector3Int targetPos, float secPerStep)
+        public WalkingState(GridActor user, float secPerStep)
         {
             Debug.Assert(user != null);
             this.user = user;
-            this.targetPos = targetPos;
 
             machine = new StateMachine(new AwaitingAstarState(this));
             timePerStepSecs = secPerStep;
@@ -49,6 +48,11 @@ namespace StateMachineCollection
                 Debug.LogWarning("Walkingstate loaded without a state. Terminating.");
                 TerminateMachine();
             }
+        }
+
+        public override void OnEntry()
+        {
+            targetPos = GetTargetPos();
         }
 
         private State LoadState(IGenericSaveData activeState)
@@ -108,6 +112,7 @@ namespace StateMachineCollection
             return StateMachine.NoTransition();
         }
 
+        public abstract Vector3Int GetTargetPos();
         public abstract State OnReachedTarget();
         public abstract State OnPathFindFail();
 

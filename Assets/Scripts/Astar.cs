@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Priority_Queue;
@@ -23,6 +24,7 @@ public class Astar
         public bool foundPath = false;
         public FailReason failReason = FailReason.NoFail;
         public Stack<Vector3Int> path = new Stack<Vector3Int>();
+        public float executionTime = 0;
     }
 
     private class AstarNode : FastPriorityQueueNode
@@ -69,6 +71,7 @@ public class Astar
 
     public Task<Result> CalculatePath(Vector3Int start, Vector3Int end)
     {
+        Stopwatch sw = Stopwatch.StartNew();
         Result result = new Result();
         if (!GridMap.IsPosInMap(start))
         {
@@ -106,7 +109,9 @@ public class Astar
             Vector3Int currentPos = currentNode.GetPos();
             if (currentPos == end)
             {
+                
                 Unravel(result, currentNode);
+                result.executionTime = sw.ElapsedMilliseconds;
                 return Task.FromResult(result);
             }
             else

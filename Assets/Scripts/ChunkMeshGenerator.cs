@@ -1,10 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Threading.Tasks;
 
 public class ChunkMeshGenerator : MonoBehaviour
 {
+
+    private enum State
+    {
+        Idle,
+        UpdateReceived,
+        GeneratingMesh,
+        MeshResultReceived
+    }
 
     private List<Vector3> newSpriteVertices = new List<Vector3>();
     private List<int> newSpriteTriangles = new List<int>();
@@ -25,6 +33,13 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     private Vector3Int chunkOrigin;
 
+    private bool newMeshAvailable = false;
+    private bool meshUpdateQueued = false;
+
+    private State state = State.Idle;
+
+    private Task generationTask;
+
     private void Awake()
     {
         mesh = GetComponent<MeshFilter>().mesh;
@@ -38,10 +53,30 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     void Update()
     {
-
+        switch (state)
+        {
+            case State.Idle:
+                if (meshUpdateQueued)
+                {
+                    generationTask = Task.Run(() => GenerateMeshInternal());
+                    state = State.GeneratingMesh;
+                    meshUpdateQueued = false;
+                }
+                break;
+            case State.GeneratingMesh:
+                if (generationTask.IsCompleted)
+                {
+                    state = State.MeshResultReceived;
+                }
+                break;
+            case State.MeshResultReceived:
+                UpdateMesh();
+                state = State.Idle;
+                break;
+        }
     }
 
-    public void GenerateMesh()
+    private void GenerateMeshInternal()
     {
 
         for (int x = chunkOrigin.x; x < chunkOrigin.x + chunkSize; x++)
@@ -104,9 +139,14 @@ public class ChunkMeshGenerator : MonoBehaviour
                 }
             }
         }
-
-        UpdateMesh();
+        state = State.MeshResultReceived;
     }
+    public void GenerateMesh()
+    {
+        meshUpdateQueued = true;
+    }
+
+
 
     Block GetBlock(Vector3Int pos)
     {
@@ -198,9 +238,8 @@ public class ChunkMeshGenerator : MonoBehaviour
 
         faceCount++; // Add this line
     }
-    void UpdateMesh()
+    private void UpdateMesh()
     {
-
         mesh.Clear();
         mesh.vertices = newSpriteVertices.ToArray();
         mesh.uv = newSpriteUV.ToArray();
@@ -215,7 +254,7 @@ public class ChunkMeshGenerator : MonoBehaviour
         newSpriteUV.Clear();
         newSpriteTriangles.Clear();
         faceCount = 0;
-
+        newMeshAvailable = false;
     }
 
 }

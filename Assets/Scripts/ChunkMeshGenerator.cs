@@ -33,7 +33,6 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     private Vector3Int chunkOrigin;
 
-    private bool newMeshAvailable = false;
     private bool meshUpdateQueued = false;
 
     private State state = State.Idle;
@@ -254,7 +253,6 @@ public class ChunkMeshGenerator : MonoBehaviour
         newSpriteUV.Clear();
         newSpriteTriangles.Clear();
         faceCount = 0;
-        newMeshAvailable = false;
     }
 
 }

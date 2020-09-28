@@ -1,4 +1,5 @@
 
+using Items;
 using UnityEngine;
 
 [System.Serializable]
@@ -13,6 +14,11 @@ public class RockBlock : Block
     public override object Clone()
     {
         return new RockBlock();
+    }
+
+    public override IItem GetItem()
+    {
+        return new RockBlockItem();
     }
 
     public override string GetName()

@@ -1,4 +1,5 @@
 
+using Items;
 using UnityEngine;
 
 [System.Serializable]
@@ -9,6 +10,11 @@ public class AirBlock : Block
     public override object Clone()
     {
         return new AirBlock();
+    }
+
+    public override IItem GetItem()
+    {
+        return null;
     }
 
     public override string GetName()

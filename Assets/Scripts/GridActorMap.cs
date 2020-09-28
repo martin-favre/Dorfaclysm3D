@@ -12,13 +12,21 @@ public class GridActorMap
     {
         if (!gridActorLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
         GridActor[] actors;
-        try {
-            actors = gridActors[pos].ToArray();
-        } finally {
+        try
+        {
+            if (gridActors.ContainsKey(pos))
+            {
+
+                actors = gridActors[pos].ToArray();
+            } else {
+                actors = new GridActor[0];
+            }
+        }
+        finally
+        {
             gridActorLock.ExitReadLock();
         }
-        
-        
+
         return actors;
     }
 

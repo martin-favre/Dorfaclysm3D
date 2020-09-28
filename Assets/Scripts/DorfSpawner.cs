@@ -6,7 +6,7 @@ public class DorfSpawner : MonoBehaviour
 {
     void Start()
     {
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 1; i++){
         DorfController.InstantiateDorf(new Vector3Int(1,1,5));
 
         }

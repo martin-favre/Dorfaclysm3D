@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Collections.Concurrent;
 using System.Threading;
 using System;
+using Items;
+
 public static class GridMap
 {
     [System.Serializable]
@@ -204,14 +206,47 @@ public static class GridMap
         if (!blockLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
     }
 
+    private static void SpawnBlockItem(Vector3Int pos, Block prevBlock)
+    {
+        IItem itemToAdd = prevBlock.GetItem();
+        if (itemToAdd == null) return;
+        GridActor[] actors = GridActorMap.GetGridActors(pos);
+        ItemContainerComponent itemCont = null;
+        foreach (GridActor actor in actors)
+        {
+            ItemContainerComponent tmpCont = actor.GetComponent<ItemContainerComponent>();
+            if (tmpCont != null && tmpCont.MayAddItem(itemToAdd))
+            {
+                itemCont = tmpCont;
+            }
+        }
+        if (itemCont == null)
+        {
+            itemCont = ItemContainerComponent.InstantiateNew(itemToAdd, 1);
+            itemCont.transform.position = pos + new Vector3(.5f, -.5f, .5f);
+        }
+        else
+        {
+            itemCont.AddItem(itemToAdd);
+        }
+    }
+
     static public void SetBlock(Vector3Int pos, Block block)
     {
         EnterWriteLock();
+        
+        Block prevBlock;
+        blocks.TryGetValue(pos, out prevBlock);
         blocks[pos] = block;
         blockLock.ExitWriteLock();
         if (IsGenerationDone())
         {
             RunCallbacks(pos);
+            if (prevBlock != null && block.Type == Block.BlockType.airBlock)
+            {
+                SpawnBlockItem(pos, prevBlock);
+            }
+
         }
     }
 

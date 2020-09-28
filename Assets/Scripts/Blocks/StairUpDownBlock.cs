@@ -1,4 +1,5 @@
 
+using Items;
 using UnityEngine;
 
 [System.Serializable]
@@ -13,6 +14,11 @@ public class StairUpDownBlock : Block
     public override object Clone()
     {
         return new StairUpDownBlock();
+    }
+
+    public override IItem GetItem()
+    {
+        return null;
     }
 
     public override string GetName()

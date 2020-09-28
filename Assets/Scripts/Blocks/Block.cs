@@ -1,19 +1,10 @@
 
+using Items;
 using UnityEngine;
 
 [System.Serializable]
-public abstract class Block : System.ICloneable, System.IEquatable<Block>
+public abstract partial class Block : System.ICloneable, System.IEquatable<Block>
 {
-    public enum BlockType
-    {
-        invalid,
-        rockBlock,
-        airBlock,
-        grassBlock,
-        stairUpDownBlock
-    }
-
-
     private readonly BlockType type = BlockType.invalid;
 
     public BlockType Type { get => type; }
@@ -36,6 +27,8 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
     public abstract bool supportsWalkingOnTop();
     public abstract string GetName();
     public abstract bool isVisible();
+
+    public abstract IItem GetItem();
 
     public abstract object Clone();
 

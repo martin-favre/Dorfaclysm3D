@@ -1,4 +1,5 @@
 
+using Items;
 using UnityEngine;
 
 [System.Serializable]
@@ -10,6 +11,11 @@ public class GrassBlock : Block
     public override object Clone()
     {
         return new GrassBlock();
+    }
+
+    public override IItem GetItem()
+    {
+        return null;
     }
 
     public override string GetName()

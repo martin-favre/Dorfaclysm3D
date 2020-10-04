@@ -16,7 +16,7 @@ public class RockBlock : Block
         return new RockBlock();
     }
 
-    public override IItem GetItem()
+    public override Item GetItem()
     {
         return new RockBlockItem();
     }

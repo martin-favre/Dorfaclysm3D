@@ -28,7 +28,7 @@ public abstract partial class Block : System.ICloneable, System.IEquatable<Block
     public abstract string GetName();
     public abstract bool isVisible();
 
-    public abstract IItem GetItem();
+    public abstract Item GetItem();
 
     public abstract object Clone();
 

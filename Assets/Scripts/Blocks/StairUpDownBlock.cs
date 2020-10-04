@@ -16,7 +16,7 @@ public class StairUpDownBlock : Block
         return new StairUpDownBlock();
     }
 
-    public override IItem GetItem()
+    public override Item GetItem()
     {
         return null;
     }

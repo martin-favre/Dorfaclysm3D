@@ -84,7 +84,10 @@ public class Astar
         {
             result.failReason = FailReason.InvalidEndPosition;
             return Task.FromResult(result);
-
+        }
+        if(start == end) {
+            result.foundPath = true;
+            return Task.FromResult(result);
         }
         const int maxEntries = 100000;
         Priority_Queue.FastPriorityQueue<AstarNode> nodeQueue = new Priority_Queue.FastPriorityQueue<AstarNode>(maxEntries);
@@ -159,7 +162,7 @@ public class Astar
         result.foundPath = true;
     }
 
-    private bool IsStepValid(Vector3Int newPos, Vector3Int currentPos, Vector3Int delta)
+    public static bool IsStepValid(Vector3Int newPos, Vector3Int currentPos, Vector3Int delta)
     {
         if (!GridMap.IsPosFree(newPos)) return false;
         /**

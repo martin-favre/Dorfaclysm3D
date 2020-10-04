@@ -206,35 +206,42 @@ public static class GridMap
         if (!blockLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
     }
 
-    private static void SpawnBlockItem(Vector3Int pos, Block prevBlock)
+    public static void PutItem(Vector3Int pos, Item itemToAdd)
     {
-        IItem itemToAdd = prevBlock.GetItem();
         if (itemToAdd == null) return;
+        Debug.Log("GridMap, Adding item to " + pos);
         GridActor[] actors = GridActorMap.GetGridActors(pos);
-        ItemContainerComponent itemCont = null;
+        DroppedItemComponent itemCont = null;
         foreach (GridActor actor in actors)
         {
-            ItemContainerComponent tmpCont = actor.GetComponent<ItemContainerComponent>();
-            if (tmpCont != null && tmpCont.MayAddItem(itemToAdd))
+            DroppedItemComponent tmpCont = actor.GetComponent<DroppedItemComponent>();
+            if (tmpCont != null)
             {
+                Debug.Log("GridMap, Found existing DroppedItemComponent");
                 itemCont = tmpCont;
+                break;
             }
         }
         if (itemCont == null)
         {
-            itemCont = ItemContainerComponent.InstantiateNew(itemToAdd, 1);
+            itemCont = DroppedItemComponent.InstantiateNew(pos);
             itemCont.transform.position = pos + new Vector3(.5f, -.5f, .5f);
+            Debug.Log("GridMap, Spawned new DroppedItemComponent");
         }
-        else
-        {
-            itemCont.AddItem(itemToAdd);
+
+        InventoryComponent inv = itemCont.gameObject.GetComponent<InventoryComponent>();
+        if(inv) {
+            inv.AddItem(itemToAdd);
+        } else {
+            Debug.LogWarning("GridMap, No inventory to drop item in");
         }
+
     }
 
     static public void SetBlock(Vector3Int pos, Block block)
     {
         EnterWriteLock();
-        
+
         Block prevBlock;
         blocks.TryGetValue(pos, out prevBlock);
         blocks[pos] = block;
@@ -244,7 +251,7 @@ public static class GridMap
             RunCallbacks(pos);
             if (prevBlock != null && block.Type == Block.BlockType.airBlock)
             {
-                SpawnBlockItem(pos, prevBlock);
+                PutItem(pos, prevBlock.GetItem());
             }
 
         }

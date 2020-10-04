@@ -18,7 +18,9 @@ public class GridActorMap
             {
 
                 actors = gridActors[pos].ToArray();
-            } else {
+            }
+            else
+            {
                 actors = new GridActor[0];
             }
         }

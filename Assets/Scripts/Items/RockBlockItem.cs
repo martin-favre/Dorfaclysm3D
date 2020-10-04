@@ -1,39 +1,34 @@
 namespace Items {
-    public class RockBlockItem : IItem
+    public class RockBlockItem : Item
     {
-        public object Clone()
+        public override object Clone()
         {
             return new RockBlockItem();
         }
 
-        public string GetDescription()
+        public override string GetDescription()
         {
             return "A block of rock";
         }
 
-        public ItemType GetItemType()
+        public override ItemType GetItemType()
         {
             return ItemType.RockBlock;
         }
 
-        public string GetName()
+        public override string GetName()
         {
             return "Rock Block";
         }
 
-        public uint GetStackSize()
+        public override uint GetStackSize()
         {
             return 100;
         }
 
-        public int GetValue()
+        public override int GetValue()
         {
             return 1;
-        }
-
-        public bool IsUnique()
-        {
-            return false;
         }
     }
 }

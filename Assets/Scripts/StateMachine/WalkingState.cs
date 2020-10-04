@@ -129,7 +129,7 @@ namespace StateMachineCollection
             public AwaitingAstarState(WalkingState parent)
             {
                 this.parent = parent;
-                this.astarTask = Task.Run(() => new Astar().CalculatePath(parent.user.GetPos(), parent.targetPos));
+                this.astarTask = Task.Run(() => new Astar().CalculatePath(parent.user.GetPos(), parent.GetTargetPos()));
             }
             [System.Serializable]
             private class SaveData : GenericSaveData<AwaitingAstarState>

@@ -1,35 +1,38 @@
+using System;
+using System.Collections.Generic;
+
 namespace Items
 {
 
-    public class ItemStack
+    public class ItemStack 
     {
-        private readonly IItem item;
+        private readonly Item item;
         private uint count;
 
-        public ItemStack(IItem item, uint count)
+        public ItemStack(Item item, uint count)
         {
             this.item = item;
             this.count = count;
         }
 
-        public bool IsEmpty()
+        public bool HasItems()
         {
-            return count == 0;
+            return count != 0;
         }
 
-        public IItem GetItem()
+        public Item GetItem()
         {
             if (count <= 0) throw new System.Exception("Trying to get item from empty stack");
             count--;
-            return (IItem)item.Clone();
+            return (Item)item.Clone();
         }
 
-        public bool MayAddItem(IItem item)
+        public bool MayAddItem(Item item)
         {
-            return !this.item.IsUnique() && this.item.GetItemType() == item.GetItemType() && count < this.item.GetStackSize();
+            return this.item.GetItemType() == item.GetItemType() && count < this.item.GetStackSize();
         }
 
-        public void AddItem(IItem item)
+        public void AddItem(Item item)
         {
             if(!MayAddItem(item)) throw new System.Exception("May not add item to stack");
             count++;

@@ -13,7 +13,7 @@ public class GrassBlock : Block
         return new GrassBlock();
     }
 
-    public override IItem GetItem()
+    public override Item GetItem()
     {
         return null;
     }

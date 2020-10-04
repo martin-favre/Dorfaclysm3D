@@ -1,12 +1,12 @@
 namespace Items
 {
-    public interface IItem : System.ICloneable
+    public abstract class Item : System.ICloneable
     {
-        string GetName();
-        string GetDescription();
-        ItemType GetItemType();
-        int GetValue();
-        bool IsUnique();
-        uint GetStackSize();
+        public abstract string GetName();
+        public abstract string GetDescription();
+        public abstract ItemType GetItemType();
+        public abstract int GetValue();
+        public abstract uint GetStackSize();
+        public abstract object Clone();
     }
 }

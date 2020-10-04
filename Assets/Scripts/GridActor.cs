@@ -7,7 +7,6 @@ public class GridActor : MonoBehaviour, ISaveableComponent
     public class SaveData : GenericSaveData<GridActor>
     {
         public Vector3Int position;
-
     }
 
     // public to be viewed in inspector
@@ -22,6 +21,7 @@ public class GridActor : MonoBehaviour, ISaveableComponent
     void OnDestroy()
     {
         UnregisterMe();
+        Debug.Log("GridActor, OnDestroy");
     }
 
     public void Move(Vector3Int newPos)

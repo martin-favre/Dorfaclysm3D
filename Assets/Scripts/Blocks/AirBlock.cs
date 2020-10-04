@@ -12,7 +12,7 @@ public class AirBlock : Block
         return new AirBlock();
     }
 
-    public override IItem GetItem()
+    public override Item GetItem()
     {
         return null;
     }

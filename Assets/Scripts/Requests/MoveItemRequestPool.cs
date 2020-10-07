@@ -7,17 +7,21 @@ public class MoveItemRequestPool : RequestPool<MoveItemRequest>
     public static MoveItemRequestPool Instance => instance;
 
 
-    static MoveItemRequestPool() {
+    static MoveItemRequestPool()
+    {
         instance = new MoveItemRequestPool();
     }
     public override MoveItemRequest GetRequest(GridActor actor)
     {
         // just get first best
         MoveItemRequest request = null;
-        foreach (MoveItemRequest req in requests)
+        lock (lockObject)
         {
-            request = req;
-            break;
+            foreach (MoveItemRequest req in requests)
+            {
+                request = req;
+                break;
+            }
         }
 
         HandOutRequest(request);

@@ -47,7 +47,9 @@ public class GridActorMap
         if (!gridActorLock.TryEnterWriteLock(lockTimeout)) throw new Exception("Writelock timeout");
         try
         {
-            gridActors[pos].Remove(actor);
+            bool success = gridActors[pos].Remove(actor);
+            Debug.Assert(success);
+            if(gridActors[pos].Count <= 0) gridActors.Remove(pos);
         }
         finally
         {

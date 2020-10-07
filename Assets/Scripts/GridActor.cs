@@ -15,13 +15,14 @@ public class GridActor : MonoBehaviour, ISaveableComponent
 
     void Start()
     {
-        RegisterMe();
+        if(!registered) {
+            RegisterMe();
+        }
     }
 
     void OnDestroy()
     {
         UnregisterMe();
-        Debug.Log("GridActor, OnDestroy");
     }
 
     public void Move(Vector3Int newPos)
@@ -49,9 +50,11 @@ public class GridActor : MonoBehaviour, ISaveableComponent
     }
     void UnregisterMe()
     {
+        Debug.Log("About to unregister");
         if (registered)
         {
             GridActorMap.UnregisterGridActor(this, gridPosition);
+            Debug.Log("Actually unregistered");
         }
     }
 

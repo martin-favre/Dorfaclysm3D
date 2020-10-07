@@ -15,7 +15,7 @@ public class GrassBlock : Block
 
     public override Item GetItem()
     {
-        return null;
+        return new RockBlockItem();
     }
 
     public override string GetName()

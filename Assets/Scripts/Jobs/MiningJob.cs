@@ -32,11 +32,13 @@ public class MiningJob : IJob
         {
             this.user = user;
             this.request = request;
-        }
+            Debug.Assert(this.request != null);
+        }   
 
         public override Vector3Int GetTargetPos()
         {
             Vector3Int actualPos;
+            Debug.Assert(request != null);
             bool success = GridMapHelper.GetClosestPassablePosition(request.Position, 1, out actualPos);
             if (success)
             {

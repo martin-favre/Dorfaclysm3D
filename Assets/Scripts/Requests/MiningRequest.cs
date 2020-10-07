@@ -12,6 +12,7 @@ public class MiningRequest : PlayerRequest
     public Block.BlockType BlockType => blockType;
 
     public MiningRequest(Vector3Int position, Block.BlockType blockType){
+        Debug.Assert(position != null);
         this.position = position;
         this.blockType = blockType;
     }

@@ -123,20 +123,24 @@ namespace StateMachineCollection
 
         private class AwaitingAstarState : State
         {
-            WalkingState parent;
-            Task<Astar.Result> astarTask;
-
-            public AwaitingAstarState(WalkingState parent)
-            {
-                this.parent = parent;
-                this.astarTask = Task.Run(() => new Astar().CalculatePath(parent.user.GetPos(), parent.GetTargetPos()));
-            }
             [System.Serializable]
             private class SaveData : GenericSaveData<AwaitingAstarState>
             {
                 // Explicitly empty, nothing to save.
                 // No need to save the astar calculation
             }
+            WalkingState parent;
+            Task<Astar.Result> astarTask;
+
+            public AwaitingAstarState(WalkingState parent)
+            {
+                this.parent = parent;
+            }
+
+            public override void OnEntry()
+            {
+                this.astarTask = Task.Run(() => new Astar().CalculatePath(parent.user.GetPos(), parent.GetTargetPos()));
+            } 
 
             public override IGenericSaveData GetSave()
             {

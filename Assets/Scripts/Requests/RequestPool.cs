@@ -33,7 +33,7 @@ public abstract class RequestPool<T> where T : PlayerRequest
             () =>
             {
                 // chill a bit before re-adding it to the pool
-                Task.Delay(1000);
+                Thread.Sleep(1000);
                 PostRequest(request);
             });
 

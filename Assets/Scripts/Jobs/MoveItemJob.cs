@@ -50,6 +50,8 @@ public class MoveItemJob : IJob
                     return new WalkToItemState(actor, request, findItemTask.Result);
                 } else {
                     Debug.Log("Could not find item");
+                    MoveItemRequestPool.Instance.ReturnRequest(request);
+                    TerminateMachine();
                 }
             }
             return StateMachine.NoTransition();

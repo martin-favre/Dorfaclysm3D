@@ -139,7 +139,7 @@ namespace StateMachineCollection
 
             public override void OnEntry()
             {
-                this.astarTask = Task.Run(() => new Astar().CalculatePath(parent.user.GetPos(), parent.GetTargetPos()));
+                this.astarTask = Task.Run(() => new Astar().CalculatePath(parent.user.GetPos(), parent.targetPos));
             } 
 
             public override IGenericSaveData GetSave()

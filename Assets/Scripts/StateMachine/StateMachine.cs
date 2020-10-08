@@ -46,10 +46,11 @@ namespace StateMachineCollection
     public class StateMachine
     {
         State activeState; 
+        bool isFirstEntryExecuted = false;
         public StateMachine(State initialState)
-        {
+        {   
             if (initialState == null) throw new System.Exception("Initial state is null");
-            TransitToState(initialState);
+            activeState = initialState;
         }
 
         public IGenericSaveData GetSave()
@@ -67,6 +68,10 @@ namespace StateMachineCollection
 
             if (!activeState.IsMachineTerminated())
             {
+                if(!isFirstEntryExecuted) {
+                    activeState.OnEntry();
+                    isFirstEntryExecuted = true;
+                }
                 State nextState = activeState.OnDuring();
                 if (nextState != null)
                 {

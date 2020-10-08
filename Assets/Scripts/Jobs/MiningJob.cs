@@ -10,6 +10,7 @@ public class MiningJob : IJob
     public MiningJob(GridActor actor, MiningRequest request)
     {
         Debug.Assert(request != null);
+        Debug.Log("Started a mining job");
         machine = new StateMachine(new WalkToBlockState(actor, request));
     }
     public IGenericSaveData GetSave()

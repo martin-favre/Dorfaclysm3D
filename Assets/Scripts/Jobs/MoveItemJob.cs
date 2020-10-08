@@ -38,7 +38,6 @@ public class MoveItemJob : IJob
         }
         public override void OnEntry()
         {
-            Debug.Log("Entered FindItemState");
             this.findItemTask = Task.Run(() => FindItem(actor.GetPos(), request.TypeToFind));
         }
         public override State OnDuring()
@@ -46,10 +45,9 @@ public class MoveItemJob : IJob
             if (findItemTask.IsCompleted)
             {
                 if(findItemTask.Result != actor.GetPos()) {
-                    Debug.Log("Transitioning to WalkToItemState");
                     return new WalkToItemState(actor, request, findItemTask.Result);
                 } else {
-                    Debug.Log("Could not find item");
+                    Debug.Log("MoveItemJob, FindItemState, Could not find item");
                     MoveItemRequestPool.Instance.ReturnRequest(request);
                     TerminateMachine();
                 }
@@ -100,7 +98,6 @@ public class MoveItemJob : IJob
             this.actor = actor;
             this.request = request;
             this.target = target;
-            Debug.Log("Entered WalkToItemState");
         }
 
         public override Vector3Int GetTargetPos()
@@ -118,14 +115,12 @@ public class MoveItemJob : IJob
 
         public override State OnReachedTarget()
         {
-            Debug.Log("MoveItemJob, I reached where the item was");
             GridActor[] actors = GridActorMap.GetGridActors(actor.GetPos());
             foreach (GridActor actor in actors)
             {
                 InventoryComponent comp = actor.GetComponent<InventoryComponent>();
                 if (comp && comp.HasItem(request.TypeToFind))
                 {
-                    Debug.Log("MoveItemJob, Transitioning to WalkToTargetState");
                     return new WalkToTargetState(this.actor, request, comp.GetItem(request.TypeToFind));
                 }
             }
@@ -145,7 +140,6 @@ public class MoveItemJob : IJob
             this.actor = actor;
             this.request = request;
             this.item = item;
-            Debug.Log("MoveItemJob, Entered WalkToTargetState");
         }
 
         public override Vector3Int GetTargetPos()
@@ -164,7 +158,6 @@ public class MoveItemJob : IJob
 
         public override State OnReachedTarget()
         {
-            Debug.Log("MoveItemJob, WalkToTargetState, OnReachedTarget");
             GridActor[] actors = GridActorMap.GetGridActors(this.request.PositionToMoveTo);
             foreach(GridActor actor in actors) {
                 BlockBuildingSite comp = actor.gameObject.GetComponent<BlockBuildingSite>();

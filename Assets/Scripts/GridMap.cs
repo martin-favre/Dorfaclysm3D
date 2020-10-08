@@ -217,7 +217,6 @@ public static class GridMap
             DroppedItemComponent tmpCont = actor.GetComponent<DroppedItemComponent>();
             if (tmpCont != null)
             {
-                Debug.Log("GridMap, Found existing DroppedItemComponent");
                 itemCont = tmpCont;
                 break;
             }

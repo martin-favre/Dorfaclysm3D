@@ -50,11 +50,9 @@ public class GridActor : MonoBehaviour, ISaveableComponent
     }
     void UnregisterMe()
     {
-        Debug.Log("About to unregister");
         if (registered)
         {
             GridActorMap.UnregisterGridActor(this, gridPosition);
-            Debug.Log("Actually unregistered");
         }
     }
 

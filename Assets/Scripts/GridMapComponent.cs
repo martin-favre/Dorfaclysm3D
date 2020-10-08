@@ -34,7 +34,6 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         Vector3Int chunkMapSize = new Vector3Int(size.x / chunkSize.x, size.y / chunkSize.y, size.z / chunkSize.z);
         int index = (pos.x + size.x * (pos.y + size.y * pos.z)) / (chunkSize.x * chunkSize.y * chunkSize.z);
         Vector3Int chunkPos = new Vector3Int(pos.x / chunkSize.x, pos.y / chunkSize.y, pos.z / chunkSize.z);
-        Debug.Log("Update on block " + pos + " index " + index);
         foreach (Vector3Int delta in DeltaPositions.DeltaPositions3D)
         {
             Vector3Int neighbourPos = chunkPos + delta;

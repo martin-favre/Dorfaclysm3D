@@ -37,10 +37,6 @@ public class DorfController : MonoBehaviour, ISaveableComponent
         return dorf;
     }
 
-    void Start()
-    {
-    }
-
     void Update()
     {
         if (!stateMachine.IsTerminated())
@@ -51,9 +47,6 @@ public class DorfController : MonoBehaviour, ISaveableComponent
         {
             Debug.LogError("DorfController without state");
         }
-
-        // Update the visual position
-        // transform.position = gridActor.GetPos() + new Vector3(.5f, 1, .5f);
     }
 
     public IGenericSaveData Save()

@@ -42,7 +42,7 @@ public class DroppedItemComponent : MonoBehaviour
     {
         if (!inventory.HasItems())
         {
-            print("No items, removing myself");
+            print("No items, DroppedItemComponent removing itself");
             GameObject.Destroy(gameObject);
         }
     }

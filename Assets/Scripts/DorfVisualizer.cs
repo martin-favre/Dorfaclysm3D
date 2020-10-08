@@ -19,11 +19,11 @@ public class DorfVisualizer : MonoBehaviour
     void Start()
     {
         actor = GetComponent<GridActor>();
+        transform.position = gridPosToRealPos(actor.GetPos());
         if (actor)
         {
             RecordPos(actor.GetPos());
         }
-        transform.position = realTargetPos;
     }
 
     void Update()
@@ -50,14 +50,19 @@ public class DorfVisualizer : MonoBehaviour
         }
     }
 
+    Vector3 gridPosToRealPos(Vector3Int gridpos)
+    {
+        return new Vector3(gridpos.x, gridpos.y, gridpos.z) + offset;
+    }
+
     void RecordPos(Vector3Int currentPos)
     {
         gridTargetPos = currentPos;
-        realTargetPos = new Vector3(gridTargetPos.x, gridTargetPos.y, gridTargetPos.z) + offset;
+        realTargetPos = gridPosToRealPos(gridTargetPos);
         originPos = transform.position;
         journeyLength = (originPos - realTargetPos).magnitude;
         timeDiff = (Time.time - timeLastPos) * 2;
-        if(timeDiff == 0) timeDiff = 0.001f;
+        if (timeDiff == 0) timeDiff = 0.001f;
         speed = 2 / (timeDiff);
         timeLastPos = Time.time;
     }

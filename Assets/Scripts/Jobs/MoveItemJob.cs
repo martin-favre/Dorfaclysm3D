@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Items;
@@ -7,6 +8,12 @@ using UnityEngine;
 
 public class MoveItemJob : IJob
 {
+    [System.Serializable]
+    private class SaveData : GenericSaveData<MoveItemJob>
+    {
+        public IGenericSaveData activeState;
+    }
+
     StateMachine machine;
 
     public MoveItemJob(GridActor actor, MoveItemRequest request)
@@ -14,9 +21,40 @@ public class MoveItemJob : IJob
         Debug.Log("Started a MoveItemJob");
         machine = new StateMachine(new FindItemState(actor, request));
     }
+
+    public MoveItemJob(GridActor user, IGenericSaveData save)
+    {
+        SaveData saveData = (SaveData)save;
+        if (saveData.activeState != null)
+        {
+            machine = new StateMachine(LoadState(user, saveData.activeState));
+        }
+    }
+
+    private State LoadState(GridActor user, IGenericSaveData activeState)
+    {
+        Type type = activeState.GetSaveType();
+        if (type == typeof(FindItemState))
+        {
+            return new FindItemState(user, activeState);
+        }
+        else if (type == typeof(WalkToItemState))
+        {
+            return new WalkToItemState(user, activeState);
+        }
+        else if (type == typeof(WalkToTargetState))
+        {
+            return new WalkToTargetState(user, activeState);
+        }
+        else
+        {
+            throw new Exception("Unknown type " + type.ToString());
+        }
+    }
+
     public IGenericSaveData GetSave()
     {
-        throw new System.NotImplementedException();
+        return new SaveData() { activeState = machine.GetSave() };
     }
 
     public bool Work()
@@ -27,6 +65,13 @@ public class MoveItemJob : IJob
 
     private class FindItemState : State
     {
+        [System.Serializable]
+        private class SaveData : GenericSaveData<FindItemState>
+        {
+            public IGenericSaveData parent;
+            public MoveItemRequest request;
+        }
+
         Task<Vector3Int> findItemTask;
         private readonly GridActor actor;
         private readonly MoveItemRequest request;
@@ -36,6 +81,18 @@ public class MoveItemJob : IJob
             this.actor = actor;
             this.request = request;
         }
+
+        public FindItemState(GridActor actor, IGenericSaveData saveData) : base(((SaveData)saveData).parent)
+        {
+            this.actor = actor;
+            SaveData save = saveData as SaveData;
+            this.request = save.request;
+        }
+
+        public override IGenericSaveData GetSave()
+        {
+            return new SaveData() { parent = base.GetSave(), request = this.request };
+        }
         public override void OnEntry()
         {
             this.findItemTask = Task.Run(() => FindItem(actor.GetPos(), request.TypeToFind));
@@ -44,9 +101,12 @@ public class MoveItemJob : IJob
         {
             if (findItemTask.IsCompleted)
             {
-                if(findItemTask.Result != actor.GetPos()) {
+                if (findItemTask.Result != actor.GetPos())
+                {
                     return new WalkToItemState(actor, request, findItemTask.Result);
-                } else {
+                }
+                else
+                {
                     Debug.Log("MoveItemJob, FindItemState, Could not find item");
                     MoveItemRequestPool.Instance.ReturnRequest(request);
                     TerminateMachine();
@@ -89,6 +149,15 @@ public class MoveItemJob : IJob
 
     private class WalkToItemState : WalkingState
     {
+
+        [System.Serializable]
+        private class SaveData : GenericSaveData<WalkToItemState>
+        {
+            public IGenericSaveData parent;
+            public MoveItemRequest request;
+            public Vector3Int target;
+        }
+
         private readonly GridActor actor;
         private readonly MoveItemRequest request;
         private readonly Vector3Int target;
@@ -98,6 +167,19 @@ public class MoveItemJob : IJob
             this.actor = actor;
             this.request = request;
             this.target = target;
+        }
+
+        public WalkToItemState(GridActor actor, IGenericSaveData saveData) : base(actor, ((SaveData)saveData).parent)
+        {
+            this.actor = actor;
+            SaveData save = saveData as SaveData;
+            this.request = save.request;
+            this.target = save.target;
+        }
+
+        public override IGenericSaveData GetSave()
+        {
+            return new SaveData() { parent = base.GetSave(), request = this.request, target = this.target };
         }
 
         public override Vector3Int GetTargetPos()
@@ -131,6 +213,14 @@ public class MoveItemJob : IJob
 
     private class WalkToTargetState : WalkingState
     {
+        [System.Serializable]
+        private class SaveData : GenericSaveData<WalkToTargetState>
+        {
+            public IGenericSaveData parent;
+            public MoveItemRequest request;
+            public Item item;
+        }
+
         private readonly GridActor actor;
         private readonly MoveItemRequest request;
         private readonly Item item;
@@ -140,6 +230,19 @@ public class MoveItemJob : IJob
             this.actor = actor;
             this.request = request;
             this.item = item;
+        }
+
+        public WalkToTargetState(GridActor actor, IGenericSaveData saveData) : base(actor, ((SaveData)saveData).parent)
+        {
+            this.actor = actor;
+            SaveData save = saveData as SaveData;
+            this.request = save.request;
+            this.item = save.item;
+        }
+
+        public override IGenericSaveData GetSave()
+        {
+            return new SaveData() { parent = base.GetSave(), request = this.request, item = this.item };
         }
 
         public override Vector3Int GetTargetPos()
@@ -159,9 +262,11 @@ public class MoveItemJob : IJob
         public override State OnReachedTarget()
         {
             GridActor[] actors = GridActorMap.GetGridActors(this.request.PositionToMoveTo);
-            foreach(GridActor actor in actors) {
+            foreach (GridActor actor in actors)
+            {
                 BlockBuildingSite comp = actor.gameObject.GetComponent<BlockBuildingSite>();
-                if(comp) {
+                if (comp)
+                {
                     comp.GetComponent<InventoryComponent>().AddItem(item);
                     MoveItemRequestPool.Instance.FinishRequest(request);
                     TerminateMachine();

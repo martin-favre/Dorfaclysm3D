@@ -66,6 +66,7 @@ public class WalkRandomlyJob : IJob
 
         public WalkRandomlyState(GridActor user, IGenericSaveData save) : base(user, save)
         {
+            
         }
 
         public override Vector3Int GetTargetPos()

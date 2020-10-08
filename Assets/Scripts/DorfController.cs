@@ -144,7 +144,17 @@ public class DorfController : MonoBehaviour, ISaveableComponent
 
         private IJob LoadWork(IGenericSaveData workSave)
         {
-            return new WalkRandomlyJob(this.actor, workSave);
+            Type type = workSave.GetSaveType();
+            if(type == typeof(WalkRandomlyJob)) {
+                return new WalkRandomlyJob(this.actor, workSave); 
+            } else if(type == typeof(MiningJob)) {
+                return new MiningJob(this.actor, workSave);
+            } else if(type == typeof(MoveItemJob)) {
+                return new MoveItemJob(this.actor, workSave);
+            } else {
+                throw new Exception("Unknown type " + type.ToString());
+            }
+             
         }
 
         public DoJobState(IJob work, GridActor actor)

@@ -5,46 +5,105 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-[System.Serializable]
 public abstract class RequestPool<T> where T : PlayerRequest
 {
-    protected HashSet<T> requests = new HashSet<T>();
-    protected HashSet<T> handedOutRequests = new HashSet<T>();
+    [System.Serializable]
+    protected class RequestOnCooldown
+    {
+        public readonly T request;
+        public readonly double startTime;
+        const int cooldownTime = 5; // seconds
+
+        public RequestOnCooldown(T request, double startTime)
+        {
+            this.request = request;
+            this.startTime = startTime;
+        }
+
+        public bool IsCool()
+        {
+            return startTime + cooldownTime < Time.time;
+        }
+    }
+
+    [System.Serializable]
+    private class SaveData : GenericSaveData<RequestPool<T>>
+    {
+        public HashSet<T> requests = new HashSet<T>();
+        public HashSet<T> handedOutRequests = new HashSet<T>();
+    }
+    protected Queue<RequestOnCooldown> coolingDownRequests = new Queue<RequestOnCooldown>();
+
+    SaveData data = new SaveData();
 
     readonly protected object lockObject = new object();
-    public bool PostRequest(T request)
+
+    protected HashSet<T> Requests { get => data.requests; }
+    protected HashSet<T> HandedOutRequests { get => data.handedOutRequests; }
+    protected Queue<RequestOnCooldown> CoolingDownRequests { get => coolingDownRequests; }
+
+    protected void ReturnCooledDownTasks(bool returnAll)
     {
-        bool success;
         lock (lockObject)
         {
-            success = requests.Add(request);
+            while (CoolingDownRequests.Count > 0)
+            {
+                if (CoolingDownRequests.Peek().IsCool() || returnAll)
+                {
+                    Requests.Add(CoolingDownRequests.Dequeue().request);
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
-        return success;
+    }
+
+    public virtual IGenericSaveData GetSave()
+    {
+        ReturnCooledDownTasks(true);
+        lock (lockObject)
+        {
+            return data;
+        }
+    }
+
+    public virtual void Load(IGenericSaveData save)
+    {
+        lock (lockObject)
+        {
+            data = (SaveData)save;
+        }
+    }
+
+    public bool PostRequest(T request)
+    {
+        lock (lockObject)
+        {
+            return Requests.Add(request);
+        }
 
     }
 
     public void ReturnRequest(T request)
     {
+        Debug.Log("Returned request of type " + typeof(T).ToString());
         lock (lockObject)
         {
-            handedOutRequests.Remove(request);
+            HandedOutRequests.Remove(request);
+            CoolingDownRequests.Enqueue(new RequestOnCooldown(request, Time.time));
         }
-        Task.Run(
-            () =>
-            {
-                // chill a bit before re-adding it to the pool
-                Thread.Sleep(1000);
-                PostRequest(request);
-            });
-
     }
 
     public void CancelRequest(T request)
     {
+        Debug.Log("Cancelled request of type " + typeof(T).ToString());
+
         lock (lockObject)
         {
             request.Cancel();
-            handedOutRequests.Remove(request);
+            HandedOutRequests.Remove(request);
         }
     }
 
@@ -52,27 +111,26 @@ public abstract class RequestPool<T> where T : PlayerRequest
     {
         lock (lockObject)
         {
-            handedOutRequests.Remove(request);
+            HandedOutRequests.Remove(request);
             request.Finish();
         }
     }
 
     public bool HasRequests()
     {
-        bool hasRequests;
+        ReturnCooledDownTasks(false);
         lock (lockObject)
         {
-            hasRequests = requests.Count != 0;
+            return Requests.Count != 0;
         }
-        return hasRequests;
     }
 
     protected void HandOutRequest(T request)
     {
         lock (lockObject)
         {
-            requests.Remove(request);
-            handedOutRequests.Add(request);
+            Requests.Remove(request);
+            HandedOutRequests.Add(request);
         }
     }
 

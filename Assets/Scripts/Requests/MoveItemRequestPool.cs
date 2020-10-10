@@ -11,13 +11,15 @@ public class MoveItemRequestPool : RequestPool<MoveItemRequest>
     {
         instance = new MoveItemRequestPool();
     }
+
     public override MoveItemRequest GetRequest(GridActor actor)
     {
+        ReturnCooledDownTasks(false);
         // just get first best
         MoveItemRequest request = null;
         lock (lockObject)
         {
-            foreach (MoveItemRequest req in requests)
+            foreach (MoveItemRequest req in Requests)
             {
                 request = req;
                 break;

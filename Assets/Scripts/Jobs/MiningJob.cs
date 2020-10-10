@@ -108,7 +108,11 @@ public class MiningJob : IJob
 
         public override State OnPathFindFail()
         {
-            MiningRequestPool.Instance.ReturnRequest(request);
+            if (!IsMachineTerminated())
+            {
+                // Avoid returning twice
+                MiningRequestPool.Instance.ReturnRequest(request);
+            }
             TerminateMachine();
             return StateMachine.NoTransition();
         }
@@ -156,7 +160,12 @@ public class MiningJob : IJob
                 if (block != null && block.Type == request.BlockType)
                 {
                     GridMap.SetBlock(request.Position, new AirBlock());
-                    request.Finish();
+                    MiningRequestPool.Instance.FinishRequest(request);
+                }
+                else
+                {
+                    Debug.Log("Could not mine block, it did not match request");
+                    MiningRequestPool.Instance.CancelRequest(request);
                 }
             }
             TerminateMachine();

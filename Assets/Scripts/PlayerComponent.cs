@@ -49,7 +49,6 @@ public class PlayerComponent : MonoBehaviour
 
                 print("It was airblock ");
                 BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos);
-                site.gameObject.transform.position = blockPos + new Vector3(.5f, -.5f, .5f);
             }
         }
     }

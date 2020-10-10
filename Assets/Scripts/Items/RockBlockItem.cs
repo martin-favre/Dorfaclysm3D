@@ -1,4 +1,6 @@
-namespace Items {
+namespace Items
+{
+    [System.Serializable]
     public class RockBlockItem : Item
     {
         public override object Clone()

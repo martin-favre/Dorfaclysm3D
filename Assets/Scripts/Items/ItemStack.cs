@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace Items
 {
 
+    [Serializable]
     public class ItemStack 
     {
         private readonly Item item;

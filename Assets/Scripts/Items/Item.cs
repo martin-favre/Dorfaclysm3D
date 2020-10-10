@@ -1,5 +1,6 @@
 namespace Items
 {
+    [System.Serializable]
     public abstract class Item : System.ICloneable
     {
         public abstract string GetName();

@@ -224,7 +224,7 @@ public static class GridMap
         if (itemCont == null)
         {
             itemCont = DroppedItemComponent.InstantiateNew(pos);
-            itemCont.transform.position = pos + new Vector3(.5f, -.5f, .5f);
+            
             Debug.Log("GridMap, Spawned new DroppedItemComponent");
         }
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Items;
 
 public class BlockBuildingSite : MonoBehaviour
 {
@@ -32,6 +33,9 @@ public class BlockBuildingSite : MonoBehaviour
             inventory.RegisterOnItemAddedCallback(OnItemAdded);
         }
         actor = GetComponent<GridActor>();
+        if(actor) {
+            transform.position = actor.GetPos() + new Vector3(.5f, -.5f, .5f);
+        }
         MoveItemRequestPool.Instance.PostRequest(new MoveItemRequest(Items.ItemType.RockBlock, actor.GetPos()));
     }
 

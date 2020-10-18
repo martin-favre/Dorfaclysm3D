@@ -47,6 +47,15 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         chunkGenerators[chunkPos].GenerateMesh();
     }
 
+    public void RegenerateMeshes()
+    {
+        Debug.Log("Regenerating meshes");
+        foreach (KeyValuePair<Vector3Int, ChunkMeshGenerator> gen in chunkGenerators)
+        {
+            gen.Value.GenerateMesh();
+        }
+    }
+
     private void createMeshCreators()
     {
         chunkGenerators = new Dictionary<Vector3Int, ChunkMeshGenerator>();
@@ -87,7 +96,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
             case State.Created:
                 state = State.GeneratingMap;
                 Debug.Log("generating new map");
-                generationTask = Task.Run(() => GridMap.GenerateMap(new Vector3Int(16, 16, 16)));
+                generationTask = Task.Run(() => GridMap.GenerateMap(new Vector3Int(8, 8, 8)));
                 break;
             case State.GeneratingMap:
             case State.LoadingMap:

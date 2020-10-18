@@ -17,6 +17,7 @@ public class ChunkMeshGenerator : MonoBehaviour
     private List<Vector3> newSpriteVertices = new List<Vector3>();
     private List<int> newSpriteTriangles = new List<int>();
     private List<Vector2> newSpriteUV = new List<Vector2>();
+    private List<Vector2> effectSpriteUV = new List<Vector2>();
 
     private List<Vector3> newCollVertices = new List<Vector3>();
     private List<int> newCollTriangles = new List<int>();
@@ -38,6 +39,8 @@ public class ChunkMeshGenerator : MonoBehaviour
     private State state = State.Idle;
 
     private Task generationTask;
+
+    public Vector2 secTextPos;
 
     private void Awake()
     {
@@ -234,7 +237,14 @@ public class ChunkMeshGenerator : MonoBehaviour
         newSpriteUV.Add(new Vector2(unit * texturePos.x + unit, unit * texturePos.y + unit));
         newSpriteUV.Add(new Vector2(unit * texturePos.x, unit * texturePos.y + unit));
         newSpriteUV.Add(new Vector2(unit * texturePos.x, unit * texturePos.y));
-
+        
+        texturePos = secTextPos;
+        effectSpriteUV.Add(new Vector2(unit * texturePos.x + unit, unit * texturePos.y));
+        effectSpriteUV.Add(new Vector2(unit * texturePos.x + unit, unit * texturePos.y + unit));
+        effectSpriteUV.Add(new Vector2(unit * texturePos.x, unit * texturePos.y + unit));
+        effectSpriteUV.Add(new Vector2(unit * texturePos.x, unit * texturePos.y));
+        
+        
         faceCount++; // Add this line
     }
     private void UpdateMesh()
@@ -242,6 +252,7 @@ public class ChunkMeshGenerator : MonoBehaviour
         mesh.Clear();
         mesh.vertices = newSpriteVertices.ToArray();
         mesh.uv = newSpriteUV.ToArray();
+        mesh.uv2 = effectSpriteUV.ToArray();
         mesh.triangles = newSpriteTriangles.ToArray();
         mesh.Optimize();
         mesh.RecalculateNormals();
@@ -251,6 +262,7 @@ public class ChunkMeshGenerator : MonoBehaviour
 
         newSpriteVertices.Clear();
         newSpriteUV.Clear();
+        effectSpriteUV.Clear();
         newSpriteTriangles.Clear();
         faceCount = 0;
     }

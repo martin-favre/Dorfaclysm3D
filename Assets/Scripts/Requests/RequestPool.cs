@@ -75,14 +75,31 @@ public abstract class RequestPool<T> where T : PlayerRequest
         {
             data = (SaveData)save;
         }
+        foreach (T request in data.requests)
+        {
+            OnRequestAdded(request);
+        }
+        foreach (T request in data.handedOutRequests)
+        {
+            OnRequestAdded(request);
+        }
     }
 
     public bool PostRequest(T request)
     {
+        OnRequestAdded(request);
         lock (lockObject)
         {
             return Requests.Add(request);
         }
+    }
+
+    protected virtual void OnRequestAdded(T request)
+    {
+    }
+
+    protected virtual void OnRequestRemoved(T request)
+    {
 
     }
 
@@ -105,6 +122,7 @@ public abstract class RequestPool<T> where T : PlayerRequest
             request.Cancel();
             HandedOutRequests.Remove(request);
         }
+        OnRequestRemoved(request);
     }
 
     public void FinishRequest(T request)
@@ -114,6 +132,7 @@ public abstract class RequestPool<T> where T : PlayerRequest
             HandedOutRequests.Remove(request);
             request.Finish();
         }
+        OnRequestRemoved(request);
     }
 
     public bool HasRequests()

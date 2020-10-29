@@ -13,6 +13,15 @@ public class MiningRequestPool : RequestPool<MiningRequest>
     }
     private MiningRequestPool() { }
 
+    protected override void OnRequestAdded(MiningRequest request)
+    {
+        BlockEffectMap.SetEffect(request.Position, BlockEffects.SelectedBlock);
+    }
+
+    protected override void OnRequestRemoved(MiningRequest request)
+    {
+        BlockEffectMap.RemoveEffect(request.Position, BlockEffects.SelectedBlock);
+    }
 
     public override MiningRequest GetRequest(GridActor actor)
     {

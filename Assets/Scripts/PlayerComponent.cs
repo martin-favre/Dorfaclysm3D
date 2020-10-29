@@ -65,7 +65,6 @@ public class PlayerComponent : MonoBehaviour
             {
                 MiningRequest req = new MiningRequest(blockPos, block.Type);
                 MiningRequestPool.Instance.PostRequest(req);
-                BlockEffectMap.SetEffect(blockPos, BlockEffects.SelectedBlock);
             }
         }
     }

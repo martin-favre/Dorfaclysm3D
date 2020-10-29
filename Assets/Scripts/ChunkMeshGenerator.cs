@@ -163,7 +163,7 @@ public class ChunkMeshGenerator : MonoBehaviour
         newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
         newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
         newSpriteVertices.Add(pos);
-        Cube(block.GetTexturePos());
+        Cube(block.GetTexturePos(), BlockEffectMap.GetBlockEffect(pos));
     }
 
     void CubeNorth(Vector3Int pos, Block block)
@@ -172,7 +172,7 @@ public class ChunkMeshGenerator : MonoBehaviour
         newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
         newSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
         newSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z + 1));
-        Cube(block.GetTexturePos());
+        Cube(block.GetTexturePos(), BlockEffectMap.GetBlockEffect(pos));
     }
 
     void CubeEast(Vector3Int pos, Block block)
@@ -182,8 +182,7 @@ public class ChunkMeshGenerator : MonoBehaviour
         newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
         newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z + 1));
         newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
-
-        Cube(block.GetTexturePos());
+        Cube(block.GetTexturePos(), BlockEffectMap.GetBlockEffect(pos));
 
     }
 
@@ -194,9 +193,7 @@ public class ChunkMeshGenerator : MonoBehaviour
         newSpriteVertices.Add(pos);
         newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y, pos.z));
         newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z));
-        Cube(block.GetTexturePos());
-
-
+        Cube(block.GetTexturePos(), BlockEffectMap.GetBlockEffect(pos));
     }
 
     void CubeWest(Vector3Int pos, Block block)
@@ -206,9 +203,7 @@ public class ChunkMeshGenerator : MonoBehaviour
         newSpriteVertices.Add(new Vector3(pos.x, pos.y, pos.z + 1));
         newSpriteVertices.Add(pos);
         newSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z));
-        Cube(block.GetTexturePos());
-
-
+        Cube(block.GetTexturePos(), BlockEffectMap.GetBlockEffect(pos));
     }
 
     void CubeBot(Vector3Int pos, Block block)
@@ -218,12 +213,11 @@ public class ChunkMeshGenerator : MonoBehaviour
         newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z));
         newSpriteVertices.Add(new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
         newSpriteVertices.Add(new Vector3(pos.x, pos.y - 1, pos.z + 1));
-        Cube(block.GetTexturePos());
-
+        Cube(block.GetTexturePos(), BlockEffectMap.GetBlockEffect(pos));
 
     }
 
-    void Cube(Vector2 texturePos)
+    void Cube(Vector2 texturePos, Vector2 effectPos)
     {
 
         newSpriteTriangles.Add(faceCount * 4); //1
@@ -237,14 +231,13 @@ public class ChunkMeshGenerator : MonoBehaviour
         newSpriteUV.Add(new Vector2(unit * texturePos.x + unit, unit * texturePos.y + unit));
         newSpriteUV.Add(new Vector2(unit * texturePos.x, unit * texturePos.y + unit));
         newSpriteUV.Add(new Vector2(unit * texturePos.x, unit * texturePos.y));
-        
-        texturePos = secTextPos;
-        effectSpriteUV.Add(new Vector2(unit * texturePos.x + unit, unit * texturePos.y));
-        effectSpriteUV.Add(new Vector2(unit * texturePos.x + unit, unit * texturePos.y + unit));
-        effectSpriteUV.Add(new Vector2(unit * texturePos.x, unit * texturePos.y + unit));
-        effectSpriteUV.Add(new Vector2(unit * texturePos.x, unit * texturePos.y));
-        
-        
+
+        effectSpriteUV.Add(new Vector2(unit * effectPos.x + unit, unit * effectPos.y));
+        effectSpriteUV.Add(new Vector2(unit * effectPos.x + unit, unit * effectPos.y + unit));
+        effectSpriteUV.Add(new Vector2(unit * effectPos.x, unit * effectPos.y + unit));
+        effectSpriteUV.Add(new Vector2(unit * effectPos.x, unit * effectPos.y));
+
+
         faceCount++; // Add this line
     }
     private void UpdateMesh()

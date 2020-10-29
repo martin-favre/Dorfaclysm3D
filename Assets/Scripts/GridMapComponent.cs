@@ -87,6 +87,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
             generationTask.GetAwaiter().GetResult(); // Sleep until task done
         }
         GridMap.UnregisterCallbackOnBlockChange(OnBlockUpdate);
+        BlockEffectMap.UnregisterOnEffectAddedCallback(OnBlockUpdate);
     }
 
     void Update()
@@ -105,6 +106,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
                     print("Map finished generation");
                     state = State.MapGenerated;
                     GridMap.RegisterCallbackOnBlockChange(OnBlockUpdate);
+                    BlockEffectMap.RegisterOnEffectAddedCallback(OnBlockUpdate);
                 }
                 break;
             case State.MapGenerated:

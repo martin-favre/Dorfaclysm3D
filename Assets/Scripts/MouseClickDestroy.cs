@@ -42,13 +42,13 @@ public class MouseClickDestroy : MonoBehaviour
         if (success)
         {
             Block block;
-            GridMap.TryGetBlock(blockPosition, out block);
+            GridMap.Instance.TryGetBlock(blockPosition, out block);
             print("Blockpos at " + blockPosition);
             if (block != null)
             {
                 print("Destroyed a " + block.GetName());
                 Block newBlock = new AirBlock();
-                GridMap.SetBlock(blockPosition, newBlock);
+                GridMap.Instance.SetBlock(blockPosition, newBlock);
             }
             else
             {

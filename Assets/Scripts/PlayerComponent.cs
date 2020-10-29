@@ -42,7 +42,7 @@ public class PlayerComponent : MonoBehaviour
         {
             print("Pointed at " + blockPos);
             Block block;
-            bool foundBlock = GridMap.TryGetBlock(blockPos, out block);
+            bool foundBlock = GridMap.Instance.TryGetBlock(blockPos, out block);
             print("FoundBlock " + foundBlock);
             if (foundBlock && block.Type == Block.BlockType.airBlock)
             {
@@ -60,7 +60,7 @@ public class PlayerComponent : MonoBehaviour
         if (success)
         {
             Block block;
-            bool foundBlock = GridMap.TryGetBlock(blockPos, out block);
+            bool foundBlock = GridMap.Instance.TryGetBlock(blockPos, out block);
             if (foundBlock)
             {
                 MiningRequest req = new MiningRequest(blockPos, block.Type);

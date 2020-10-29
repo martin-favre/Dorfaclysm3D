@@ -17,7 +17,7 @@ public class WalkRandomlyJob : IJob
 
     public WalkRandomlyJob(GridActor user)
     {
-        Vector3Int size = GridMap.GetSize();
+        Vector3Int size = GridMap.Instance.GetSize();
         Vector3Int pos = Helpers.GetRandom(Vector3Int.zero, size);
         machine = new StateMachine(new WalkRandomlyState(user, pos));
     }

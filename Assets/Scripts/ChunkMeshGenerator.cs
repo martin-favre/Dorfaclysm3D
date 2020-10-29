@@ -19,10 +19,7 @@ public class ChunkMeshGenerator : MonoBehaviour
     private List<Vector2> newSpriteUV = new List<Vector2>();
     private List<Vector2> effectSpriteUV = new List<Vector2>();
 
-    private List<Vector3> newCollVertices = new List<Vector3>();
-    private List<int> newCollTriangles = new List<int>();
-
-    public const int chunkSize = 8;
+    private int chunkSize = 8;
     private int faceCount;
     private const float unit = 0.5f;
 
@@ -30,7 +27,9 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     private Mesh mesh;
 
-    public Vector3Int ChunkOrigin { set => chunkOrigin = value; }
+    public Vector3Int ChunkOrigin { get => chunkOrigin; set => chunkOrigin = value; }
+    public int ChunkSize { get => chunkSize; set => chunkSize = value; }
+    internal IHasBlocks BlockOwner { set => blockOwner = value; }
 
     private Vector3Int chunkOrigin;
 
@@ -40,7 +39,8 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     private Task generationTask;
 
-    public Vector2 secTextPos;
+    private IHasBlocks blockOwner;
+
 
     private void Awake()
     {
@@ -50,7 +50,6 @@ public class ChunkMeshGenerator : MonoBehaviour
 
     void Start()
     {
-        GenerateMesh();
     }
 
     void Update()
@@ -153,7 +152,7 @@ public class ChunkMeshGenerator : MonoBehaviour
     Block GetBlock(Vector3Int pos)
     {
         Block block = null;
-        GridMap.TryGetBlock(pos, out block);
+        blockOwner.TryGetBlock(pos, out block);
         return block;
     }
 
@@ -250,8 +249,11 @@ public class ChunkMeshGenerator : MonoBehaviour
         mesh.Optimize();
         mesh.RecalculateNormals();
 
-        meshCollider.sharedMesh = null;
-        meshCollider.sharedMesh = mesh;
+        if (meshCollider != null)
+        {
+            meshCollider.sharedMesh = null;
+            meshCollider.sharedMesh = mesh;
+        }
 
         newSpriteVertices.Clear();
         newSpriteUV.Clear();

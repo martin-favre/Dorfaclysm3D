@@ -6,7 +6,7 @@ using System.Threading;
 using System;
 using Items;
 
-public static class GridMap
+public class GridMap : IHasBlocks
 {
     [System.Serializable]
     private class SaveData
@@ -16,19 +16,20 @@ public static class GridMap
         public bool generated;
 
     }
-    static Vector3Int mapSize = Vector3Int.zero;
-    static Dictionary<Vector3Int, Block> blocks = new Dictionary<Vector3Int, Block>();
-    static bool generated = false;
+    static readonly GridMap instance = new GridMap();
+    Vector3Int mapSize = Vector3Int.zero;
+    Dictionary<Vector3Int, Block> blocks = new Dictionary<Vector3Int, Block>();
+    bool generated = false;
     const int lockTimeout = 10000; // ms
-    static ReaderWriterLockSlim blockLock = new ReaderWriterLockSlim();
-    static ReaderWriterLockSlim callbackLock = new ReaderWriterLockSlim();
-    static List<Action<Vector3Int>> runOnBlockChange = new List<Action<Vector3Int>>();
+    ReaderWriterLockSlim blockLock = new ReaderWriterLockSlim();
+    ReaderWriterLockSlim callbackLock = new ReaderWriterLockSlim();
+    List<Action<Vector3Int>> runOnBlockChange = new List<Action<Vector3Int>>();
 
-    static GridMap()
-    {
-    }
+    public static GridMap Instance { get => instance; }
 
-    static public object GetSave()
+    GridMap() { }
+
+    public object GetSave()
     {
         SaveData data = new SaveData();
         EnterReadLock();
@@ -43,7 +44,7 @@ public static class GridMap
         return data;
     }
 
-    static public void LoadSave(object data)
+    public void LoadSave(object data)
     {
         SaveData save = (SaveData)data;
         EnterWriteLock();
@@ -53,7 +54,7 @@ public static class GridMap
         blockLock.ExitWriteLock();
     }
 
-    public static void GenerateMap(Vector3Int size)
+    public void GenerateMap(Vector3Int size)
     {
         SetSize(size);
         for (int x = 0; x < mapSize.x; x++)
@@ -86,44 +87,44 @@ public static class GridMap
         SetGenerationDone();
     }
 
-    static private void SetGenerationDone()
+    private void SetGenerationDone()
     {
         generated = true;
     }
 
-    static public bool IsGenerationDone()
+    public bool IsGenerationDone()
     {
         return generated;
     }
-    static public void RegisterCallbackOnBlockChange(Action<Vector3Int> func)
+    public void RegisterCallbackOnBlockChange(Action<Vector3Int> func)
     {
         if (!callbackLock.TryEnterWriteLock(lockTimeout)) throw new Exception("WriteLock timeout");
         runOnBlockChange.Add(func);
         callbackLock.ExitWriteLock();
     }
 
-    static public void UnregisterCallbackOnBlockChange(Action<Vector3Int> func)
+    public void UnregisterCallbackOnBlockChange(Action<Vector3Int> func)
     {
         if (!callbackLock.TryEnterWriteLock(lockTimeout)) throw new Exception("WriteLock timeout");
         runOnBlockChange.Remove(func);
         callbackLock.ExitWriteLock();
     }
 
-    static public bool IsPosInMap(Vector3Int pos)
+    public bool IsPosInMap(Vector3Int pos)
     {
-        GridMap.EnterReadLock();
+        EnterReadLock();
         bool result = blocks.ContainsKey(pos);
         blockLock.ExitReadLock();
         return result;
     }
 
-    static public bool IsPosFree(Vector3Int pos)
+    public bool IsPosFree(Vector3Int pos)
     {
         if (!IsBlockFree(pos)) return false;
         return GridActorMap.IsPosFree(pos);
     }
 
-    static private bool IsBlockFree(Vector3Int pos)
+    private bool IsBlockFree(Vector3Int pos)
     {
         Block block;
         TryGetBlock(pos, out block);
@@ -134,20 +135,20 @@ public static class GridMap
         return false; // If we don't have a block, you can't walk there
     }
 
-    static public bool TryGetBlock(Vector3Int pos, out Block block)
+    public bool TryGetBlock(Vector3Int pos, out Block block)
     {
         if (!IsGenerationDone())
         {
             block = null;
             return false;
         }
-        GridMap.EnterReadLock();
+        EnterReadLock();
         bool result = blocks.TryGetValue(pos, out block);
         blockLock.ExitReadLock();
         return result;
     }
 
-    static public Block GetBlock(Vector3Int pos)
+    public Block GetBlock(Vector3Int pos)
     {
         Block block;
 
@@ -157,30 +158,30 @@ public static class GridMap
         }
         return block;
     }
-    static private void SetSize(Vector3Int size)
+    private void SetSize(Vector3Int size)
     {
         EnterWriteLock();
         mapSize = size;
         blockLock.ExitWriteLock();
     }
 
-    static public Vector3Int GetSize()
+    public Vector3Int GetSize()
     {
-        GridMap.EnterReadLock();
+        EnterReadLock();
         Vector3Int size = mapSize;
         blockLock.ExitReadLock();
         return size;
     }
 
-    static bool InMap(Vector3Int pos)
+    bool InMap(Vector3Int pos)
     {
-        GridMap.EnterReadLock();
+        EnterReadLock();
         bool inMap = blocks.ContainsKey(pos);
         blockLock.ExitReadLock();
         return inMap;
     }
 
-    static private void RunCallbacks(Vector3Int pos)
+    private void RunCallbacks(Vector3Int pos)
     {
         if (!callbackLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
         try
@@ -196,17 +197,17 @@ public static class GridMap
         }
     }
 
-    static void EnterWriteLock()
+    void EnterWriteLock()
     {
         if (!blockLock.TryEnterWriteLock(lockTimeout)) throw new Exception("Writelock timeout");
     }
 
-    static void EnterReadLock()
+    void EnterReadLock()
     {
         if (!blockLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
     }
 
-    public static void PutItem(Vector3Int pos, Item itemToAdd)
+    public void PutItem(Vector3Int pos, Item itemToAdd)
     {
         if (itemToAdd == null) return;
         Debug.Log("GridMap, Adding item to " + pos);
@@ -224,20 +225,23 @@ public static class GridMap
         if (itemCont == null)
         {
             itemCont = DroppedItemComponent.InstantiateNew(pos);
-            
+
             Debug.Log("GridMap, Spawned new DroppedItemComponent");
         }
 
         InventoryComponent inv = itemCont.gameObject.GetComponent<InventoryComponent>();
-        if(inv) {
+        if (inv)
+        {
             inv.AddItem(itemToAdd);
-        } else {
+        }
+        else
+        {
             Debug.LogWarning("GridMap, No inventory to drop item in");
         }
 
     }
 
-    static public void SetBlock(Vector3Int pos, Block block)
+    public void SetBlock(Vector3Int pos, Block block)
     {
         EnterWriteLock();
 

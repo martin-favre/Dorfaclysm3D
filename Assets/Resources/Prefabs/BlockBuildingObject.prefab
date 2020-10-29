@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 2952082999630936526}
   - component: {fileID: -3454320103461148193}
   - component: {fileID: 6604290423643696605}
+  - component: {fileID: 9185491346499530168}
+  - component: {fileID: 1730462638004219276}
   m_Layer: 0
   m_Name: BlockBuildingObject
   m_TagString: Untagged
@@ -80,7 +82,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4930438751687897100}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -92,7 +94,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 86b482d8f800aa896aefbc7f7dce707b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -121,7 +123,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4930438751687897100}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!114 &6604290423643696605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,3 +137,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabName: BlockBuildingObject
+--- !u!114 &9185491346499530168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4930438751687897100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8771ca376a58ac8a83c748adfe730f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1730462638004219276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4930438751687897100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4fd5db68f2e417579a994458efd5b47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

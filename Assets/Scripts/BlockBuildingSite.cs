@@ -45,7 +45,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         actor = GetComponent<GridActor>();
         if (actor)
         {
-            transform.position = actor.GetPos() + new Vector3(.5f, -.5f, .5f);
+            transform.position = actor.GetPos();// + new Vector3(.5f, -.5f, .5f);
         }
         if (!data.hasSpawnedRequest)
         {
@@ -53,24 +53,29 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
 
             data.hasSpawnedRequest = true;
         }
-        SpawnBlock();
+        // SpawnBlock();
+    }
+
+    public Block GetBlock() 
+    {
+        return new RockBlock();
     }
 
     private void SpawnBlock()
     {
-        Block block = GridMap.GetBlock(actor.GetPos());
+        Block block = GridMap.Instance.GetBlock(actor.GetPos());
         if (block.Type != Block.BlockType.blockBuildingBlock)
         {
-            GridMap.SetBlock(actor.GetPos(), new BlockBuildingBlock());
+            GridMap.Instance.SetBlock(actor.GetPos(), new BlockBuildingBlock());
         }
     }
 
     private void DespawnBlock()
     {
-        Block block = GridMap.GetBlock(actor.GetPos());
+        Block block = GridMap.Instance.GetBlock(actor.GetPos());
         if (block.Type == Block.BlockType.blockBuildingBlock)
         {
-            GridMap.SetBlock(actor.GetPos(), new AirBlock());
+            GridMap.Instance.SetBlock(actor.GetPos(), new AirBlock());
         }
 
     }
@@ -88,8 +93,8 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     {
         if (actor)
         {
-            GridMap.SetBlock(actor.GetPos(), new RockBlock());
-            DespawnBlock();
+            GridMap.Instance.SetBlock(actor.GetPos(), new RockBlock());
+            // DespawnBlock();
             GameObject.Destroy(this);
         }
     }

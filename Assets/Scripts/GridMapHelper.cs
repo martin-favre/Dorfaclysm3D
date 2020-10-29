@@ -16,7 +16,7 @@ public static class GridMapHelper
             Tuple<Vector3Int, int> current = testPositions.Pop();
             Vector3Int currentPos = current.Item1;
             int currentDepth = current.Item2;
-            if (GridMap.IsPosFree(currentPos))
+            if (GridMap.Instance.IsPosFree(currentPos))
             {
                 result = currentPos;
                 return true;

@@ -73,14 +73,14 @@ public class Astar
     {
         Stopwatch sw = Stopwatch.StartNew();
         Result result = new Result();
-        if (!GridMap.IsPosInMap(start))
+        if (!GridMap.Instance.IsPosInMap(start))
         {
             // explicitly don't care if our own block is passable, it just have to exist.
             // Will help if unit for some reason gets stuck inside a block
             result.failReason = FailReason.InvalidStartPosition;
             return Task.FromResult(result);
         }
-        if (!GridMap.IsPosFree(end))
+        if (!GridMap.Instance.IsPosFree(end))
         {
             result.failReason = FailReason.InvalidEndPosition;
             return Task.FromResult(result);
@@ -164,7 +164,7 @@ public class Astar
 
     public static bool IsStepValid(Vector3Int newPos, Vector3Int currentPos, Vector3Int delta)
     {
-        if (!GridMap.IsPosFree(newPos)) return false;
+        if (!GridMap.Instance.IsPosFree(newPos)) return false;
         /**
         * If I am moving up, I want to know if my current block allows it
         *     i.e. does it allow climbing?
@@ -180,7 +180,7 @@ public class Astar
             if (delta.y > 0)
             {
                 // This block should have an existance guarantee
-                return GridMap.GetBlock(currentPos).supportsClimbing();
+                return GridMap.Instance.GetBlock(currentPos).supportsClimbing();
             }
             else
             {
@@ -191,7 +191,7 @@ public class Astar
         {
             Vector3Int posBelowNext = newPos + Vector3Int.down;
             Block nextBlock;
-            GridMap.TryGetBlock(posBelowNext, out nextBlock);
+            GridMap.Instance.TryGetBlock(posBelowNext, out nextBlock);
             if (nextBlock != null)
             {
                 return nextBlock.supportsWalkingOnTop();

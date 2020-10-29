@@ -254,7 +254,7 @@ public class MoveItemJob : IJob
         {
             Debug.Log("MoveItemJob, WalkToTargetState, OnPathFindFail " + GetFailReason().ToString());
             TerminateMachine();
-            GridMap.PutItem(actor.GetPos(), item);
+            GridMap.Instance.PutItem(actor.GetPos(), item);
             MoveItemRequestPool.Instance.ReturnRequest(request);
             return StateMachine.NoTransition();
         }
@@ -273,7 +273,7 @@ public class MoveItemJob : IJob
                     return StateMachine.NoTransition();
                 }
             }
-            GridMap.PutItem(this.request.PositionToMoveTo, item);
+            GridMap.Instance.PutItem(this.request.PositionToMoveTo, item);
             return OnPathFindFail();
         }
     }

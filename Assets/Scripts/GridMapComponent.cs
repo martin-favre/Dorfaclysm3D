@@ -100,7 +100,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
             case State.Created:
                 state = State.GeneratingMap;
                 Debug.Log("generating new map");
-                generationTask = Task.Run(() => GridMap.Instance.GenerateMap(new Vector3Int(32, 32, 32)));
+                generationTask = Task.Run(() => GridMap.Instance.GenerateMap(new Vector3Int(16, 16, 16)));
                 break;
             case State.GeneratingMap:
             case State.LoadingMap:

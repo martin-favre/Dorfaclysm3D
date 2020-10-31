@@ -1,28 +1,45 @@
 ✔ Make things saveable @done(20-08-29 19:36)
 ✔ Create Art for terrain @done(20-09-10 18:59)
 ✔ Port Astar @done(20-09-10 18:59)
-
-
-☐ Show different sprite for different sides of block
-✔ Create bare mininmum model for Dorf @done(20-09-10 19:09)
-☐ Port DorfController
+✔ Port DorfController @done(20-10-31 12:00)
     ✔ Port GridActor @done(20-09-19 11:25)
     ✔ Port RequestSystem @done(20-10-10 13:46)
     ✔ Port Jobsystem @done(20-09-19 11:25)
     ✔ Make DorfController Save/Loadable @done(20-09-20 21:12)
-    ☐ Make Dorfs mine blocks
-        ☐ Be able to shift which y-level we're looking at by scrolling
+    ✔ Make Dorfs mine blocks @done(20-10-31 12:00)
         ✔ Post MiningRequest when clicking a block @done(20-09-24 08:10)
         ✔ Create MiningJob @done(20-09-24 08:10)
         ✔ Start Miningjob when MiningRequest is availables @done(20-09-24 08:10)
         ✔ Visualize blocks marked for mining @done(20-10-29 07:55)
-✔ Make DorfControllers movement smooth @done(20-09-20 21:11)
+    ✔ Create bare mininmum model for Dorf @done(20-09-10 19:09)
+    ✔ Make DorfControllers movement smooth @done(20-09-20 21:11)
+        
 
-☐ Move responsibility of requests from the requestpool to the requesters.
-    The requesters need to have the ability to act when the request is finished,
-    cancelled or just removed in loading. They also need the ability after loading
-    Unity does not have any robust GUID system (C# has GUIDs, but I can't easily assign it to a gameobject)
-    Therefore make it so the requesters own their requests. OnSave they will store their own requests.
-    Then OnLoad they will post them again.
+☐ Usability
+    ☐ Rework camera so it scrolls through Z-levels
+    ☐ Make requests cancellable
+        ☐ Move responsibility of requests from the requestpool to the requesters.
+            The requesters need to have the ability to act when the request is finished,
+            cancelled or just removed in loading. They also need the ability after loading
+            Unity does not have any robust GUID system (C# has GUIDs, but I can't easily assign it to a gameobject)
+            Therefore make it so the requesters own their requests. OnSave they will store their own requests.
+            Then OnLoad they will post them again.
+    Make buttons for swapping between Mining, Building and cancelling
+    Make buttons for spawning Dorfs
+    
 
-☐ Why do dorf with walkrandomlyjob stop and wait for so long
+
+☐ World Generation
+    ???
+
+☐ Bugs            
+    ☐ Why do dorf with walkrandomlyjob stop and wait for so long
+
+☐ Other
+    ☐ Create per component logging
+        I.e. a dorf will maintain its own log
+        Give them a component?
+    ☐ Show different sprite for different sides of block
+    ☐ Look into testing
+        Refactor and ensure I have at least some basic unit testing system.
+        Because testing things manually takes too much time.

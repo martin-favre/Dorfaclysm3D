@@ -16,14 +16,20 @@ public class DorfVisualizer : MonoBehaviour
     public float speed;
 
     static readonly Vector3 offset = new Vector3(.5f, 1, .5f); // So the dorfs will be in the center of the block
+
+    CameraController camController;
+    MeshRenderer meshRenderer;
+
     void Start()
     {
         actor = GetComponent<GridActor>();
-        transform.position = gridPosToRealPos(actor.GetPos());
+        transform.position = GridPosToRealPos(actor.GetPos());
         if (actor)
         {
             RecordPos(actor.GetPos());
         }
+        camController = Camera.main.GetComponent<CameraController>();
+        meshRenderer = GetComponent<MeshRenderer>();
     }
 
     void Update()
@@ -47,10 +53,26 @@ public class DorfVisualizer : MonoBehaviour
                 Vector3 newPos = Vector3.Lerp(originPos, realTargetPos, fractionOfJourney);
                 transform.position = newPos;
             }
+            UpdateVisibility();
         }
     }
 
-    Vector3 gridPosToRealPos(Vector3Int gridpos)
+    void UpdateVisibility()
+    {
+        bool visible = true;
+        if (camController && actor)
+        {
+            int myY = actor.GetPos().y;
+            int maxy = camController.GetVerticalPosition();
+            visible = myY < maxy;
+        }
+        if (meshRenderer)
+        {
+            meshRenderer.enabled = visible;
+        }
+    }
+
+    Vector3 GridPosToRealPos(Vector3Int gridpos)
     {
         return new Vector3(gridpos.x, gridpos.y, gridpos.z) + offset;
     }
@@ -58,7 +80,7 @@ public class DorfVisualizer : MonoBehaviour
     void RecordPos(Vector3Int currentPos)
     {
         gridTargetPos = currentPos;
-        realTargetPos = gridPosToRealPos(gridTargetPos);
+        realTargetPos = GridPosToRealPos(gridTargetPos);
         originPos = transform.position;
         journeyLength = (originPos - realTargetPos).magnitude;
         timeDiff = (Time.time - timeLastPos) * 2;

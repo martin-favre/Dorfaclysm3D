@@ -30,10 +30,13 @@ public class ChunkMeshGenerator : MonoBehaviour
     public Vector3Int ChunkOrigin { get => chunkOrigin; set => chunkOrigin = value; }
     public int ChunkSize { get => chunkSize; set => chunkSize = value; }
     internal IHasBlocks BlockOwner { set => blockOwner = value; }
+    public int? MaxY { set => maxY = value; }
 
     private Vector3Int chunkOrigin;
 
     private bool meshUpdateQueued = false;
+
+    private int? maxY = null;
 
     private State state = State.Idle;
 
@@ -152,6 +155,7 @@ public class ChunkMeshGenerator : MonoBehaviour
     Block GetBlock(Vector3Int pos)
     {
         Block block = null;
+        if(pos.y > maxY) return new AirBlock();
         blockOwner.TryGetBlock(pos, out block);
         return block;
     }

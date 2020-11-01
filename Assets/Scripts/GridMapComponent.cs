@@ -24,8 +24,33 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
 
     State state = State.Created;
+
+    CameraController mainCam;
     private void Awake()
     {
+    }
+
+    private void Start()
+    {
+        mainCam = Camera.main.GetComponent<CameraController>();
+
+    }
+
+    void OnVerticalLevelChange()
+    {
+        UpdateMaxVerticalLevel();
+        RegenerateMeshes();
+    }
+
+    void UpdateMaxVerticalLevel()
+    {
+        if(!mainCam) return;
+        int newY = mainCam.GetVerticalPosition();
+        foreach (KeyValuePair<Vector3Int, ChunkMeshGenerator> gen in chunkGenerators)
+        {
+            gen.Value.MaxY = (int?)newY;
+        }
+
     }
 
     void OnBlockUpdate(Vector3Int pos)
@@ -61,9 +86,9 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         int xSize = mapSize.x / chunkSize;
         int ySize = mapSize.y / chunkSize;
         int zSize = mapSize.z / chunkSize;
-        if(xSize == 0) xSize = 1;
-        if(ySize == 0) ySize = 1;
-        if(zSize == 0) zSize = 1;
+        if (xSize == 0) xSize = 1;
+        if (ySize == 0) ySize = 1;
+        if (zSize == 0) zSize = 1;
         for (int x = 0; x < xSize; x++)
         {
             for (int y = 0; y < ySize; y++)
@@ -91,6 +116,10 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         }
         GridMap.Instance.UnregisterCallbackOnBlockChange(OnBlockUpdate);
         BlockEffectMap.UnregisterOnEffectAddedCallback(OnBlockUpdate);
+        if (mainCam)
+        {
+            mainCam.ClearOnVerticalLevelChanged();
+        }
     }
 
     void Update()
@@ -115,7 +144,12 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
             case State.MapGenerated:
                 print("Creating meshGenerators");
                 createMeshCreators();
+                UpdateMaxVerticalLevel();
                 RegenerateMeshes();
+                if (mainCam)
+                {
+                    mainCam.SetOnVerticalLevelChanged(OnVerticalLevelChange);
+                }
                 state = State.MeshGeneratorsCreated;
                 break;
             case State.MeshGeneratorsCreated:

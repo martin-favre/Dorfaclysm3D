@@ -6,47 +6,56 @@ using UnityEngine;
 public class CameraController : MonoBehaviour, ISaveableComponent
 {
 
+    [System.Serializable]
+    private class SaveData : GenericSaveData<CameraController>
+    {
+        public Vector3 pos;
+        public Quaternion rot;
+        public Vector3 referencePos;
+        public Vector2 rotationAngle;
+    }
+
     public float translationSpeed = 1f;
     public float zoomSpeed = 4f;
     public float dragSpeed = 12f;
 
     public float shellSize = 1;
+    public Vector2 minMaxZoom;
 
-    public Transform viewReference;
-
-    float rotationAngleX = 0.0f;
-    float rotationAngleY = 0.0f;
-
+    private GameObject viewReference;
+    Vector2 rotationAngle = Vector2.zero;
     public Vector2 rotationLimits = new Vector2(5, 80);
 
+    public Vector3 initialPosition = new Vector3(0.5f, 0.5f, 7.5f);
+
+    
     Action onVerticalLevelChanged;
     int verticalLevel = 1;
 
     // Start is called before the first frame update
     void Start()
     {
-        if (viewReference)
-        {
-            verticalLevel = Mathf.RoundToInt(viewReference.transform.position.y);
-        }
+        viewReference = Instantiate(new GameObject(), initialPosition, transform.rotation) as GameObject;
+        transform.SetParent(viewReference.transform);
+        verticalLevel = Mathf.RoundToInt(viewReference.transform.position.y);
+        HandleRotation();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (viewReference)
+        HandleTranslationMovement();
+        if (Input.GetMouseButton(1))
         {
-
-            HandleTranslationMovement();
             HandleRotation();
-            if (Input.GetKey(KeyCode.LeftShift))
-            {
-                HandleVerticalMovement();
-            }
-            else
-            {
-                HandleScroll();
-            }
+        }
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            HandleVerticalMovement();
+        }
+        else
+        {
+            HandleScroll();
         }
         if (Input.GetKeyDown(KeyCode.F5))
         {
@@ -81,14 +90,14 @@ public class CameraController : MonoBehaviour, ISaveableComponent
         {
             Vector3 refPos = viewReference.transform.position;
             verticalLevel += 1;
-            if(verticalLevel > GridMap.Instance.GetSize().y) verticalLevel = GridMap.Instance.GetSize().y;
+            if (verticalLevel > GridMap.Instance.GetSize().y) verticalLevel = GridMap.Instance.GetSize().y;
             viewReference.transform.position = new Vector3(refPos.x, verticalLevel, refPos.z);
         }
         else if (scrollDelta < 0)
         {
             Vector3 refPos = viewReference.transform.position;
             verticalLevel -= 1;
-            if(verticalLevel < 0) verticalLevel = 0;
+            if (verticalLevel < 0) verticalLevel = 0;
             viewReference.transform.position = new Vector3(refPos.x, verticalLevel, refPos.z);
         }
         if (onVerticalLevelChanged != null && viewReference.transform.position != oldPos)
@@ -99,17 +108,19 @@ public class CameraController : MonoBehaviour, ISaveableComponent
 
     private void HandleScroll()
     {
-        Vector3 refPos = viewReference.position;
+        float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
+        if(scrollDelta == 0) return;
+        Vector3 refPos = viewReference.transform.position;
         Vector3 deltaPos = refPos - transform.position;
         Vector3 direction = deltaPos.normalized;
         Vector3 reverseDirection = -direction;
 
-        Vector3 shellPos = refPos + reverseDirection * shellSize;
+        Vector3 shellPos = refPos + reverseDirection * minMaxZoom.x;
         deltaPos = shellPos - transform.position;
 
 
-        float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
-
+        
+        float deltaPosMagn = deltaPos.magnitude;
         if (scrollDelta > 0)
         {
             transform.position += (deltaPos * zoomSpeed);
@@ -118,7 +129,8 @@ public class CameraController : MonoBehaviour, ISaveableComponent
         }
         else if (scrollDelta < 0)
         {
-            if (deltaPos.magnitude < 0.1f) deltaPos *= 5;
+            if (deltaPosMagn < 0.1f) deltaPos *= 5;
+            if (deltaPosMagn > minMaxZoom.y) return;
             transform.position += (deltaPos * -zoomSpeed);
             // we are scrolling backwards/zooming out
 
@@ -136,30 +148,28 @@ public class CameraController : MonoBehaviour, ISaveableComponent
     }
     void HandleRotation()
     {
-        if (Input.GetMouseButton(1))
-        {
 
-            Vector3 refPos = viewReference.position;
-            Vector3 deltaPos = refPos - transform.position;
-            rotationAngleX += Input.GetAxis("Mouse X") * dragSpeed;
-            rotationAngleY -= Input.GetAxis("Mouse Y") * dragSpeed;
-            rotationAngleY = ClampAngle(rotationAngleY, rotationLimits.x, rotationLimits.y);
+        Vector3 refPos = viewReference.transform.position;
+        Vector3 deltaPos = refPos - transform.position;
+        rotationAngle.x += Input.GetAxis("Mouse X") * dragSpeed;
+        rotationAngle.y -= Input.GetAxis("Mouse Y") * dragSpeed;
+        rotationAngle.y = ClampAngle(rotationAngle.y, rotationLimits.x, rotationLimits.y);
 
-            Quaternion rotation = Quaternion.Euler(rotationAngleY, rotationAngleX, 0);
+        Quaternion rotation = Quaternion.Euler(rotationAngle.y, rotationAngle.x, 0);
 
 
-            Vector3 negDistance = new Vector3(0.0f, 0.0f, -deltaPos.magnitude);
-            Vector3 position = rotation * negDistance + viewReference.position;
+        Vector3 negDistance = new Vector3(0.0f, 0.0f, -deltaPos.magnitude);
+        Vector3 position = rotation * negDistance + viewReference.transform.position;
 
-            transform.rotation = rotation;
-            transform.position = position;
-        }
+        transform.rotation = rotation;
+        transform.position = position;
+
     }
 
     void HandleTranslationMovement()
     {
         Vector3 movementDirection = Vector3.zero;
-        Vector3 refPos = viewReference.position;
+        Vector3 refPos = viewReference.transform.position;
         Vector3 deltaPos = refPos - transform.position;
 
         Vector3 direction = new Vector3(deltaPos.x, 0, deltaPos.z).normalized;
@@ -174,28 +184,26 @@ public class CameraController : MonoBehaviour, ISaveableComponent
 
     void TranslateCamera(Vector3 dir)
     {
-        viewReference.position += dir * translationSpeed;
+        viewReference.transform.position += dir * translationSpeed;
     }
 
 
-    [System.Serializable]
-    private class SaveData : GenericSaveData<CameraController>
-    {
-        public SerializeableVector3 pos;
-        public SerializeableQuaternion rot;
-    }
     public IGenericSaveData Save()
     {
         var save = new SaveData();
-        save.pos = new SerializeableVector3(transform.position);
-        save.rot = new SerializeableQuaternion(transform.rotation);
+        save.pos = transform.position;
+        save.rot = transform.rotation;
+        save.referencePos = viewReference.transform.position;
+        save.rotationAngle = rotationAngle;
         return save;
     }
 
     public void Load(IGenericSaveData data)
     {
         var save = (SaveData)data;
-        transform.position = save.pos.Get();
-        transform.rotation = save.rot.Get();
+        transform.position = save.pos;
+        transform.rotation = save.rot;
+        initialPosition = save.referencePos;
+        rotationAngle = save.rotationAngle;
     }
 }

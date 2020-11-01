@@ -76,11 +76,33 @@ public static class SaveLoadManager
     {
         BinaryFormatter form = new BinaryFormatter();
         SurrogateSelector ss = new SurrogateSelector();
-        Vector3IntSerializationSurrogate v3ss = new Vector3IntSerializationSurrogate();
-        ss.AddSurrogate(typeof(Vector3Int), 
-                new StreamingContext(StreamingContextStates.All), 
-                v3ss);
+        {
+            Vector3IntSerializationSurrogate v3iss = new Vector3IntSerializationSurrogate();
+            ss.AddSurrogate(typeof(Vector3Int),
+                    new StreamingContext(StreamingContextStates.All),
+                    v3iss);
+        }
+        {
+            Vector3SerializationSurrogate v3ss = new Vector3SerializationSurrogate();
+            ss.AddSurrogate(typeof(Vector3),
+            new StreamingContext(StreamingContextStates.All),
+            v3ss);
+
+        }
+        {
+            QuaternionSerializationSurrogate qss = new QuaternionSerializationSurrogate();
+            ss.AddSurrogate(typeof(Quaternion),
+            new StreamingContext(StreamingContextStates.All),
+            qss);
+        }
+        {
+            Vector2SerializationSurrogate v2ss = new Vector2SerializationSurrogate();
+            ss.AddSurrogate(typeof(Vector2),
+            new StreamingContext(StreamingContextStates.All),
+            v2ss);
+        }
+
         form.SurrogateSelector = ss;
-        return form; 
+        return form;
     }
 }

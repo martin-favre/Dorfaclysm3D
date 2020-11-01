@@ -98,10 +98,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   translationSpeed: 1
-  lookSpeedH: 4
-  lookSpeedV: 4
-  zoomSpeed: 4
-  dragSpeed: 12
+  zoomSpeed: 0.5
+  dragSpeed: 1
+  shellSize: 3
+  minMaxZoom: {x: 1, y: 20}
+  rotationLimits: {x: 5, y: 80}
+  initialPosition: {x: 0.5, y: 0.5, z: 7.5}
 --- !u!114 &3247727461746344625
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -40,6 +40,7 @@
         I.e. a dorf will maintain its own log
         Give them a component?
     ☐ Show different sprite for different sides of block
+    ☐ Blocks disappear/become seethrough
     ☐ Look into testing
         Refactor and ensure I have at least some basic unit testing system.
         Because testing things manually takes too much time.

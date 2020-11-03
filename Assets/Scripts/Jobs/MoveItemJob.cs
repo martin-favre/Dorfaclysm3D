@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Items;
+using Logging;
 using StateMachineCollection;
 using UnityEngine;
 
@@ -15,36 +16,45 @@ public class MoveItemJob : IJob
     }
 
     StateMachine machine;
+    private readonly LilLogger logger;
 
-    public MoveItemJob(GridActor actor, MoveItemRequest request)
+    public MoveItemJob(GridActor actor, MoveItemRequest request, LilLogger logger)
     {
-        Debug.Log("Started a MoveItemJob");
-        machine = new StateMachine(new FindItemState(actor, request));
+        this.logger = logger;
+        logger.Log("Started a MoveItemJob");
+        machine = new StateMachine(new FindItemState(actor, request, logger));
     }
 
-    public MoveItemJob(GridActor user, IGenericSaveData save)
+    public MoveItemJob(GridActor user, IGenericSaveData save, LilLogger logger)
     {
+        this.logger = logger;
+        logger.Log("Loading a MoveItemJob");
         SaveData saveData = (SaveData)save;
         if (saveData.activeState != null)
         {
             machine = new StateMachine(LoadState(user, saveData.activeState));
         }
+
     }
 
     private State LoadState(GridActor user, IGenericSaveData activeState)
     {
         Type type = activeState.GetSaveType();
+        logger.Log("Loading my state");
         if (type == typeof(FindItemState))
         {
-            return new FindItemState(user, activeState);
+            logger.Log("I was in a FindItemState");
+            return new FindItemState(user, activeState, logger);
         }
         else if (type == typeof(WalkToItemState))
         {
-            return new WalkToItemState(user, activeState);
+            logger.Log("I was in a WalkToItemState");
+            return new WalkToItemState(user, activeState, logger);
         }
         else if (type == typeof(WalkToTargetState))
         {
-            return new WalkToTargetState(user, activeState);
+            logger.Log("I was in a WalkToTargetState");
+            return new WalkToTargetState(user, activeState, logger);
         }
         else
         {
@@ -54,6 +64,7 @@ public class MoveItemJob : IJob
 
     public IGenericSaveData GetSave()
     {
+        logger.Log("Saving my MoveItemJob");
         return new SaveData() { activeState = machine.GetSave() };
     }
 
@@ -75,39 +86,48 @@ public class MoveItemJob : IJob
         Task<Vector3Int> findItemTask;
         private readonly GridActor actor;
         private readonly MoveItemRequest request;
+        private readonly LilLogger logger;
 
-        public FindItemState(GridActor actor, MoveItemRequest request)
+        public FindItemState(GridActor actor, MoveItemRequest request, LilLogger logger)
         {
             this.actor = actor;
             this.request = request;
+            this.logger = logger;
+            logger.Log("Initialized my FindItemState with request " + request);
         }
 
-        public FindItemState(GridActor actor, IGenericSaveData saveData) : base(((SaveData)saveData).parent)
+        public FindItemState(GridActor actor, IGenericSaveData saveData, LilLogger logger) : base(((SaveData)saveData).parent)
         {
             this.actor = actor;
+            this.logger = logger;
             SaveData save = saveData as SaveData;
             this.request = save.request;
+            logger.Log("Loaded my FindItemState with request " + request);
         }
 
         public override IGenericSaveData GetSave()
         {
+            logger.Log("Saved my FindItemState with request " + request);
             return new SaveData() { parent = base.GetSave(), request = this.request };
         }
         public override void OnEntry()
         {
+            logger.Log("Trying to find an item...");
             this.findItemTask = Task.Run(() => FindItem(actor.GetPos(), request.TypeToFind));
         }
         public override State OnDuring()
         {
             if (findItemTask.IsCompleted)
             {
+                logger.Log("I finished looking for an item");
                 if (findItemTask.Result != actor.GetPos())
                 {
-                    return new WalkToItemState(actor, request, findItemTask.Result);
+                    logger.Log("I found an item at " + findItemTask.Result);
+                    return new WalkToItemState(actor, request, findItemTask.Result, logger);
                 }
                 else
                 {
-                    Debug.Log("MoveItemJob, FindItemState, Could not find item");
+                    logger.Log("MoveItemJob, FindItemState, Could not find item");
                     MoveItemRequestPool.Instance.ReturnRequest(request);
                     TerminateMachine();
                 }
@@ -161,24 +181,30 @@ public class MoveItemJob : IJob
         private readonly GridActor actor;
         private readonly MoveItemRequest request;
         private readonly Vector3Int target;
+        private readonly LilLogger logger;
 
-        public WalkToItemState(GridActor actor, MoveItemRequest request, Vector3Int target) : base(actor, 0.3f)
+        public WalkToItemState(GridActor actor, MoveItemRequest request, Vector3Int target, LilLogger logger) : base(actor, 0.3f)
         {
             this.actor = actor;
             this.request = request;
             this.target = target;
+            this.logger = logger;
+            logger.Log("Initialized my WalkToItemState with request " + request);
         }
 
-        public WalkToItemState(GridActor actor, IGenericSaveData saveData) : base(actor, ((SaveData)saveData).parent)
+        public WalkToItemState(GridActor actor, IGenericSaveData saveData, LilLogger logger) : base(actor, ((SaveData)saveData).parent)
         {
             this.actor = actor;
+            this.logger = logger;
             SaveData save = saveData as SaveData;
             this.request = save.request;
             this.target = save.target;
+            logger.Log("Loaded my WalkToItemState with request " + request);
         }
 
         public override IGenericSaveData GetSave()
         {
+            logger.Log("Saving my WalkToItemState");
             return new SaveData() { parent = base.GetSave(), request = this.request, target = this.target };
         }
 
@@ -190,7 +216,7 @@ public class MoveItemJob : IJob
         public override State OnPathFindFail()
         {
             TerminateMachine();
-            Debug.Log("MoveItemJob, could not find path to item due to " + GetFailReason().ToString());
+            logger.Log("MoveItemJob, could not find path to item due to " + GetFailReason().ToString());
             MoveItemRequestPool.Instance.ReturnRequest(request);
             return StateMachine.NoTransition();
         }
@@ -203,10 +229,11 @@ public class MoveItemJob : IJob
                 InventoryComponent comp = actor.GetComponent<InventoryComponent>();
                 if (comp && comp.HasItem(request.TypeToFind))
                 {
-                    return new WalkToTargetState(this.actor, request, comp.GetItem(request.TypeToFind));
+                    logger.Log("Found my item at " + actor.GetPos());
+                    return new WalkToTargetState(this.actor, request, comp.GetItem(request.TypeToFind), logger);
                 }
             }
-            Debug.Log("MoveItemJob, no item at target");
+            logger.Log("MoveItemJob, no item at target");
             return OnPathFindFail();
         }
     }
@@ -224,24 +251,30 @@ public class MoveItemJob : IJob
         private readonly GridActor actor;
         private readonly MoveItemRequest request;
         private readonly Item item;
+        private readonly LilLogger logger;
 
-        public WalkToTargetState(GridActor actor, MoveItemRequest request, Item item) : base(actor, 0.3f)
+        public WalkToTargetState(GridActor actor, MoveItemRequest request, Item item, LilLogger logger) : base(actor, 0.3f)
         {
             this.actor = actor;
             this.request = request;
             this.item = item;
+            this.logger = logger;
+            logger.Log("Initialized my WalkToTargetState with request " + request);
         }
 
-        public WalkToTargetState(GridActor actor, IGenericSaveData saveData) : base(actor, ((SaveData)saveData).parent)
+        public WalkToTargetState(GridActor actor, IGenericSaveData saveData, LilLogger logger) : base(actor, ((SaveData)saveData).parent)
         {
             this.actor = actor;
+            this.logger = logger;
             SaveData save = saveData as SaveData;
             this.request = save.request;
             this.item = save.item;
+            logger.Log("Loaded my WalkToTargetState with request " + request);
         }
 
         public override IGenericSaveData GetSave()
         {
+            logger.Log("Saving my WalkToTargetState");
             return new SaveData() { parent = base.GetSave(), request = this.request, item = this.item };
         }
 
@@ -252,7 +285,8 @@ public class MoveItemJob : IJob
 
         public override State OnPathFindFail()
         {
-            Debug.Log("MoveItemJob, WalkToTargetState, OnPathFindFail " + GetFailReason().ToString());
+            logger.Log("MoveItemJob, WalkToTargetState, OnPathFindFail " + GetFailReason().ToString());
+            logger.Log("Dropping my item");
             TerminateMachine();
             GridMap.Instance.PutItem(actor.GetPos(), item);
             MoveItemRequestPool.Instance.ReturnRequest(request);
@@ -267,12 +301,14 @@ public class MoveItemJob : IJob
                 BlockBuildingSite comp = actor.gameObject.GetComponent<BlockBuildingSite>();
                 if (comp)
                 {
+                    logger.Log("Found my target block, giving it my item");
                     comp.GetComponent<InventoryComponent>().AddItem(item);
                     MoveItemRequestPool.Instance.FinishRequest(request);
                     TerminateMachine();
                     return StateMachine.NoTransition();
                 }
             }
+            logger.Log("Did not find my target block, dropping my item");
             GridMap.Instance.PutItem(this.request.PositionToMoveTo, item);
             return OnPathFindFail();
         }

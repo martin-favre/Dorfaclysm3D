@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Logging;
 using StateMachineCollection;
 using UnityEngine;
 
@@ -11,13 +12,21 @@ public class DorfController : MonoBehaviour, ISaveableComponent
     private class SaveData : GenericSaveData<DorfController>
     {
         public IGenericSaveData currentStateSave;
+        public string name;
     }
 
     GridActor gridActor;
     const string prefabName = "Prefabs/Dorf";
     static GameObject prefabObj;
     StateMachine stateMachine;
-    private DorfController() { }
+    LilLogger logger;
+
+    private void Start()
+    {
+        if (logger == null) logger = new LilLogger(gameObject.name);
+        logger.Log("I started");
+    }
+
 
     public static DorfController InstantiateDorf(Vector3Int spawnPos)
     {
@@ -27,13 +36,15 @@ public class DorfController : MonoBehaviour, ISaveableComponent
             if (!prefabObj) throw new System.Exception("Could not load prefab " + prefabName);
         }
         GameObject obj = Instantiate(prefabObj) as GameObject;
+        obj.name = "Dorf_" + obj.GetInstanceID().ToString();
         if (!obj) throw new System.Exception("Could not instantiate prefab " + prefabName);
         DorfController dorf = obj.GetComponent<DorfController>();
         if (!dorf) throw new System.Exception("No DorfController Component on " + prefabName);
         dorf.gridActor = dorf.GetComponent<GridActor>();
         if (!dorf.gridActor) throw new System.Exception("No GridActor on prefab " + prefabName);
         dorf.gridActor.Move(spawnPos);
-        dorf.stateMachine = new StateMachine(new ChoosingJobState(dorf.gridActor));
+        dorf.logger = new LilLogger(obj.name);
+        dorf.stateMachine = new StateMachine(new ChoosingJobState(dorf.gridActor, dorf.logger));
         return dorf;
     }
 
@@ -45,21 +56,26 @@ public class DorfController : MonoBehaviour, ISaveableComponent
         }
         else
         {
-            Debug.LogError("DorfController without state");
+            logger.Log("DorfController without state");
         }
     }
 
     public IGenericSaveData Save()
     {
+        logger.Log("I'm being saved");
         SaveData save = new SaveData();
         save.currentStateSave = stateMachine.GetSave();
+        save.name = gameObject.name;
         return save;
     }
 
     public void Load(IGenericSaveData data)
     {
-        gridActor = GetComponent<GridActor>();
         SaveData save = (SaveData)data;
+        gameObject.name = save.name;
+        if (logger == null) logger = new LilLogger(gameObject.name);
+        logger.Log("I'm being loaded");
+        gridActor = GetComponent<GridActor>();
         this.stateMachine = new StateMachine(LoadState(save.currentStateSave));
     }
 
@@ -68,11 +84,11 @@ public class DorfController : MonoBehaviour, ISaveableComponent
         Type type = currentStateSave.GetSaveType();
         if (type == typeof(ChoosingJobState))
         {
-            return new ChoosingJobState(gridActor, currentStateSave);
+            return new ChoosingJobState(gridActor, currentStateSave, logger);
         }
         else if (type == typeof(DoJobState))
         {
-            return new DoJobState(gridActor, currentStateSave);
+            return new DoJobState(gridActor, currentStateSave, logger);
         }
         else
         {
@@ -89,17 +105,22 @@ public class DorfController : MonoBehaviour, ISaveableComponent
         }
 
         GridActor actor;
-        public ChoosingJobState(GridActor actor)
+        private readonly LilLogger logger;
+
+        public ChoosingJobState(GridActor actor, LilLogger logger)
         {
             this.actor = actor;
+            this.logger = logger;
         }
 
-        public ChoosingJobState(GridActor actor, IGenericSaveData save) : base(((SaveData)save).parent)
+        public ChoosingJobState(GridActor actor, IGenericSaveData save, LilLogger logger) : base(((SaveData)save).parent)
         {
             this.actor = actor;
+            this.logger = logger;
         }
         public override IGenericSaveData GetSave()
         {
+            logger.Log("Saving my ChoosingJobState");
             SaveData save = new SaveData();
             save.parent = base.GetSave();
             return save;
@@ -108,20 +129,24 @@ public class DorfController : MonoBehaviour, ISaveableComponent
 
         public override State OnDuring()
         {
+            logger.Log("Picking a job");
             IJob job;
             if (MoveItemRequestPool.Instance.HasRequests())
             {
-                job = new MoveItemJob(actor, MoveItemRequestPool.Instance.GetRequest(actor));
+                logger.Log("Got a MoveItemJob!");
+                job = new MoveItemJob(actor, MoveItemRequestPool.Instance.GetRequest(actor), logger);
             }
             else if (MiningRequestPool.Instance.HasRequests())
             {
-                job = new MiningJob(actor, MiningRequestPool.Instance.GetRequest(actor));
+                logger.Log("Got a MiningJob!");
+                job = new MiningJob(actor, MiningRequestPool.Instance.GetRequest(actor), logger);
             }
             else
             {
-                job = new WalkRandomlyJob(actor);
+                logger.Log("Found no job, will walk randomly");
+                job = new WalkRandomlyJob(actor, logger);
             }
-            return new DoJobState(job, actor);
+            return new DoJobState(job, actor, logger);
         }
     }
 
@@ -134,36 +159,53 @@ public class DorfController : MonoBehaviour, ISaveableComponent
             public IGenericSaveData workSave;
         }
         GridActor actor;
+        private readonly LilLogger logger;
         IJob work;
 
-        public DoJobState(GridActor actor, IGenericSaveData save) : base(((SaveData)save).parent)
+        public DoJobState(GridActor actor, IGenericSaveData save, LilLogger logger) : base(((SaveData)save).parent)
         {
             this.actor = actor;
+            this.logger = logger;
             this.work = LoadWork(((SaveData)save).workSave);
+            logger.Log("Loading my DoJobState");
         }
 
         private IJob LoadWork(IGenericSaveData workSave)
         {
             Type type = workSave.GetSaveType();
-            if(type == typeof(WalkRandomlyJob)) {
-                return new WalkRandomlyJob(this.actor, workSave); 
-            } else if(type == typeof(MiningJob)) {
-                return new MiningJob(this.actor, workSave);
-            } else if(type == typeof(MoveItemJob)) {
-                return new MoveItemJob(this.actor, workSave);
-            } else {
+            logger.Log("Loading work");
+            if (type == typeof(WalkRandomlyJob))
+            {
+                logger.Log("Apparently I was WalkingRandomly");
+                return new WalkRandomlyJob(this.actor, workSave, logger);
+            }
+            else if (type == typeof(MiningJob))
+            {
+                logger.Log("Apparently I was Mining");
+                return new MiningJob(this.actor, workSave, logger);
+            }
+            else if (type == typeof(MoveItemJob))
+            {
+                logger.Log("Apparently I was Moving an item");
+                return new MoveItemJob(this.actor, workSave, logger);
+            }
+            else
+            {
                 throw new Exception("Unknown type " + type.ToString());
             }
-             
+
         }
 
-        public DoJobState(IJob work, GridActor actor)
+        public DoJobState(IJob work, GridActor actor, LilLogger logger)
         {
             this.actor = actor;
+            this.logger = logger;
             this.work = work;
+            logger.Log("Initializing my DoJobState");
         }
         public override IGenericSaveData GetSave()
         {
+            logger.Log("Saving my DoJobState");
             SaveData save = new SaveData();
             save.parent = base.GetSave();
             save.workSave = this.work.GetSave();
@@ -173,7 +215,8 @@ public class DorfController : MonoBehaviour, ISaveableComponent
         {
             if (work.Work())
             {
-                return new ChoosingJobState(actor);
+                logger.Log("Finished my work");
+                return new ChoosingJobState(actor, logger);
             }
             return StateMachine.NoTransition();
         }

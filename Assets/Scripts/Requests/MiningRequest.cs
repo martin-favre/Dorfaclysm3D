@@ -33,4 +33,10 @@ public class MiningRequest : PlayerRequest
     {
         return position.GetHashCode();
     }
+
+    public override string ToString()
+    {
+        return "MiningRequest pos: " + position + " block: " + blockType;
+    }
+
 }

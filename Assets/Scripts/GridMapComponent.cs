@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
+using Logging;
 
 public class GridMapComponent : MonoBehaviour, ISaveableComponent
 {
@@ -13,6 +14,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     Dictionary<Vector3Int, ChunkMeshGenerator> chunkGenerators;
 
     Task generationTask;
+    LilLogger logger = new LilLogger("GridMapComponent");
     enum State
     {
         Created,
@@ -38,6 +40,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
     void OnVerticalLevelChange()
     {
+        logger.Log("OnVerticalLevelChange");
         UpdateMaxVerticalLevel();
         RegenerateMeshes();
     }
@@ -55,6 +58,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
     void OnBlockUpdate(Vector3Int pos)
     {
+        logger.Log("OnBlockUpdate");
         Vector3Int size = GridMap.Instance.GetSize();
         Vector3Int chunkPos = new Vector3Int(pos.x / chunkSize, pos.y / chunkSize, pos.z / chunkSize);
         foreach (Vector3Int delta in DeltaPositions.DeltaPositions3D)
@@ -72,7 +76,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
     public void RegenerateMeshes()
     {
-        Debug.Log("Regenerating meshes");
+        logger.Log("Regenerating meshes");
         foreach (KeyValuePair<Vector3Int, ChunkMeshGenerator> gen in chunkGenerators)
         {
             gen.Value.GenerateMesh();
@@ -128,21 +132,21 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         {
             case State.Created:
                 state = State.GeneratingMap;
-                Debug.Log("generating new map");
+                logger.Log("generating new map");
                 generationTask = Task.Run(() => GridMap.Instance.GenerateMap(new Vector3Int(16, 16, 16)));
                 break;
             case State.GeneratingMap:
             case State.LoadingMap:
                 if (GridMap.Instance.IsGenerationDone())
                 {
-                    print("Map finished generation");
+                    logger.Log("Map finished generation");
                     state = State.MapGenerated;
                     GridMap.Instance.RegisterCallbackOnBlockChange(OnBlockUpdate);
                     BlockEffectMap.RegisterOnEffectAddedCallback(OnBlockUpdate);
                 }
                 break;
             case State.MapGenerated:
-                print("Creating meshGenerators");
+                logger.Log("Creating meshGenerators");
                 createMeshCreators();
                 UpdateMaxVerticalLevel();
                 RegenerateMeshes();
@@ -167,6 +171,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     {
         SaveData save = new SaveData();
         save.gridmap = GridMap.Instance.GetSave();
+        logger.Log("Saved GridMapComponent");
         return save;
     }
 
@@ -175,5 +180,6 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         SaveData save = (SaveData)data;
         state = State.LoadingMap;
         generationTask = Task.Run(() => GridMap.Instance.LoadSave(save.gridmap));
+        logger.Log("Loaded GridMapComponent");
     }
 }

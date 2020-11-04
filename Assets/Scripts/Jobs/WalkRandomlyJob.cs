@@ -41,7 +41,19 @@ public class WalkRandomlyJob : IJob
     private State LoadState(GridActor user, IGenericSaveData activeState)
     {
         logger.Log("Loading a WalkRandomlyState");
-        return new WalkRandomlyState(user, activeState, logger);
+        Type type = activeState.GetSaveType();
+        if (type == typeof(WalkRandomlyState))
+        {
+            return new WalkRandomlyState(user, activeState, logger);
+        }
+        else if (type == typeof(WaitingState))
+        {
+            return new WaitState(logger);
+        }
+        else
+        {
+            throw new Exception("Unknown type " + type.ToString());
+        }
     }
 
     public IGenericSaveData GetSave()
@@ -103,14 +115,31 @@ public class WalkRandomlyJob : IJob
         public override State OnPathFindFail()
         {
             logger.Log("I could not get to where I wanted due to: " + GetFailReason().ToString());
-            TerminateMachine();
-            return StateMachine.NoTransition();
+            return new WaitState(logger);
+            
         }
 
         public override State OnReachedTarget()
         {
             logger.Log("I reached where I wanted to go!");
+            return new WaitState(logger);
+        }
+    }
+
+    private class WaitState : WaitingState
+    {
+        private readonly LilLogger logger;
+
+        public WaitState(LilLogger logger) : base(3)
+        {
+            this.logger = logger;
+            logger.Log("Starting my WaitState");
+        }
+
+        public override State GetNextState()
+        {
             TerminateMachine();
+            logger.Log("Finished waiting, i'm finished walking randomly");
             return StateMachine.NoTransition();
         }
     }

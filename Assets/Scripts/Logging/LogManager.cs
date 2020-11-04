@@ -69,10 +69,10 @@ namespace Logging
             return logFolderPath + name + logEnding;
         }
 
-        static string CreateMessage(string submessage)
+        static string CreateMessage(LogPackage package)
         {
             string timeStamp = DateTime.Now.ToString("HH:mm:ss.ffff");
-            return timeStamp + ": " + submessage;
+            return timeStamp + " " + package.Level.ToString() +  ": " + package.Message;
         }
 
         static void LogLoop()
@@ -91,7 +91,7 @@ namespace Logging
                             File.Create(fullPath).Close();
                         }
                         StreamWriter w = File.AppendText(fullPath);
-                        w.WriteLine(CreateMessage(package.Message));
+                        w.WriteLine(CreateMessage(package));
                         w.Close();
                     }
                     else

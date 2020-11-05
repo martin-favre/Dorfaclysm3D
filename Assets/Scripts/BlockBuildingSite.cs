@@ -94,8 +94,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         if (actor)
         {
             GridMap.Instance.SetBlock(actor.GetPos(), new RockBlock());
-            // DespawnBlock();
-            GameObject.Destroy(this);
+            GameObject.Destroy(gameObject);
         }
     }
 

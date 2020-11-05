@@ -36,7 +36,9 @@ public class PlayerComponent : MonoBehaviour
             unityEvent.AddListener(OnDropdownChanged);
             dropdown.onValueChanged = unityEvent;
             OnDropdownChanged(dropdown.value);
-        } else {
+        }
+        else
+        {
             logger.Log("Missing dropdown", LogLevel.Warning);
         }
 
@@ -74,7 +76,7 @@ public class PlayerComponent : MonoBehaviour
             {
                 HandleMining();
             }
-            else if(requestState == RequestState.Placing)
+            else if (requestState == RequestState.Placing)
             {
                 HandlePlacing();
             }
@@ -93,9 +95,21 @@ public class PlayerComponent : MonoBehaviour
             logger.Log("FoundBlock " + foundBlock);
             if (foundBlock && block.Type == Block.BlockType.airBlock)
             {
-
                 logger.Log("It was airblock ");
+
+                GridActor[] actors = GridActorMap.GetGridActors(blockPos);
+                foreach (GridActor actor in actors)
+                {
+                    if (actor.gameObject.GetComponent<BlockBuildingSite>() != null)
+                    {
+                        logger.Log("There was already a blockbuildingsite there");
+                        return;
+                    }
+                }
+                logger.Log("Placed a new blockbuildingsite");
                 BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos);
+
+
             }
         }
     }

@@ -58,7 +58,6 @@ public class PlayerComponent : MonoBehaviour
     private void OnDestroy()
     {
         logger.Log("Playercomponent started");
-        UiHandler.Instance.UnsubscribeToRequestTypeChanges(SetRequestState);
     }
 
     public void SetRequestState(RequestState state)

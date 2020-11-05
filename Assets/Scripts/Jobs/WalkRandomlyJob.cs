@@ -42,7 +42,7 @@ public class WalkRandomlyJob : IJob
     {
         logger.Log("Loading a WalkRandomlyState");
         Type type = activeState.GetSaveType();
-        if (type == typeof(WalkRandomlyState))
+        if (type == typeof(WalkingState))
         {
             return new WalkRandomlyState(user, activeState, logger);
         }

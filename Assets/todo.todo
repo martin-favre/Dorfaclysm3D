@@ -27,9 +27,9 @@
             Unity does not have any robust GUID system (C# has GUIDs, but I can't easily assign it to a gameobject)
             Therefore make it so the requesters own their requests. OnSave they will store their own requests.
             Then OnLoad they will post them again.
-    ☐ Make buttons for swapping between Mining, Building and cancelling
+    ✔ Make buttons for swapping between Mining, Building and cancelling @done(20-11-06 07:31)
     ☐ Make buttons for spawning Dorfs
-    ☐ Make buttons for save/loading
+    ✔ Make buttons for save/loading @done(20-11-06 07:31)
     ☐ Make dorfs have a popup noting what they're doing
         A little symbol, like 
         "..." if they are calculating something
@@ -41,8 +41,18 @@
 
 ☐ Bugs            
     ☐ Why do dorf with walkrandomlyjob stop and wait for so long
-    ☐ Blocks disappear/become seethrough
-    ☐ Dorfs walk strange
+        They can't find a free block to walk to
+    ✔ Blocks disappear/become seethrough @done(20-11-06 07:32)
+    ✔ Dorfs walk strange @done(20-11-06 08:13)
+    ☐ Dorfs walk through StairsUpAndDown
+        1. Make StairsUpAndDown see-through or of more complex shape
+            See through, not an option
+            Could look like a stair
+            
+        2. Rework the visualization of dorfs to kinda climb over the blocks
+            This would require the movement statemachine to announce what it's doing. 
+            Tbh maybe just announce the path and the speed, then the visualization can handle
+            the rest.
 
 ☐ Other
     ☐ Show different sprite for different sides of block

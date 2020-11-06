@@ -15,7 +15,7 @@ public class DorfVisualizer : MonoBehaviour
 
     public float speed;
 
-    static readonly Vector3 offset = new Vector3(.5f, 1, .5f); // So the dorfs will be in the center of the block
+    static readonly Vector3 offset = new Vector3(.5f, 0, .5f); // So the dorfs will be in the center of the block
 
     CameraController camController;
     MeshRenderer meshRenderer;

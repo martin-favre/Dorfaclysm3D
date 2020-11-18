@@ -69,16 +69,6 @@ public class ChunkMeshGenerator : MonoBehaviour
     {
         mesh = GetComponent<MeshFilter>().mesh;
         meshCollider = GetComponent<MeshCollider>();
-        List<Vector2> uvs = new List<Vector2>();
-        stepMesh.GetUVs(0, uvs);
-        print("X");
-        for (var i = 0; i < uvs.Count; i++)
-        {
-            print(uvs[i]);
-        }
-        print("asdfasdf");
-
-
     }
 
     void Start()

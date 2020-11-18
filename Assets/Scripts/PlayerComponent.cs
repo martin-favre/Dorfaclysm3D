@@ -13,7 +13,8 @@ public class PlayerComponent : MonoBehaviour
     {
         Mining,
         Placing,
-        Cancelling
+        Cancelling,
+        QuickBlockRemove
     };
     RequestState requestState = RequestState.Mining;
     LilLogger logger;
@@ -46,7 +47,7 @@ public class PlayerComponent : MonoBehaviour
 
     void OnDropdownChanged(int index)
     {
-        RequestState[] intToReq = { RequestState.Mining, RequestState.Placing, RequestState.Cancelling };
+        RequestState[] intToReq = { RequestState.Mining, RequestState.Placing, RequestState.Cancelling, RequestState.QuickBlockRemove };
         if (index < intToReq.Length)
         {
             SetRequestState(intToReq[index]);
@@ -79,6 +80,32 @@ public class PlayerComponent : MonoBehaviour
             else if (requestState == RequestState.Placing)
             {
                 HandlePlacing();
+            }
+            else if (requestState == RequestState.QuickBlockRemove)
+            {
+                ShootDeathLaser();
+            }
+        }
+    }
+    static private void ShootDeathLaser()
+    {
+        Vector3 origin = Input.mousePosition;
+        Vector3Int blockPosition;
+        bool success = BlockLaser.GetBlockPositionAtMouse(origin, out blockPosition);
+        if (success)
+        {
+            Block block;
+            GridMap.Instance.TryGetBlock(blockPosition, out block);
+            print("Blockpos at " + blockPosition);
+            if (block != null)
+            {
+                print("Destroyed a " + block.GetName());
+                Block newBlock = new AirBlock();
+                GridMap.Instance.SetBlock(blockPosition, newBlock);
+            }
+            else
+            {
+                Debug.LogError("Hit block, but no block was found at that position");
             }
         }
     }

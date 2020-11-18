@@ -46,6 +46,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4fd5db68f2e417579a994458efd5b47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  refMesh: {fileID: -5495902117074765545, guid: 275cb8a1483ca354a814e0c2c1c7bc60, type: 3}
+  stepMesh: {fileID: -5495902117074765545, guid: 547f6e15faaddfc4c8f11c54e814381c, type: 3}
+  stairSide: {fileID: -5495902117074765545, guid: 27de783a9c131844b89f6ffd209126b6, type: 3}
+  stairSide2: {fileID: -5495902117074765545, guid: 9055c758c3e88b342a951515d09d6214, type: 3}
 --- !u!33 &6013575164067752068
 MeshFilter:
   m_ObjectHideFlags: 0

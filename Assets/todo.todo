@@ -29,7 +29,7 @@
             Then OnLoad they will post them again.
     ✔ Make buttons for swapping between Mining, Building and cancelling @done(20-11-06 07:31)
     ☐ Make buttons for spawning Dorfs
-    ✔ Make buttons for save/loading @done(20-11-06 07:31)
+    ✔ Make buttons for save/loading
     ☐ Make dorfs have a popup noting what they're doing
         A little symbol, like 
         "..." if they are calculating something

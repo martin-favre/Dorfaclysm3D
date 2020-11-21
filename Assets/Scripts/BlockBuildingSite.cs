@@ -53,7 +53,6 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
 
             data.hasSpawnedRequest = true;
         }
-        // SpawnBlock();
     }
 
     public Block GetBlock() 
@@ -61,24 +60,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         return new RockBlock();
     }
 
-    private void SpawnBlock()
-    {
-        Block block = GridMap.Instance.GetBlock(actor.GetPos());
-        if (block.Type != Block.BlockType.blockBuildingBlock)
-        {
-            GridMap.Instance.SetBlock(actor.GetPos(), new BlockBuildingBlock());
-        }
-    }
 
-    private void DespawnBlock()
-    {
-        Block block = GridMap.Instance.GetBlock(actor.GetPos());
-        if (block.Type == Block.BlockType.blockBuildingBlock)
-        {
-            GridMap.Instance.SetBlock(actor.GetPos(), new AirBlock());
-        }
-
-    }
 
     void OnDestroy()
     {

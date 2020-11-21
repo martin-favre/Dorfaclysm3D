@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-interface IHasBlocks
+public interface IHasBlocks
 {
     bool TryGetBlock(Vector3Int pos, out Block block);
     Block GetBlock(Vector3Int pos);

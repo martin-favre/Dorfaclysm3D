@@ -45,13 +45,13 @@ public class ChunkMeshGenerator : MonoBehaviour
     public Vector3Int ChunkOrigin { get => chunkOrigin; set => chunkOrigin = value; }
     public int ChunkSize { get => chunkSize; set => chunkSize = value; }
     internal IHasBlocks BlockOwner { set => blockOwner = value; }
-    public int? MaxY { set => maxY = value; }
+    public static int? MaxY { set => maxY = value; }
 
     private Vector3Int chunkOrigin;
 
     private bool meshUpdateQueued = false;
 
-    private int? maxY = null;
+    private static int? maxY = null;
 
     private State state = State.Idle;
 
@@ -82,10 +82,10 @@ public class ChunkMeshGenerator : MonoBehaviour
             case State.Idle:
                 if (meshUpdateQueued)
                 {
-                    GenerateMeshInternal();
                     generationTask = Task.Run(() => GenerateMeshInternal());
                     state = State.GeneratingMesh;
                     meshUpdateQueued = false;
+
                 }
                 break;
             case State.GeneratingMesh:
@@ -182,8 +182,6 @@ public class ChunkMeshGenerator : MonoBehaviour
             Vector2 effectV = v + unit * effectTexturePos;
             effectSpriteUV.Add(effectV);
         }
-
-
     }
 
     private bool FaceShouldBeRendered(Block neighbour)
@@ -205,58 +203,18 @@ public class ChunkMeshGenerator : MonoBehaviour
                     Block block = GetBlock(currPos);
                     if (block != null && block.Type != Block.BlockType.airBlock)
                     {
-                        if (block.Type == Block.BlockType.stairUpDownBlock)
+                        PartMeshInfo meshInfo = block.GetMesh(currPos, maxY.Value, blockOwner);
+                        meshInfo.Validate();
+                        newSpriteVertices.AddRange(meshInfo.Vertices);
+                        int[] triangles = meshInfo.Triangles.ToArray();
+                        for(int i = 0; i < triangles.Length; i++)
                         {
-                            renderStair(block, currPos);
-
+                            triangles[i] += faceCount;
                         }
-                        else
-                        {
-                            block = GetBlock(new Vector3Int(x, y + 1, z));
-                            if (FaceShouldBeRendered(block))
-                            {
-                                //Block above is air
-                                CubeTop(currPos, GetBlock(currPos));
-                            }
-                            block = GetBlock(new Vector3Int(x, y - 1, z));
-                            if (FaceShouldBeRendered(block))
-                            {
-                                //Block below is air
-                                CubeBot(currPos, GetBlock(currPos));
-
-                            }
-
-                            block = GetBlock(new Vector3Int(x + 1, y, z));
-                            if (FaceShouldBeRendered(block))
-                            {
-                                //Block east is air
-                                CubeEast(currPos, GetBlock(currPos));
-
-                            }
-
-                            block = GetBlock(new Vector3Int(x - 1, y, z));
-                            if (FaceShouldBeRendered(block))
-                            {
-                                //Block west is air
-                                CubeWest(currPos, GetBlock(currPos));
-
-                            }
-
-                            block = GetBlock(new Vector3Int(x, y, z + 1));
-                            if (FaceShouldBeRendered(block))
-                            {
-                                //Block north is air
-                                CubeNorth(currPos, GetBlock(currPos));
-
-                            }
-                            block = GetBlock(new Vector3Int(x, y, z - 1));
-                            if (FaceShouldBeRendered(block))
-                            {
-                                //Block south is air
-                                CubeSouth(currPos, GetBlock(currPos));
-                            }
-
-                        }
+                        faceCount += meshInfo.Vertices.Count;
+                        newSpriteTriangles.AddRange(triangles);
+                        newSpriteUV.AddRange(meshInfo.BaseUuv);
+                        effectSpriteUV.AddRange(meshInfo.EffectUuv);
                     }
 
                 }
@@ -380,13 +338,6 @@ public class ChunkMeshGenerator : MonoBehaviour
         effectSpriteUV.Add(new Vector2(unit * effectPos.x, unit * effectPos.y));
     }
 
-    // void SetEffectUUv(Vector2 effectPos){
-    //     effectSpriteUV.Add(new Vector2(unit * effectPos.x + unit, unit * effectPos.y));
-    //     effectSpriteUV.Add(new Vector2(unit * effectPos.x + unit, unit * effectPos.y + unit));
-    //     effectSpriteUV.Add(new Vector2(unit * effectPos.x, unit * effectPos.y + unit));
-    //     effectSpriteUV.Add(new Vector2(unit * effectPos.x, unit * effectPos.y));
-
-    // }
     private void UpdateMesh()
     {
         mesh.Clear();

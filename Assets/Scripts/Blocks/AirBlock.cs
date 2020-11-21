@@ -17,6 +17,11 @@ public class AirBlock : Block
         return null;
     }
 
+    public override PartMeshInfo GetMesh(Vector3Int thisBlockPos, int maxY, IHasBlocks blockOwner)
+    {
+        return new PartMeshInfo(); // Can't render air yo
+    }
+
     public override string GetName()
     {
         return "Air Block";

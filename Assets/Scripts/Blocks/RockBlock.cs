@@ -21,6 +21,11 @@ public class RockBlock : Block
         return new RockBlockItem();
     }
 
+    public override PartMeshInfo GetMesh(Vector3Int thisBlockPos, int maxY, IHasBlocks blockOwner)
+    {
+        return GenerateMesh(thisBlockPos, maxY, blockOwner);
+    }
+
     public override string GetName()
     {
         return "Rock Block";

@@ -49,11 +49,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     {
         if(!mainCam) return;
         int newY = mainCam.GetVerticalPosition();
-        foreach (KeyValuePair<Vector3Int, ChunkMeshGenerator> gen in chunkGenerators)
-        {
-            gen.Value.MaxY = (int?)newY;
-        }
-
+        ChunkMeshGenerator.MaxY = (int?)newY;
     }
 
     void OnBlockUpdate(Vector3Int pos)
@@ -85,6 +81,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
     private void createMeshCreators()
     {
+        
         chunkGenerators = new Dictionary<Vector3Int, ChunkMeshGenerator>();
         Vector3Int mapSize = GridMap.Instance.GetSize();
         int xSize = mapSize.x / chunkSize;
@@ -147,6 +144,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
                 break;
             case State.MapGenerated:
                 logger.Log("Creating meshGenerators");
+                BlockMeshes.LoadMeshes();
                 createMeshCreators();
                 UpdateMaxVerticalLevel();
                 RegenerateMeshes();

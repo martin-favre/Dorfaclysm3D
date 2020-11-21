@@ -15,7 +15,8 @@ namespace Logging
         static Thread loggingThread;
 
         readonly static string logFolderPath = Application.persistentDataPath + "/logs/";
-        readonly static string logEnding = ".log";
+        const string logEnding = ".log";
+        const string fullLog = "main";
 
         static Destructor destructor = new Destructor();
 
@@ -72,7 +73,14 @@ namespace Logging
         static string CreateMessage(LogPackage package)
         {
             string timeStamp = DateTime.Now.ToString("HH:mm:ss.ffff");
-            return timeStamp + " " + package.Level.ToString() +  ": " + package.Message;
+            return timeStamp + " " + package.Level.ToString() + ": " + package.Message;
+        }
+
+        static void LogToFile(string filename, LogPackage package)
+        {
+            StreamWriter w = File.AppendText(filename);
+            w.WriteLine(CreateMessage(package));
+            w.Close();
         }
 
         static void LogLoop()
@@ -90,9 +98,16 @@ namespace Logging
                         {
                             File.Create(fullPath).Close();
                         }
-                        StreamWriter w = File.AppendText(fullPath);
-                        w.WriteLine(CreateMessage(package));
-                        w.Close();
+
+                        string mainLogPath = GetFullPath(fullLog);
+                        if (!File.Exists(mainLogPath))
+                        {
+                            File.Create(mainLogPath).Close();
+                        }
+
+                        LogToFile(mainLogPath, package);
+                        LogToFile(fullPath, package);
+
                     }
                     else
                     {

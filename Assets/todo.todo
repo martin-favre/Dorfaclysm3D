@@ -44,7 +44,7 @@
         They can't find a free block to walk to
     ✔ Blocks disappear/become seethrough @done(20-11-06 07:32)
     ✔ Dorfs walk strange @done(20-11-06 08:13)
-    ☐ Dorfs walk through StairsUpAndDown
+    ✔ Dorfs walk through StairsUpAndDown @done(20-11-21 20:19)
         1. Make StairsUpAndDown see-through or of more complex shape
             See through, not an option
             Could look like a stair
@@ -55,7 +55,7 @@
             the rest.
 
 ☐ Other
-    ☐ Show different sprite for different sides of block
+    ☐ Show different sprite for different sides of grassblock
     ☐ Look into testing
         Refactor and ensure I have at least some basic unit testing system.
         Because testing things manually takes too much time.

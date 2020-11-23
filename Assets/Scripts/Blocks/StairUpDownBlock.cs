@@ -40,53 +40,8 @@ public class StairUpDownBlock : Block
         Block neighbourBlock = GetBlock(new Vector3Int(x, y + 1, z), maxY, blockOwner);
         Vector2 blockEffect = BlockEffectMap.GetBlockEffect(currPos);
         PartMeshInfo meshInfo = new PartMeshInfo();
-        bool stepsRendered = false; // Steps are visible from multiple directions, but only need to be rendered once
-        if (FaceShouldBeRendered(neighbourBlock))
-        {
-            //Block above is air
-            if (BlockMeshes.StairSteps != null)
-            {
-                RenderRefMesh(BlockMeshes.StairSteps, currPos, GetTexturePos(), blockEffect, meshInfo);
-            }
-            stepsRendered = true;
-        }
-        neighbourBlock = GetBlock(new Vector3Int(x, y - 1, z), maxY, blockOwner);
-        if (FaceShouldBeRendered(neighbourBlock))
-        {
-            //Block below is air
-            CubeBot(currPos, meshInfo);
-
-        }
-
-        neighbourBlock = GetBlock(new Vector3Int(x + 1, y, z), maxY, blockOwner);
-        if (FaceShouldBeRendered(neighbourBlock))
-        {
-            //Block east is air
-            CubeEast(currPos, meshInfo);
-        }
-
-        neighbourBlock = GetBlock(new Vector3Int(x, y, z - 1), maxY, blockOwner);
-        if (FaceShouldBeRendered(neighbourBlock))
-        {
-            //Block north is air
-            RenderRefMesh(BlockMeshes.StairSide, currPos, GetTexturePos(), blockEffect, meshInfo);
-            if (!stepsRendered)
-            {
-                RenderRefMesh(BlockMeshes.StairSide, currPos, GetTexturePos(), blockEffect, meshInfo);
-                stepsRendered = true;
-            }
-        }
-        neighbourBlock = GetBlock(new Vector3Int(x, y, z + 1), maxY, blockOwner);
-        if (FaceShouldBeRendered(neighbourBlock))
-        {
-            RenderRefMesh(BlockMeshes.StairSide2, currPos, GetTexturePos(), blockEffect, meshInfo);
-            if (!stepsRendered)
-            {
-                RenderRefMesh(BlockMeshes.StairSide2, currPos, GetTexturePos(), blockEffect, meshInfo);
-                stepsRendered = true;
-            }
-
-        }
+        
+        RenderRefMesh(BlockMeshes.FullStair, currPos, GetTexturePos(), blockEffect, meshInfo);
         return meshInfo;
     }
 

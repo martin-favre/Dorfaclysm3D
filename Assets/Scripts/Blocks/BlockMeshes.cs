@@ -25,13 +25,9 @@ public class BlockMeshes
 
         public Vector3[] Vertices => vertices;
     }
-    private static MeshInfo stairSteps;
-    private static MeshInfo stairSide;
-    private static MeshInfo stairSide2;
+    private static MeshInfo fullStair;
 
-    public static MeshInfo StairSteps { get => stairSteps; }
-    public static MeshInfo StairSide { get => stairSide; }
-    public static MeshInfo StairSide2 { get => stairSide2; }
+    public static MeshInfo FullStair { get => fullStair; }
 
     public static LilLogger logger = new LilLogger("Blocks");
 
@@ -57,9 +53,7 @@ public class BlockMeshes
     // Can't use Mesh otherwise
     public static void LoadMeshes()
     {
-        stairSteps = LoadMesh("Models/steps");
-        stairSide = LoadMesh("Models/stairside");
-        stairSide2 = LoadMesh("Models/stairside2");
+        fullStair = LoadMesh("Models/fullstair");
     }
 
 }

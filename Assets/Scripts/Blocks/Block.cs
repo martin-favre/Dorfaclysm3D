@@ -23,14 +23,25 @@ public abstract partial class Block : System.ICloneable, System.IEquatable<Block
         }
     }
     protected static readonly LilLogger logger = new LilLogger("Blocks");
-    private readonly BlockType type = BlockType.invalid;
     private const float textureUnit = 0.5f;
-    public BlockType Type { get => type; }
+    private readonly BlockType type = BlockType.invalid;
+
+    private readonly Vector3 rotation = Vector3.zero;
+
+    public BlockType Type => type;
+
+    public Vector3 Rotation => rotation;
 
     public Block(BlockType type)
     {
         this.type = type;
     }
+    public Block(BlockType type, Vector3 rotation)
+    {
+        this.type = type;
+        this.rotation = rotation;
+    }
+
 
     // Position in the spritesheet
     public abstract Vector2 GetTexturePos();
@@ -220,14 +231,14 @@ public abstract partial class Block : System.ICloneable, System.IEquatable<Block
         meshInfo.EffectUuv.Add(new Vector2(textureUnit * effectPos.x, textureUnit * effectPos.y));
     }
 
-    protected void RenderRefMesh(BlockMeshes.MeshInfo refMesh, Vector3 currPos, Vector2 baseTexturePos, Vector2 effectTexturePos, PartMeshInfo meshInfo)
+    protected void RenderRefMesh(BlockMeshes.MeshInfo refMesh, Vector3 currPos, Vector3 rotation, Vector2 baseTexturePos, Vector2 effectTexturePos, PartMeshInfo meshInfo)
     {
         if (refMesh == null) return;
 
         foreach (Vector3 v in refMesh.Vertices)
         {
-            Vector3 newV = Quaternion.AngleAxis(90, Vector3.up) * v;
-            newV = (newV / 2 + new Vector3(0.5f, -0.5f, 0.5f)) + currPos;
+            Vector3 newV = Quaternion.Euler(rotation)*v;
+            newV += new Vector3(0.5f, -0.5f, 0.5f) + currPos;
 
             meshInfo.Vertices.Add(newV);
         }

@@ -10,14 +10,14 @@ public class StairUpDownBlock : Block
     static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.StairUpDownBlock);
 
 
-    public StairUpDownBlock() : base(BlockType.stairUpDownBlock)
+    public StairUpDownBlock(Vector3 rotation) : base(BlockType.stairUpDownBlock, rotation)
     {
 
     }
 
     public override object Clone()
     {
-        return new StairUpDownBlock();
+        return new StairUpDownBlock(Rotation);
     }
 
     public override Item GetItem()
@@ -33,15 +33,9 @@ public class StairUpDownBlock : Block
 
     private PartMeshInfo renderStair(Vector3Int currPos, int maxY, IHasBlocks blockOwner)
     {
-        //This code will run for every block in the chunk
-        int x = currPos.x;
-        int y = currPos.y;
-        int z = currPos.z;
-        Block neighbourBlock = GetBlock(new Vector3Int(x, y + 1, z), maxY, blockOwner);
         Vector2 blockEffect = BlockEffectMap.GetBlockEffect(currPos);
         PartMeshInfo meshInfo = new PartMeshInfo();
-        
-        RenderRefMesh(BlockMeshes.FullStair, currPos, GetTexturePos(), blockEffect, meshInfo);
+        RenderRefMesh(BlockMeshes.FullStair, currPos, Rotation, GetTexturePos(), blockEffect, meshInfo);
         return meshInfo;
     }
 

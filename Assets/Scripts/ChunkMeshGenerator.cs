@@ -91,7 +91,7 @@ public class ChunkMeshGenerator : MonoBehaviour
             case State.GeneratingMesh:
                 if (generationTask.IsCompleted)
                 {
-                    state = State.MeshResultReceived;
+                state = State.MeshResultReceived;
                 }
                 break;
             case State.MeshResultReceived:
@@ -194,7 +194,7 @@ public class ChunkMeshGenerator : MonoBehaviour
 
         for (int x = chunkOrigin.x; x < chunkOrigin.x + chunkSize; x++)
         {
-            for (int y = chunkOrigin.y; y < chunkOrigin.y + chunkSize; y++)
+            for (int y = chunkOrigin.y; y < chunkOrigin.y + chunkSize && y <= maxY; y++)
             {
                 for (int z = chunkOrigin.z; z < chunkOrigin.z + chunkSize; z++)
                 {

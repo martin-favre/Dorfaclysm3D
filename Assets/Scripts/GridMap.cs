@@ -67,7 +67,7 @@ public class GridMap : IHasBlocks
 
                     if (y == x && (z == 5 || z == 10))
                     {
-                        SetBlock(pos, new StairUpDownBlock());
+                        SetBlock(pos, new StairUpDownBlock(new Vector3(0, 90, 0)));
                     }
                     else if (y == x)
                     {

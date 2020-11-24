@@ -13,6 +13,10 @@ public class BlockMeshes
         public MeshInfo(Mesh mesh)
         {
             vertices = mesh.vertices;
+            for(int i = 0; i < vertices.Length; i++) {
+                // all meshes seems to be twice as big as expected, no matter the scaling in blender.
+                vertices[i] /= 2;
+            }
             triangles = mesh.triangles;
             uuv = new List<Vector2>();
             mesh.GetUVs(0, uuv);

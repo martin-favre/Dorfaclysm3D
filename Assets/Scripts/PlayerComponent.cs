@@ -19,6 +19,7 @@ public class PlayerComponent : MonoBehaviour
     RequestState requestState = RequestState.Mining;
     LilLogger logger;
     public TMP_Dropdown dropdown;
+    public GameObject blockBuildGhost;
 
 
     private void Start()
@@ -26,6 +27,7 @@ public class PlayerComponent : MonoBehaviour
         logger = new LilLogger(gameObject.name);
         logger.Log("Playercomponent started");
         SetUpDropdown();
+        if (blockBuildGhost) blockBuildGhost.SetActive(false);
     }
 
     void SetUpDropdown()
@@ -67,7 +69,14 @@ public class PlayerComponent : MonoBehaviour
     {
         logger.Log("Got a new requeststate " + state);
         requestState = state;
+        OnRequestStateChanged(state);
     }
+
+    void OnRequestStateChanged(RequestState newState)
+    {
+        if(blockBuildGhost != null) blockBuildGhost.SetActive(newState == RequestState.Placing); 
+    }
+
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -135,8 +144,6 @@ public class PlayerComponent : MonoBehaviour
                 }
                 logger.Log("Placed a new blockbuildingsite");
                 BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos);
-
-
             }
         }
     }

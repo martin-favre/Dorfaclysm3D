@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BlockBuildingObjectVisualizer : MonoBehaviour
+public class BlockVisualizer : MonoBehaviour
 {
     private class MyBlock : IHasBlocks
     {
         readonly Vector3Int origin;
-        public MyBlock(Vector3Int origin)
+        readonly Block expectedBlock;
+        public MyBlock(Vector3Int origin, Block expectedBlock)
         {
             this.origin = origin;
+            this.expectedBlock = expectedBlock;
         }
         public Block GetBlock(Vector3Int pos)
         {
@@ -32,42 +34,29 @@ public class BlockBuildingObjectVisualizer : MonoBehaviour
         {
             if (pos == origin)
             {
-                block = new RockBlock();
+                block = expectedBlock;
                 return true;
-            } else {
+            }
+            else
+            {
                 block = new AirBlock();
                 return false;
             }
         }
     }
-    BlockBuildingSite site;
     ChunkMeshGenerator meshGenerator;
-    Block expectedBlock;
 
-    MyBlock blockOwner;
-
-    void Start()
+    public void RenderBlock(Block originBlock)
     {
-        site = GetComponent<BlockBuildingSite>();
-        if (site == null) return;
-        meshGenerator = GetComponent<ChunkMeshGenerator>();
+        if (meshGenerator == null)
+        {
+            meshGenerator = GetComponent<ChunkMeshGenerator>();
+        }
         if (meshGenerator == null) return;
-        expectedBlock = site.GetBlock();
-        Vector3Int origin = site.GetComponent<GridActor>().GetPos();
-        
-        blockOwner = new MyBlock(Vector3Int.zero);
+        MyBlock blockOwner = new MyBlock(Vector3Int.zero, originBlock);
         meshGenerator.ChunkOrigin = Vector3Int.zero;
         meshGenerator.ChunkSize = 1;
         meshGenerator.BlockOwner = blockOwner;
         meshGenerator.GenerateMesh();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (site == null || meshGenerator == null) return;
-
-
-
     }
 }

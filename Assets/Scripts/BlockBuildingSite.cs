@@ -53,6 +53,11 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
 
             data.hasSpawnedRequest = true;
         }
+
+        BlockVisualizer visualizer = GetComponent<BlockVisualizer>();
+        if(visualizer) {
+            visualizer.RenderBlock(GetBlock());
+        }
     }
 
     public Block GetBlock() 

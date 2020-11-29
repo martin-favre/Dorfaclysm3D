@@ -18,7 +18,9 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     const string prefabName = "Prefabs/BlockBuildingObject";
     static GameObject prefabObj;
 
-    public static BlockBuildingSite InstantiateNew(Vector3Int position)
+    Block targetBlock;
+
+    public static BlockBuildingSite InstantiateNew(Vector3Int position, Block blockToBuild)
     {
 
         if (prefabObj == null)
@@ -33,6 +35,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         actor.Move(position);
         BlockBuildingSite bbs = obj.GetComponent<BlockBuildingSite>();
         if (!bbs) throw new System.Exception("No BlockBuildingSite on prefab " + prefabName);
+        bbs.targetBlock = blockToBuild;
         return bbs;
     }
     void Start()
@@ -62,7 +65,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
 
     public Block GetBlock() 
     {
-        return new RockBlock();
+        return targetBlock;
     }
 
 
@@ -80,7 +83,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     {
         if (actor)
         {
-            GridMap.Instance.SetBlock(actor.GetPos(), new RockBlock());
+            GridMap.Instance.SetBlock(actor.GetPos(), GetBlock());
             GameObject.Destroy(gameObject);
         }
     }

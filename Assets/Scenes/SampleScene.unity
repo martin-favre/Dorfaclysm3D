@@ -564,7 +564,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05a374b356566e1c9b4eecb2b92a5e44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dropdown: {fileID: 1644282699}
+  requestChooserDropdown: {fileID: 1644282699}
+  blockChooserDropdown: {fileID: 1840042209}
   blockBuildGhost: {fileID: 1743480013}
 --- !u!1 &355550692
 GameObject:

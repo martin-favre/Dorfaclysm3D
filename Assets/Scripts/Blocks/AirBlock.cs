@@ -6,6 +6,7 @@ using UnityEngine;
 public class AirBlock : Block
 {
     public AirBlock() : base(BlockType.airBlock) { }
+    public AirBlock(Vector3 rotation) : base(BlockType.airBlock, rotation) { }
 
     public override object Clone()
     {

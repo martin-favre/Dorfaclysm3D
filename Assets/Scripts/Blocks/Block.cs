@@ -26,11 +26,11 @@ public abstract partial class Block : System.ICloneable, System.IEquatable<Block
     private const float textureUnit = 0.5f;
     private readonly BlockType type = BlockType.invalid;
 
-    private readonly Vector3 rotation = Vector3.zero;
+    private Vector3 rotation = Vector3.zero;
 
     public BlockType Type => type;
 
-    public Vector3 Rotation => rotation;
+    public Vector3 Rotation { get => rotation; set => rotation = value; }
 
     public Block(BlockType type)
     {

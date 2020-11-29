@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Logging;
 using UnityEngine;
@@ -34,11 +35,39 @@ public class BlockBuildGhoster : MonoBehaviour
             oldMousePos = Input.mousePosition;
             UpdateBlock(oldMousePos);
         }
+        if(Input.GetKeyDown(KeyCode.R)){
+            RotateBlock();
+        }
+    }
+
+    private void RotateBlock()
+    {
+        plannedBlock.Rotation += new Vector3(0, 90, 0);
+        UpdateBlock(oldMousePos);
     }
 
     void RenderNothing()
     {
         visualizer.RenderBlock(new AirBlock());
+    }
+
+    public void setBlockType(Block.BlockType type){
+        switch(type){
+            case Block.BlockType.rockBlock:
+            plannedBlock = new RockBlock(plannedBlock.Rotation);
+            break;
+            case Block.BlockType.stairUpDownBlock:
+            plannedBlock = new StairUpDownBlock(plannedBlock.Rotation);
+            break;
+            default:
+            plannedBlock = new AirBlock(plannedBlock.Rotation);
+            break;
+        }
+        UpdateBlock(oldMousePos);
+    }
+
+    public Block GetBlock(){
+        return plannedBlock;
     }
 
     void UpdateBlock(Vector3 newMousePos)

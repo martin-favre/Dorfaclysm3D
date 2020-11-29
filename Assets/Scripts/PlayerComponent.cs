@@ -18,7 +18,9 @@ public class PlayerComponent : MonoBehaviour
     };
     RequestState requestState = RequestState.Mining;
     LilLogger logger;
-    public TMP_Dropdown dropdown;
+    public TMP_Dropdown requestChooserDropdown;
+    public TMP_Dropdown blockChooserDropdown;
+
     public GameObject blockBuildGhost;
 
 
@@ -27,27 +29,58 @@ public class PlayerComponent : MonoBehaviour
         logger = new LilLogger(gameObject.name);
         logger.Log("Playercomponent started");
         SetUpDropdown();
-        if (blockBuildGhost) blockBuildGhost.SetActive(false);
+        if (blockBuildGhost) {
+            blockBuildGhost.SetActive(false);
+        } else {
+            logger.Log("Missing blockBuildGhost", LogLevel.Warning);
+        }
     }
 
     void SetUpDropdown()
     {
-        if (dropdown)
+        if (requestChooserDropdown)
         {
-
             DropdownEvent unityEvent = new DropdownEvent();
-            unityEvent.AddListener(OnDropdownChanged);
-            dropdown.onValueChanged = unityEvent;
-            OnDropdownChanged(dropdown.value);
+            unityEvent.AddListener(OnRequestDropdownChanged);
+            requestChooserDropdown.onValueChanged = unityEvent;
+            OnRequestDropdownChanged(requestChooserDropdown.value);
         }
         else
         {
-            logger.Log("Missing dropdown", LogLevel.Warning);
+            logger.Log("Missing request dropdown", LogLevel.Warning);
+        }
+
+        if(blockChooserDropdown) {
+            DropdownEvent unityEvent = new DropdownEvent();
+            unityEvent.AddListener(OnBlockDropdownChanged);
+            blockChooserDropdown.onValueChanged = unityEvent;
+            OnRequestDropdownChanged(blockChooserDropdown.value);
+        }
+        else
+        {
+            logger.Log("Missing block dropdown", LogLevel.Warning);
         }
 
     }
 
-    void OnDropdownChanged(int index)
+    private void OnBlockDropdownChanged(int index)
+    {
+        Block.BlockType[] intToBlock = { Block.BlockType.rockBlock, Block.BlockType.stairUpDownBlock };
+        if(index < intToBlock.Length) {
+            SetBlockToBuild(intToBlock[index]);
+        } else {
+            logger.Log("Dropdown index out of range", LogLevel.Error);
+        }
+    }
+
+    private void SetBlockToBuild(Block.BlockType blockType)
+    {
+        if(blockBuildGhost){
+            blockBuildGhost.GetComponent<BlockBuildGhoster>().setBlockType(blockType);
+        }
+    }
+
+    void OnRequestDropdownChanged(int index)
     {
         RequestState[] intToReq = { RequestState.Mining, RequestState.Placing, RequestState.Cancelling, RequestState.QuickBlockRemove };
         if (index < intToReq.Length)
@@ -143,7 +176,8 @@ public class PlayerComponent : MonoBehaviour
                     }
                 }
                 logger.Log("Placed a new blockbuildingsite");
-                BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos);
+                Block newBlock = blockBuildGhost ? blockBuildGhost.GetComponent<BlockBuildGhoster>().GetBlock() : new AirBlock();
+                BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos, newBlock);
             }
         }
     }

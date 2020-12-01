@@ -80,7 +80,7 @@ public class MiningJob : IJob
         private readonly MiningRequest request;
         private readonly LilLogger logger;
 
-        public WalkToBlockState(GridActor user, MiningRequest request, LilLogger logger) : base(user, 0.3f)
+        public WalkToBlockState(GridActor user, MiningRequest request, LilLogger logger) : base(user, 0.5f)
         {
             this.user = user;
             this.request = request;

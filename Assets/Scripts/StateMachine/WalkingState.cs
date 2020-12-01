@@ -197,8 +197,14 @@ namespace StateMachineCollection
                 if (parent.astarResult.path.Count > 0)
                 {
                     Vector3Int nextPos = parent.astarResult.path.Pop();
-                    parent.user.Move(nextPos);
-                    return new WaitABitState(parent);
+                    if(GridMap.Instance.IsPosFree(nextPos)){
+                        parent.user.Move(nextPos);
+                        return new WaitABitState(parent);
+                    } else {
+                        // Okay, whatever path we were walking along is no longer valid
+                        // Try to figure out another one.
+                        return new AwaitingAstarState(parent);
+                    }
                 }
                 TerminateMachine();
                 return StateMachine.NoTransition();

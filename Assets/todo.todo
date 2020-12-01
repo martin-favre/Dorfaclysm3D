@@ -16,10 +16,23 @@
     ✔ Create per component logging @done(20-11-03 21:18)
         I.e. a dorf will maintain its own log
         Give them a component?
+        ✔ Blocks disappear/become seethrough @done(20-11-06 07:32)
+        ✔ Dorfs walk strange @done(20-11-06 08:13)
+        ✔ Dorfs walk through StairsUpAndDown @done(20-11-21 20:19)
+            1. Make StairsUpAndDown see-through or of more complex shape
+                See through, not an option
+                Could look like a stair
+                
+            2. Rework the visualization of dorfs to kinda climb over the blocks
+                This would require the movement statemachine to announce what it's doing. 
+                Tbh maybe just announce the path and the speed, then the visualization can handle
+                the rest.
+    ✔ Rework camera so it scrolls through Z-levels @done(20-11-01 11:42)
+    ✔ Make buttons for swapping between Mining, Building and cancelling @done(20-11-06 07:31)
+    ✔ Make buttons for save/loading
 
 
 ☐ Usability
-    ✔ Rework camera so it scrolls through Z-levels @done(20-11-01 11:42)
     ☐ Make requests cancellable
         ☐ Move responsibility of requests from the requestpool to the requesters.
             The requesters need to have the ability to act when the request is finished,
@@ -27,9 +40,7 @@
             Unity does not have any robust GUID system (C# has GUIDs, but I can't easily assign it to a gameobject)
             Therefore make it so the requesters own their requests. OnSave they will store their own requests.
             Then OnLoad they will post them again.
-    ✔ Make buttons for swapping between Mining, Building and cancelling @done(20-11-06 07:31)
     ☐ Make buttons for spawning Dorfs
-    ✔ Make buttons for save/loading
     ☐ Make dorfs have a popup noting what they're doing
         A little symbol, like 
         "..." if they are calculating something
@@ -42,17 +53,9 @@
 ☐ Bugs            
     ☐ Why do dorf with walkrandomlyjob stop and wait for so long
         They can't find a free block to walk to
-    ✔ Blocks disappear/become seethrough @done(20-11-06 07:32)
-    ✔ Dorfs walk strange @done(20-11-06 08:13)
-    ✔ Dorfs walk through StairsUpAndDown @done(20-11-21 20:19)
-        1. Make StairsUpAndDown see-through or of more complex shape
-            See through, not an option
-            Could look like a stair
-            
-        2. Rework the visualization of dorfs to kinda climb over the blocks
-            This would require the movement statemachine to announce what it's doing. 
-            Tbh maybe just announce the path and the speed, then the visualization can handle
-            the rest.
+    ☐ Dorfs don't check if they can reach moveitemtarget when starting the job
+        Dorfs will run to a block, pick it up, realize they can't go to the target and drop the item
+        Causing a bunch of dorfs to try and fail to do the job
 
 ☐ Other
     ☐ Show different sprite for different sides of grassblock

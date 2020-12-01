@@ -3362,7 +3362,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3247727461746344626, guid: d55f2f1d3f4d7df519b2059783d05c9d, type: 3}
       propertyPath: translationSpeed
-      value: 0.6
+      value: 0.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 3247727461746344626, guid: d55f2f1d3f4d7df519b2059783d05c9d, type: 3}
+      propertyPath: dragSpeed
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3247727461746344626, guid: d55f2f1d3f4d7df519b2059783d05c9d, type: 3}
+      propertyPath: zoomSpeed
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 3247727461746344627, guid: d55f2f1d3f4d7df519b2059783d05c9d, type: 3}
       propertyPath: m_LocalPosition.x

@@ -183,7 +183,7 @@ public class MoveItemJob : IJob
         private readonly Vector3Int target;
         private readonly LilLogger logger;
 
-        public WalkToItemState(GridActor actor, MoveItemRequest request, Vector3Int target, LilLogger logger) : base(actor, 0.5f)
+        public WalkToItemState(GridActor actor, MoveItemRequest request, Vector3Int target, LilLogger logger) : base(actor, 0.1f)
         {
             this.actor = actor;
             this.request = request;

@@ -82,7 +82,7 @@ public class WalkRandomlyJob : IJob
         Vector3Int targetPos;
         private readonly LilLogger logger;
 
-        public WalkRandomlyState(GridActor user, Vector3Int targetPos, LilLogger logger) : base(user, 0.2f)
+        public WalkRandomlyState(GridActor user, Vector3Int targetPos, LilLogger logger) : base(user, 0.5f)
         {
             this.targetPos = targetPos;
             this.logger = logger;

@@ -12,7 +12,7 @@ public abstract class RequestPool<T> where T : PlayerRequest
     {
         public readonly T request;
         public readonly double startTime;
-        const int cooldownTime = 5; // seconds
+        const int cooldownTime = 2; // seconds
 
         public RequestOnCooldown(T request, double startTime)
         {

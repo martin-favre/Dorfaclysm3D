@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 6604290423643696605}
   - component: {fileID: 9185491346499530168}
   - component: {fileID: 1730462638004219276}
+  - component: {fileID: 2610381730083215294}
   m_Layer: 0
   m_Name: BlockBuildingObject
   m_TagString: Untagged
@@ -161,3 +162,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4fd5db68f2e417579a994458efd5b47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!64 &2610381730083215294
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4930438751687897100}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}

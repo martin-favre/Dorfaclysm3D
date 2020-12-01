@@ -26,7 +26,7 @@ public static class GridMapHelper
                 failedPositions.Add(currentPos);
                 if (currentDepth < maxSearchDepth)
                 {
-                    foreach (Vector3Int delta in DeltaPositions.DeltaPositions3D)
+                    foreach (Vector3Int delta in DeltaPositions.DeltaPositionsHorizontal)
                     {
                         Vector3Int nextPos = currentPos + delta;
                         if (!failedPositions.Contains(nextPos))

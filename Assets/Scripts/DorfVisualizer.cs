@@ -64,7 +64,7 @@ public class DorfVisualizer : MonoBehaviour
         {
             int myY = actor.GetPos().y;
             int maxy = camController.GetVerticalPosition();
-            visible = myY < maxy;
+            visible = myY <= maxy;
         }
         if (meshRenderer)
         {

@@ -566,7 +566,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   requestChooserDropdown: {fileID: 1644282699}
   blockChooserDropdown: {fileID: 1840042209}
-  blockBuildGhost: {fileID: 1743480013}
+  blockBuildGhostObj: {fileID: 1743480013}
 --- !u!1 &355550692
 GameObject:
   m_ObjectHideFlags: 0

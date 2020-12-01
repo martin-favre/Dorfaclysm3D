@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class BlockBuildGhoster : MonoBehaviour
 {
-    Block plannedBlock = new RockBlock();
+    Block plannedBlock = new AirBlock();
 
     Vector3 oldMousePos;
 
@@ -35,39 +35,17 @@ public class BlockBuildGhoster : MonoBehaviour
             oldMousePos = Input.mousePosition;
             UpdateBlock(oldMousePos);
         }
-        if(Input.GetKeyDown(KeyCode.R)){
-            RotateBlock();
-        }
-    }
-
-    private void RotateBlock()
-    {
-        plannedBlock.Rotation += new Vector3(0, 90, 0);
-        UpdateBlock(oldMousePos);
     }
 
     void RenderNothing()
     {
+        if(!visualizer) return;
         visualizer.RenderBlock(new AirBlock());
     }
 
-    public void setBlockType(Block.BlockType type){
-        switch(type){
-            case Block.BlockType.rockBlock:
-            plannedBlock = new RockBlock(plannedBlock.Rotation);
-            break;
-            case Block.BlockType.stairUpDownBlock:
-            plannedBlock = new StairUpDownBlock(plannedBlock.Rotation);
-            break;
-            default:
-            plannedBlock = new AirBlock(plannedBlock.Rotation);
-            break;
-        }
+    public void setBlock(Block block){
+        plannedBlock = block;
         UpdateBlock(oldMousePos);
-    }
-
-    public Block GetBlock(){
-        return plannedBlock;
     }
 
     void UpdateBlock(Vector3 newMousePos)

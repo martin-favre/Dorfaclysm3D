@@ -21,7 +21,10 @@ public class PlayerComponent : MonoBehaviour
     public TMP_Dropdown requestChooserDropdown;
     public TMP_Dropdown blockChooserDropdown;
 
-    public GameObject blockBuildGhost;
+    public GameObject blockBuildGhostObj;
+
+    private Block plannedBuildBlock = new RockBlock();
+    private BlockBuildGhoster plannedBuildGhost;
 
 
     private void Start()
@@ -29,11 +32,25 @@ public class PlayerComponent : MonoBehaviour
         logger = new LilLogger(gameObject.name);
         logger.Log("Playercomponent started");
         SetUpDropdown();
-        if (blockBuildGhost) {
-            blockBuildGhost.SetActive(false);
-        } else {
+        if (blockBuildGhostObj)
+        {
+            blockBuildGhostObj.SetActive(false);
+            plannedBuildGhost = blockBuildGhostObj.GetComponent<BlockBuildGhoster>();
+
+            if (plannedBuildGhost)
+            {
+                plannedBuildGhost.setBlock(plannedBuildBlock);
+            }
+            else
+            {
+                logger.Log("Missing BlockBuildGhoster", LogLevel.Warning);
+            }
+        }
+        else
+        {
             logger.Log("Missing blockBuildGhost", LogLevel.Warning);
         }
+
     }
 
     void SetUpDropdown()
@@ -50,7 +67,8 @@ public class PlayerComponent : MonoBehaviour
             logger.Log("Missing request dropdown", LogLevel.Warning);
         }
 
-        if(blockChooserDropdown) {
+        if (blockChooserDropdown)
+        {
             DropdownEvent unityEvent = new DropdownEvent();
             unityEvent.AddListener(OnBlockDropdownChanged);
             blockChooserDropdown.onValueChanged = unityEvent;
@@ -66,17 +84,36 @@ public class PlayerComponent : MonoBehaviour
     private void OnBlockDropdownChanged(int index)
     {
         Block.BlockType[] intToBlock = { Block.BlockType.rockBlock, Block.BlockType.stairUpDownBlock };
-        if(index < intToBlock.Length) {
+        if (index < intToBlock.Length)
+        {
             SetBlockToBuild(intToBlock[index]);
-        } else {
+        }
+        else
+        {
             logger.Log("Dropdown index out of range", LogLevel.Error);
         }
     }
 
     private void SetBlockToBuild(Block.BlockType blockType)
     {
-        if(blockBuildGhost){
-            blockBuildGhost.GetComponent<BlockBuildGhoster>().setBlockType(blockType);
+        Vector3 rotation = plannedBuildBlock.Rotation;
+        switch (blockType)
+        {
+            case Block.BlockType.rockBlock:
+                plannedBuildBlock = new RockBlock(rotation);
+                break;
+            case Block.BlockType.stairUpDownBlock:
+                plannedBuildBlock = new StairUpDownBlock(rotation);
+                break;
+            default:
+                logger.Log("Unknown blocktype! " + blockType.ToString());
+                plannedBuildBlock = new AirBlock();
+                break;
+        }
+
+        if (plannedBuildGhost)
+        {
+            plannedBuildGhost.setBlock(plannedBuildBlock);
         }
     }
 
@@ -107,7 +144,7 @@ public class PlayerComponent : MonoBehaviour
 
     void OnRequestStateChanged(RequestState newState)
     {
-        if(blockBuildGhost != null) blockBuildGhost.SetActive(newState == RequestState.Placing); 
+        if (blockBuildGhostObj != null) blockBuildGhostObj.SetActive(newState == RequestState.Placing);
     }
 
     void Update()
@@ -128,7 +165,22 @@ public class PlayerComponent : MonoBehaviour
                 ShootDeathLaser();
             }
         }
+
+        if (requestState == RequestState.Placing && Input.GetKeyDown(KeyCode.R))
+        {
+            handleRotatePlacement();
+        }
     }
+
+    private void handleRotatePlacement()
+    {
+        plannedBuildBlock.Rotation += new Vector3(0, 90, 0);
+        if (plannedBuildGhost)
+        {
+            plannedBuildGhost.setBlock(plannedBuildBlock);
+        }
+    }
+
     static private void ShootDeathLaser()
     {
         Vector3 origin = Input.mousePosition;
@@ -176,8 +228,7 @@ public class PlayerComponent : MonoBehaviour
                     }
                 }
                 logger.Log("Placed a new blockbuildingsite");
-                Block newBlock = blockBuildGhost ? blockBuildGhost.GetComponent<BlockBuildGhoster>().GetBlock() : new AirBlock();
-                BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos, newBlock);
+                BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos, plannedBuildBlock);
             }
         }
     }

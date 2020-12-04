@@ -1,9 +1,10 @@
 
+using System;
 using Items;
 using UnityEngine;
 
 [System.Serializable]
-public class MoveItemRequest : PlayerRequest
+public class MoveItemRequest : PlayerRequest, IEquatable<MoveItemRequest>
 {
     readonly ItemType typeToFind;
     readonly Vector3Int positionToMoveTo;
@@ -18,13 +19,13 @@ public class MoveItemRequest : PlayerRequest
 
     public ItemType TypeToFind => typeToFind;
 
-    public override bool Equals(object obj)
+    public bool Equals(MoveItemRequest other)
     {
-        return obj is MoveItemRequest request &&
-               typeToFind == request.typeToFind &&
-               positionToMoveTo.Equals(request.positionToMoveTo) &&
-               PositionToMoveTo.Equals(request.PositionToMoveTo) &&
-               TypeToFind == request.TypeToFind;
+        // Moveitemrequests are completely unique
+        // Two requests to move the same item from the same place 
+        // should both be posted in the requestpool
+        // without being afraid of being ignored due to duplication  
+        return Guid == other.Guid;
     }
 
     public override void Finish()
@@ -34,9 +35,6 @@ public class MoveItemRequest : PlayerRequest
 
     public override int GetHashCode()
     {
-        int hashCode = -1314807358;
-        hashCode = hashCode * -1521134295 + typeToFind.GetHashCode();
-        hashCode = hashCode * -1521134295 + positionToMoveTo.GetHashCode();
-        return hashCode;
+        return Guid.GetHashCode();
     }
 }

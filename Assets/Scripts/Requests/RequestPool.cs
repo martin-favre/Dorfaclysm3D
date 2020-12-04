@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Logging;
 using UnityEngine;
 using System.Linq;
+using System.Collections.Concurrent;
 
 public abstract class RequestPool<T> where T : PlayerRequest
 {
@@ -45,7 +46,7 @@ public abstract class RequestPool<T> where T : PlayerRequest
 
     readonly protected object lockObject = new object();
 
-    Dictionary<Guid, Action<T>> onCancelledCallbacks = new Dictionary<Guid, Action<T>>();
+    ConcurrentDictionary<Guid, Action<T>> onCancelledCallbacks = new ConcurrentDictionary<Guid, Action<T>>();
 
     protected LilLogger logger = new LilLogger(typeof(T).Name + "RequestPool");
 
@@ -137,7 +138,7 @@ public abstract class RequestPool<T> where T : PlayerRequest
     }
     public void UnregisterOnCancelledCallback(Guid requestGuid)
     {
-        bool success = onCancelledCallbacks.Remove(requestGuid);
+        bool success = onCancelledCallbacks.TryRemove(requestGuid, out _);
     }
 
     protected virtual void OnRequestAdded(T request)

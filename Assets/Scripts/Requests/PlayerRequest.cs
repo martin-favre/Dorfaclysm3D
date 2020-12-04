@@ -20,8 +20,6 @@ public abstract class PlayerRequest : IHasGuid
 
     public abstract void Finish();
 
-    public abstract override bool Equals(object obj);
-
     public abstract override int GetHashCode();
 
 }

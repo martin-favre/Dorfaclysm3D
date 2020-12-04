@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class MiningRequestPool : RequestPool<MiningRequest>
@@ -32,6 +33,7 @@ public class MiningRequestPool : RequestPool<MiningRequest>
         MiningRequest closestReq = null;
         lock (lockObject)
         {
+
             foreach (MiningRequest req in Requests)
             {
                 Vector3Int diff = req.Position - actorPos;
@@ -45,5 +47,25 @@ public class MiningRequestPool : RequestPool<MiningRequest>
         }
         HandOutRequest(closestReq);
         return closestReq;
+    }
+
+    internal void CancelRequest(Vector3Int blockPos)
+    {
+        MiningRequest request = null;
+        lock (lockObject)
+        {
+
+            PerformForEachRequest((req) =>
+            {
+                if (req.Position == blockPos)
+                {
+                    request = req;
+                }
+            });
+        }
+        if (request != null)
+        {
+            CancelRequest(request);
+        }
     }
 }

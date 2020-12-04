@@ -2,10 +2,12 @@
 using System;
 
 [System.Serializable]
-public abstract class PlayerRequest
+public abstract class PlayerRequest : IHasGuid
 {
     private bool cancelled = false;
+    protected readonly Guid guid = Guid.NewGuid();
 
+    public Guid Guid => guid;
     public void Cancel()
     {
         cancelled = true;

@@ -164,11 +164,43 @@ public class PlayerComponent : MonoBehaviour
             {
                 ShootDeathLaser();
             }
+            else if (requestState == RequestState.Cancelling)
+            {
+                HandleCancelling();
+            }
         }
 
         if (requestState == RequestState.Placing && Input.GetKeyDown(KeyCode.R))
         {
             handleRotatePlacement();
+        }
+    }
+
+    private bool GetBlockAtMouse(Vector3 origin, out Vector3Int position, out Block block)
+    {
+
+        bool success = BlockLaser.GetBlockPositionAtMouse(Input.mousePosition, out position);
+        if (success)
+        {
+            bool foundBlock = GridMap.Instance.TryGetBlock(position, out block);
+            success = foundBlock;
+        }
+        else
+        {
+            block = null;
+        }
+        return success;
+    }
+
+    private void HandleCancelling()
+    {
+
+        Vector3Int blockPos;
+        Block block;
+        bool success = GetBlockAtMouse(Input.mousePosition, out blockPos, out block);
+        if (success)
+        {
+            MiningRequestPool.Instance.CancelRequest(blockPos);
         }
     }
 
@@ -207,17 +239,12 @@ public class PlayerComponent : MonoBehaviour
     private void HandlePlacing()
     {
         Vector3Int blockPos;
-        bool success = BlockLaser.GetBlockPositionAtMouse(Input.mousePosition, out blockPos, -0.001f);
-        if (success)
+        Block block;
+        logger.Log("Trying to place block");
+        bool success = GetBlockAtMouse(Input.mousePosition, out blockPos, out block);
+        if (success && block.Type == Block.BlockType.airBlock)
         {
-            logger.Log("Pointed at " + blockPos);
-            Block block;
-            bool foundBlock = GridMap.Instance.TryGetBlock(blockPos, out block);
-            logger.Log("FoundBlock " + foundBlock);
-            if (foundBlock && block.Type == Block.BlockType.airBlock)
-            {
-                logger.Log("It was airblock ");
-
+                logger.Log("The location was free");
                 GridActor[] actors = GridActorMap.GetGridActors(blockPos);
                 foreach (GridActor actor in actors)
                 {
@@ -229,23 +256,20 @@ public class PlayerComponent : MonoBehaviour
                 }
                 logger.Log("Placed a new blockbuildingsite");
                 BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos, plannedBuildBlock);
-            }
         }
     }
 
     private void HandleMining()
     {
+        logger.Log("Trying to mine");
         Vector3Int blockPos;
-        bool success = BlockLaser.GetBlockPositionAtMouse(Input.mousePosition, out blockPos);
+        Block block;
+        bool success = GetBlockAtMouse(Input.mousePosition, out blockPos, out block);
         if (success)
         {
-            Block block;
-            bool foundBlock = GridMap.Instance.TryGetBlock(blockPos, out block);
-            if (foundBlock)
-            {
-                MiningRequest req = new MiningRequest(blockPos, block.Type);
-                MiningRequestPool.Instance.PostRequest(req);
-            }
+            logger.Log("Mined " + blockPos);
+            MiningRequest req = new MiningRequest(blockPos, block.Type);
+            MiningRequestPool.Instance.PostRequest(req);
         }
     }
 }

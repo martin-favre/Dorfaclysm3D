@@ -8,7 +8,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     class SaveData : GenericSaveData<BlockBuildingSite>
     {
         public bool hasSpawnedRequest = false;
-
+        public Guid requestGuid;
     }
 
     GridActor actor;
@@ -19,6 +19,8 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     static GameObject prefabObj;
 
     Block targetBlock;
+
+    Guid requestGuid;
 
     public static BlockBuildingSite InstantiateNew(Vector3Int position, Block blockToBuild)
     {
@@ -48,27 +50,34 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         actor = GetComponent<GridActor>();
         if (actor)
         {
-            transform.position = actor.GetPos();// + new Vector3(.5f, -.5f, .5f);
+            transform.position = actor.GetPos();
         }
         if (!data.hasSpawnedRequest)
         {
-            MoveItemRequestPool.Instance.PostRequest(new MoveItemRequest(Items.ItemType.RockBlock, actor.GetPos()));
-
+            MoveItemRequest req = new MoveItemRequest(Items.ItemType.RockBlock, actor.GetPos());
+            MoveItemRequestPool.Instance.PostRequest(req);
             data.hasSpawnedRequest = true;
+            data.requestGuid = req.Guid;
         }
 
+        MoveItemRequestPool.Instance.RegisterOnCancelledCallback(data.requestGuid, OnRequestCancelled);
+
         BlockVisualizer visualizer = GetComponent<BlockVisualizer>();
-        if(visualizer) {
+        if (visualizer)
+        {
             visualizer.RenderBlock(GetBlock());
         }
     }
 
-    public Block GetBlock() 
+    public Block GetBlock()
     {
         return targetBlock;
     }
 
-
+    void OnRequestCancelled(MoveItemRequest req)
+    {
+        GameObject.Destroy(gameObject);
+    }
 
     void OnDestroy()
     {
@@ -76,7 +85,8 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         {
             inventory.UnregisterOnItemAddedCallback(OnItemAdded);
         }
-
+        
+        MoveItemRequestPool.Instance.UnregisterOnCancelledCallback(data.requestGuid);
     }
 
     void OnItemAdded()

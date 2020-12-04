@@ -11,19 +11,17 @@ public class GridMap : IHasBlocks
     [System.Serializable]
     private class SaveData
     {
-        public Vector3Int size;
-        public Dictionary<Vector3Int, Block> blocks;
-        public bool generated;
+        public Vector3Int size = new Vector3Int();
+        public ConcurrentDictionary<Vector3Int, Block> blocks = new ConcurrentDictionary<Vector3Int, Block>();
+        public bool generated = false;
 
     }
     static readonly GridMap instance = new GridMap();
     Vector3Int mapSize = Vector3Int.zero;
-    Dictionary<Vector3Int, Block> blocks = new Dictionary<Vector3Int, Block>();
+    SaveData data = new SaveData();
     bool generated = false;
-    const int lockTimeout = 10000; // ms
-    ReaderWriterLockSlim blockLock = new ReaderWriterLockSlim();
-    ReaderWriterLockSlim callbackLock = new ReaderWriterLockSlim();
-    List<Action<Vector3Int>> runOnBlockChange = new List<Action<Vector3Int>>();
+    readonly object blockLock = new object();
+    ConcurrentList<Action<Vector3Int>> runOnBlockChange = new ConcurrentList<Action<Vector3Int>>();
 
     public static GridMap Instance { get => instance; }
 
@@ -31,27 +29,15 @@ public class GridMap : IHasBlocks
 
     public object GetSave()
     {
-        SaveData data = new SaveData();
-        EnterReadLock();
-        data.size = mapSize;
-        data.generated = generated;
-        data.blocks = new Dictionary<Vector3Int, Block>();
-        foreach (var key in blocks.Keys)
-        {
-            data.blocks[key] = (Block)blocks[key].Clone();
-        }
-        blockLock.ExitReadLock();
         return data;
     }
 
     public void LoadSave(object data)
     {
-        SaveData save = (SaveData)data;
-        EnterWriteLock();
-        mapSize = save.size;
-        generated = save.generated;
-        blocks = save.blocks;
-        blockLock.ExitWriteLock();
+        lock (blockLock)
+        {
+            data = (SaveData)data;
+        }
     }
 
     public void GenerateMap(Vector3Int size)
@@ -98,24 +84,17 @@ public class GridMap : IHasBlocks
     }
     public void RegisterCallbackOnBlockChange(Action<Vector3Int> func)
     {
-        if (!callbackLock.TryEnterWriteLock(lockTimeout)) throw new Exception("WriteLock timeout");
         runOnBlockChange.Add(func);
-        callbackLock.ExitWriteLock();
     }
 
     public void UnregisterCallbackOnBlockChange(Action<Vector3Int> func)
     {
-        if (!callbackLock.TryEnterWriteLock(lockTimeout)) throw new Exception("WriteLock timeout");
         runOnBlockChange.Remove(func);
-        callbackLock.ExitWriteLock();
     }
 
     public bool IsPosInMap(Vector3Int pos)
     {
-        EnterReadLock();
-        bool result = blocks.ContainsKey(pos);
-        blockLock.ExitReadLock();
-        return result;
+        return data.blocks.ContainsKey(pos);
     }
 
     public bool IsPosFree(Vector3Int pos)
@@ -142,10 +121,7 @@ public class GridMap : IHasBlocks
             block = null;
             return false;
         }
-        EnterReadLock();
-        bool result = blocks.TryGetValue(pos, out block);
-        blockLock.ExitReadLock();
-        return result;
+        return data.blocks.TryGetValue(pos, out block);
     }
 
     public Block GetBlock(Vector3Int pos)
@@ -160,51 +136,28 @@ public class GridMap : IHasBlocks
     }
     private void SetSize(Vector3Int size)
     {
-        EnterWriteLock();
-        mapSize = size;
-        blockLock.ExitWriteLock();
+        lock (blockLock)
+        {
+            mapSize = size;
+        }
     }
 
     public Vector3Int GetSize()
     {
-        EnterReadLock();
-        Vector3Int size = mapSize;
-        blockLock.ExitReadLock();
-        return size;
+        lock (blockLock)
+        {
+            return mapSize;
+        }
     }
 
     bool InMap(Vector3Int pos)
     {
-        EnterReadLock();
-        bool inMap = blocks.ContainsKey(pos);
-        blockLock.ExitReadLock();
-        return inMap;
+        return data.blocks.ContainsKey(pos);
     }
 
     private void RunCallbacks(Vector3Int pos)
     {
-        if (!callbackLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
-        try
-        {
-            foreach (Action<Vector3Int> a in runOnBlockChange)
-            {
-                a(pos);
-            }
-        }
-        finally
-        {
-            callbackLock.ExitReadLock();
-        }
-    }
-
-    void EnterWriteLock()
-    {
-        if (!blockLock.TryEnterWriteLock(lockTimeout)) throw new Exception("Writelock timeout");
-    }
-
-    void EnterReadLock()
-    {
-        if (!blockLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
+        runOnBlockChange.ForEach((a) => { a(pos); });
     }
 
     public void PutItem(Vector3Int pos, Item itemToAdd)
@@ -243,12 +196,14 @@ public class GridMap : IHasBlocks
 
     public void SetBlock(Vector3Int pos, Block block)
     {
-        EnterWriteLock();
 
         Block prevBlock;
-        blocks.TryGetValue(pos, out prevBlock);
-        blocks[pos] = block;
-        blockLock.ExitWriteLock();
+        lock (blockLock)
+        {
+            data.blocks.TryGetValue(pos, out prevBlock);
+            data.blocks[pos] = block;
+        }
+
         if (IsGenerationDone())
         {
             RunCallbacks(pos);

@@ -239,12 +239,17 @@ public class PlayerComponent : MonoBehaviour
     private void HandlePlacing()
     {
         Vector3Int blockPos;
-        Block block;
-        logger.Log("Trying to place block");
-        bool success = GetBlockAtMouse(Input.mousePosition, out blockPos, out block);
-        if (success && block.Type == Block.BlockType.airBlock)
+        bool success = BlockLaser.GetBlockPositionAtMouse(Input.mousePosition, out blockPos, -0.001f);
+        if (success)
         {
-                logger.Log("The location was free");
+            logger.Log("Pointed at " + blockPos);
+            Block block;
+            bool foundBlock = GridMap.Instance.TryGetBlock(blockPos, out block);
+            logger.Log("FoundBlock " + foundBlock);
+            if (foundBlock && block.Type == Block.BlockType.airBlock)
+            {
+                logger.Log("It was airblock ");
+
                 GridActor[] actors = GridActorMap.GetGridActors(blockPos);
                 foreach (GridActor actor in actors)
                 {
@@ -256,6 +261,11 @@ public class PlayerComponent : MonoBehaviour
                 }
                 logger.Log("Placed a new blockbuildingsite");
                 BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos, plannedBuildBlock);
+            }
+        }
+        else
+        {
+            logger.Log("Did not hit a valid block ");
         }
     }
 

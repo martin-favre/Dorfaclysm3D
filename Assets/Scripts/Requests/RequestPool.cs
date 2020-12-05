@@ -196,6 +196,43 @@ public abstract class RequestPool<T> where T : PlayerRequest
         }
         OnRequestRemoved(request);
     }
+
+    public void CancelRequest(Guid guid)
+    {
+        logger.Log("Cancelled request of type " + typeof(T).ToString() + " by Guid " + guid);
+        T req = GetRequestByGuid(guid);
+        if (req != null)
+        {
+            CancelRequest(req);
+        } else {
+            logger.Log("Found no match of that guid");
+        }
+    }
+
+    private T GetRequestByGuid(Guid guid)
+    {
+        lock (lockObject)
+        {
+            T match = Requests.FirstOrDefault((req) =>
+            {
+                return req.Guid.Equals(guid);
+            });
+            if (match != null) return match;
+            match = HandedOutRequests.FirstOrDefault((req) =>
+            {
+                return req.Guid.Equals(guid);
+            });
+            if (match != null) return match;
+            RequestOnCooldown coolMatch = CoolingDownRequests.FirstOrDefault((req) =>
+            {
+                return req.request.Guid.Equals(guid);
+            });
+            if (coolMatch != null) return coolMatch.request;
+
+        }
+        return null;
+    }
+
     public void FinishRequest(T request)
     {
         logger.Log("Finished request " + request + " of type " + typeof(T).ToString());

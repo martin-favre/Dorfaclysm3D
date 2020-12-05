@@ -198,9 +198,22 @@ public class PlayerComponent : MonoBehaviour
         Vector3Int blockPos;
         Block block;
         bool success = GetBlockAtMouse(Input.mousePosition, out blockPos, out block);
-        if (success)
+        if (success && block.Type != Block.BlockType.airBlock)
         {
             MiningRequestPool.Instance.CancelRequest(blockPos);
+        }
+        else
+        {
+            GameObject gObj;
+            success = BlockLaser.GetGameobjectAtMouse(Input.mousePosition, out gObj);
+            if (success)
+            {
+                BlockBuildingSite site = gObj.GetComponent<BlockBuildingSite>();
+                if (site)
+                {
+                    GameObject.Destroy(gObj);
+                }
+            }
         }
     }
 

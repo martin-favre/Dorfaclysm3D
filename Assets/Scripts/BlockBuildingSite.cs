@@ -8,6 +8,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     class SaveData : GenericSaveData<BlockBuildingSite>
     {
         public bool hasSpawnedRequest = false;
+        public bool requestFinished = false;
         public Guid requestGuid;
     }
 
@@ -55,9 +56,9 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         if (!data.hasSpawnedRequest)
         {
             MoveItemRequest req = new MoveItemRequest(Items.ItemType.RockBlock, actor.GetPos());
+            data.requestGuid = req.Guid;
             MoveItemRequestPool.Instance.PostRequest(req);
             data.hasSpawnedRequest = true;
-            data.requestGuid = req.Guid;
         }
 
         MoveItemRequestPool.Instance.RegisterOnCancelledCallback(data.requestGuid, OnRequestCancelled);
@@ -76,6 +77,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
 
     void OnRequestCancelled(MoveItemRequest req)
     {
+        data.requestFinished = true;
         GameObject.Destroy(gameObject);
     }
 
@@ -85,17 +87,24 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         {
             inventory.UnregisterOnItemAddedCallback(OnItemAdded);
         }
-        
+
         MoveItemRequestPool.Instance.UnregisterOnCancelledCallback(data.requestGuid);
+        if (!data.requestFinished && data.hasSpawnedRequest)
+        {
+            // I.e. if we got destroyed while our request is still out there
+            MoveItemRequestPool.Instance.CancelRequest(data.requestGuid);
+        }
     }
 
     void OnItemAdded()
     {
+        // Need to add a more thorough check on what we added here
         if (actor)
         {
             GridMap.Instance.SetBlock(actor.GetPos(), GetBlock());
-            GameObject.Destroy(gameObject);
         }
+        data.requestFinished = true;
+        GameObject.Destroy(gameObject);
     }
 
     public IGenericSaveData Save()

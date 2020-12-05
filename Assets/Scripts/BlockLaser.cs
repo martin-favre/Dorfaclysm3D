@@ -5,7 +5,8 @@ using UnityEngine;
 
 public static class BlockLaser
 {
-    static public bool GetBlockPositionAtMouse(Vector3 mousePosition, out Vector3Int blockPosition) {
+    static public bool GetBlockPositionAtMouse(Vector3 mousePosition, out Vector3Int blockPosition)
+    {
         return GetBlockPositionAtMouse(mousePosition, out blockPosition, 0.0001f);
     }
     static public bool GetBlockPositionAtMouse(Vector3 mousePosition, out Vector3Int blockPosition, float margin)
@@ -31,6 +32,20 @@ public static class BlockLaser
             return true;
         }
         blockPosition = Vector3Int.zero;
+        return false;
+    }
+
+    static public bool GetGameobjectAtMouse(Vector3 mousePosition, out GameObject gObj)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            gObj = hit.transform.gameObject;
+            return true;
+        }
+        gObj = null;
         return false;
     }
 }

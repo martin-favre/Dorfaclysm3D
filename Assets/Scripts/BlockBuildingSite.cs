@@ -10,6 +10,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         public bool hasSpawnedRequest = false;
         public bool requestFinished = false;
         public Guid requestGuid;
+        public Block targetBlock;
     }
 
     GridActor actor;
@@ -18,10 +19,6 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     SaveData data = new SaveData();
     const string prefabName = "Prefabs/BlockBuildingObject";
     static GameObject prefabObj;
-
-    Block targetBlock;
-
-    Guid requestGuid;
 
     public static BlockBuildingSite InstantiateNew(Vector3Int position, Block blockToBuild)
     {
@@ -38,7 +35,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         actor.Move(position);
         BlockBuildingSite bbs = obj.GetComponent<BlockBuildingSite>();
         if (!bbs) throw new System.Exception("No BlockBuildingSite on prefab " + prefabName);
-        bbs.targetBlock = blockToBuild;
+        bbs.data.targetBlock = blockToBuild;
         return bbs;
     }
     void Start()
@@ -72,7 +69,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
 
     public Block GetBlock()
     {
-        return targetBlock;
+        return data.targetBlock;
     }
 
     void OnRequestCancelled(MoveItemRequest req)
@@ -112,8 +109,8 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         return data;
     }
 
-    public void Load(IGenericSaveData data)
+    public void Load(IGenericSaveData saveData)
     {
-        data = (SaveData)data;
+        data = (SaveData)saveData;
     }
 }

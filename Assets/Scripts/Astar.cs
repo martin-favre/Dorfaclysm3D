@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Schedulers;
 using Priority_Queue;
 using UnityEngine;
 
@@ -71,22 +72,26 @@ public class Astar
 
     public Task<Result> CalculatePath(Vector3Int start, Vector3Int end)
     {
-        Stopwatch sw = Stopwatch.StartNew();
+        Stopwatch totalSw = Stopwatch.StartNew();
         Result result = new Result();
         if (!GridMap.Instance.IsPosInMap(start))
         {
             // explicitly don't care if our own block is passable, it just have to exist.
             // Will help if unit for some reason gets stuck inside a block
             result.failReason = FailReason.InvalidStartPosition;
+            result.executionTime = totalSw.ElapsedMilliseconds;
             return Task.FromResult(result);
         }
         if (!GridMap.Instance.IsPosFree(end))
         {
             result.failReason = FailReason.InvalidEndPosition;
+            result.executionTime = totalSw.ElapsedMilliseconds;
             return Task.FromResult(result);
         }
-        if(start == end) {
+        if (start == end)
+        {
             result.foundPath = true;
+            result.executionTime = totalSw.ElapsedMilliseconds;
             return Task.FromResult(result);
         }
         const int maxEntries = 100000;
@@ -105,6 +110,7 @@ public class Astar
             if (steps > maxSteps)
             {
                 result.failReason = FailReason.Timeout;
+                result.executionTime = totalSw.ElapsedMilliseconds;
                 return Task.FromResult(result);
             }
 
@@ -112,9 +118,9 @@ public class Astar
             Vector3Int currentPos = currentNode.GetPos();
             if (currentPos == end)
             {
-                
+
                 Unravel(result, currentNode);
-                result.executionTime = sw.ElapsedMilliseconds;
+                result.executionTime = totalSw.ElapsedMilliseconds;
                 return Task.FromResult(result);
             }
             else
@@ -139,6 +145,7 @@ public class Astar
                             else
                             {
                                 result.failReason = FailReason.OutOfMemory;
+                                result.executionTime = totalSw.ElapsedMilliseconds;
                                 return Task.FromResult(result);
                             }
                         }
@@ -146,7 +153,7 @@ public class Astar
                 }
             }
         }
-
+        result.executionTime = totalSw.ElapsedMilliseconds;
         result.failReason = FailReason.NoPossiblePath;
         return Task.FromResult(result);
     }

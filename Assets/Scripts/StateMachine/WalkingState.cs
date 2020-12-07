@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Schedulers;
 using UnityEngine;
 
 namespace StateMachineCollection
@@ -139,7 +140,8 @@ namespace StateMachineCollection
 
             public override void OnEntry()
             {
-                this.astarTask = Task.Run(() => new Astar().CalculatePath(parent.user.GetPos(), parent.targetPos));
+                this.astarTask = WorkStealingTaskScheduler.Run(() => { return new Astar().CalculatePath(parent.user.GetPos(), parent.targetPos); });
+                // this.astarTask = Task.Run(() => new Astar().CalculatePath(parent.user.GetPos(), parent.targetPos));
             } 
 
             public override IGenericSaveData GetSave()
@@ -152,6 +154,7 @@ namespace StateMachineCollection
                 if (astarTask.IsCompleted)
                 {
                     parent.astarResult = astarTask.Result;
+                    Debug.Log("Calculation took: " + astarTask.Result.executionTime + "ms " + "Result " + astarTask.Result.failReason.ToString());
                     if (astarTask.Result.foundPath)
                     {
                         return new TakeStepState(parent);

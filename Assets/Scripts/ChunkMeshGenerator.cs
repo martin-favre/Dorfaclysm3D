@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Schedulers;
 
 public class ChunkMeshGenerator : MonoBehaviour
 {
@@ -57,7 +58,7 @@ public class ChunkMeshGenerator : MonoBehaviour
             case State.Idle:
                 if (meshUpdateQueued)
                 {
-                    generationTask = Task.Run(() => GenerateMeshInternal());
+                    generationTask = WorkStealingTaskScheduler.Run(() => GenerateMeshInternal());
                     state = State.GeneratingMesh;
                     meshUpdateQueued = false;
 

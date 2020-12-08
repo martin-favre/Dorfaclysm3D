@@ -186,8 +186,9 @@ public class Astar
         {
             if (delta.y > 0)
             {
-                // This block should have an existance guarantee
-                return GridMap.Instance.GetBlock(currentPos).supportsClimbing();
+                Block block;
+                GridMap.Instance.TryGetBlock(currentPos, out block);
+                return block != null? block.supportsClimbing() : false;
             }
             else
             {

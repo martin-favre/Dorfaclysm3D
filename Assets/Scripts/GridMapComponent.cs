@@ -42,7 +42,9 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     public Vector3Int mapSize;
     public Vector2 offset;
     public Vector2 frequency;
+    public float heightExponential;
     public float heighFactor;
+    public int noiseIterations;
     GenerationParameters oldParameters = new GenerationParameters();
 
 
@@ -94,6 +96,8 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
             offset = offset,
             frequency = frequency,
             heighFactor = heighFactor,
+            heightExponential = heightExponential,
+            noiseIterations = noiseIterations
         };
 
 

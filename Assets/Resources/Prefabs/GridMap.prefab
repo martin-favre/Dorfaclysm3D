@@ -47,10 +47,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunkGeneratorPrefab: {fileID: 8299210676744196419, guid: 293376161a56e244f94cf7924d38d86e, type: 3}
   regenerateMap: 0
-  mapSize: {x: 64, y: 24, z: 64}
+  mapSize: {x: 128, y: 24, z: 128}
   offset: {x: 0, y: 0}
-  frequency: {x: 0.03, y: 0.03}
-  heighFactor: 0.99
+  frequency: {x: 0.05, y: 0.05}
+  heightExponential: 2.5
+  heighFactor: 4
+  noiseIterations: 10
 --- !u!114 &1062947670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76,3 +78,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b193bd9f94482b14ca7e6d1e105c7fbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  correctDorfPositions: 1

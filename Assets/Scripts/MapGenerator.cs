@@ -8,13 +8,17 @@ public class GenerationParameters
     public Vector2 offset;
     public Vector2 frequency;
     public float heighFactor;
+    public float heightExponential;
+    public int noiseIterations;
 
     public override bool Equals(object obj)
     {
         return obj is GenerationParameters parameters &&
                offset.Equals(parameters.offset) &&
                frequency.Equals(parameters.frequency) &&
-               heighFactor == parameters.heighFactor;
+               heighFactor == parameters.heighFactor &&
+               heightExponential == parameters.heightExponential &&
+               noiseIterations == parameters.noiseIterations;
     }
 }
 
@@ -44,8 +48,15 @@ public class MapGenerator
                 Vector2Int pos = new Vector2Int(x, z);
                 float xn = ((float)x + parameters.offset.x) * parameters.frequency.x;
                 float zn = ((float)z + parameters.offset.y) * parameters.frequency.y;
-                float noise = Mathf.PerlinNoise(xn, zn);
-                heightNoise[pos] = Mathf.RoundToInt(noise * map.GetSize().y * parameters.heighFactor);
+
+                float noise = 0;
+                float divider = 2;
+                for(int i = 0; i < parameters.noiseIterations; i++) {
+                    noise += Mathf.PerlinNoise(xn, zn) / divider;
+                    divider*=2;
+                }
+                int height = Mathf.RoundToInt(Mathf.Pow(noise*parameters.heighFactor, parameters.heightExponential));
+                heightNoise[pos] = height; 
             }
         }
         return heightNoise;

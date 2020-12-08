@@ -5,6 +5,7 @@ using Logging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using static TMPro.TMP_Dropdown;
 
 public class PlayerComponent : MonoBehaviour
@@ -149,7 +150,7 @@ public class PlayerComponent : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
         {
 
             if (requestState == RequestState.Mining)

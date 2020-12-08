@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4646776401343316106}
   - component: {fileID: 4646776401343316107}
   - component: {fileID: 1062947670}
+  - component: {fileID: 1824347902}
   m_Layer: 0
   m_Name: GridMap
   m_TagString: Untagged
@@ -45,6 +46,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chunkGeneratorPrefab: {fileID: 8299210676744196419, guid: 293376161a56e244f94cf7924d38d86e, type: 3}
+  regenerateMap: 0
+  mapSize: {x: 64, y: 24, z: 64}
+  offset: {x: 0, y: 0}
+  frequency: {x: 0.03, y: 0.03}
+  heighFactor: 0.99
 --- !u!114 &1062947670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58,3 +64,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabName: GridMap
+--- !u!114 &1824347902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4646776401343316104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b193bd9f94482b14ca7e6d1e105c7fbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

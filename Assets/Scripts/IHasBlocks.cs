@@ -7,4 +7,5 @@ public interface IHasBlocks
     Block GetBlock(Vector3Int pos);
     void SetBlock(Vector3Int pos, Block block);
     Vector3Int GetSize();
+    void SetSize(Vector3Int size);
 }

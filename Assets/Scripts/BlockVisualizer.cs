@@ -30,6 +30,11 @@ public class BlockVisualizer : MonoBehaviour
             // not used
         }
 
+        public void SetSize(Vector3Int size)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public bool TryGetBlock(Vector3Int pos, out Block block)
         {
             if (pos == origin)

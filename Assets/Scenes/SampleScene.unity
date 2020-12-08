@@ -3127,23 +3127,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1818955892}
   m_CullTransparentMesh: 0
---- !u!1 &1824347898 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4646776401343316104, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
-  m_PrefabInstance: {fileID: 4646776400792505309}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1824347902
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1824347898}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b193bd9f94482b14ca7e6d1e105c7fbd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1840042207
 GameObject:
   m_ObjectHideFlags: 0
@@ -3896,10 +3879,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1062947670, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
-      propertyPath: prefabName
-      value: GridMap
-      objectReference: {fileID: 0}
     - target: {fileID: 4646776401343316104, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
       propertyPath: m_Name
       value: GridMap
@@ -3948,13 +3927,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4646776401343316107, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
-      propertyPath: mTexture
-      value: 
-      objectReference: {fileID: 21300000, guid: 8f5ce4863b0d248dabeaa580cf6a29f5, type: 3}
-    - target: {fileID: 4646776401343316107, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
-      propertyPath: chunkGeneratorPrefab
-      value: 
-      objectReference: {fileID: 8299210676744196419, guid: 293376161a56e244f94cf7924d38d86e, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}

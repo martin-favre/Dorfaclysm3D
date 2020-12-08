@@ -54,36 +54,10 @@ public class GridMap : IHasBlocks
         blockLock.ExitWriteLock();
     }
 
-    public void GenerateMap(Vector3Int size)
+    public void GenerateMap(Vector3Int size, GenerationParameters parameters)
     {
-        SetSize(size);
-        for (int x = 0; x < mapSize.x; x++)
-        {
-            for (int y = 0; y < mapSize.y; y++)
-            {
-                for (int z = 0; z < mapSize.z; z++)
-                {
-                    Vector3Int pos = new Vector3Int(x, y, z);
-
-                    if (y == x && (z == 5 || z == 10))
-                    {
-                        SetBlock(pos, new StairUpDownBlock(new Vector3(0, 90, 0)));
-                    }
-                    else if (y == x)
-                    {
-                        SetBlock(pos, new GrassBlock());
-                    }
-                    else if (y < x)
-                    {
-                        SetBlock(pos, new RockBlock());
-                    }
-                    else
-                    {
-                        SetBlock(pos, new AirBlock());
-                    }
-                }
-            }
-        }
+        generated = false;
+        new MapGenerator(this, parameters).Generate(size);
         SetGenerationDone();
     }
 
@@ -158,7 +132,7 @@ public class GridMap : IHasBlocks
         }
         return block;
     }
-    private void SetSize(Vector3Int size)
+    public void SetSize(Vector3Int size)
     {
         EnterWriteLock();
         mapSize = size;

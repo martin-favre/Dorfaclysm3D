@@ -38,6 +38,14 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
     }
 
+    public bool regenerateMap = false;
+    public Vector3Int mapSize;
+    public Vector2 offset;
+    public Vector2 frequency;
+    public float heighFactor;
+    GenerationParameters oldParameters = new GenerationParameters();
+
+
     void OnVerticalLevelChange()
     {
         logger.Log("OnVerticalLevelChange");
@@ -47,7 +55,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
     void UpdateMaxVerticalLevel()
     {
-        if(!mainCam) return;
+        if (!mainCam) return;
         int newY = mainCam.GetVerticalPosition();
         ChunkMeshGenerator.MaxY = (int?)newY;
     }
@@ -79,9 +87,37 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         }
     }
 
+    GenerationParameters GetParameters()
+    {
+        return new GenerationParameters
+        {
+            offset = offset,
+            frequency = frequency,
+            heighFactor = heighFactor,
+        };
+
+
+    }
+
+    // Only to be called by user in editor
+    // As not much though has been placed in here
+    private void RegenerateMap()
+    {
+        GridMap.Instance.UnregisterCallbackOnBlockChange(OnBlockUpdate);
+        BlockEffectMap.UnregisterOnEffectAddedCallback(OnBlockUpdate);
+        oldParameters = GetParameters();
+        generationTask = Task.Run(() =>
+        {
+            GridMap.Instance.GenerateMap(mapSize, oldParameters);
+            RegenerateMeshes();
+            GridMap.Instance.RegisterCallbackOnBlockChange(OnBlockUpdate);
+            BlockEffectMap.RegisterOnEffectAddedCallback(OnBlockUpdate);
+        });
+    }
+
     private void createMeshCreators()
     {
-        
+
         chunkGenerators = new Dictionary<Vector3Int, ChunkMeshGenerator>();
         Vector3Int mapSize = GridMap.Instance.GetSize();
         int xSize = mapSize.x / chunkSize;
@@ -125,12 +161,17 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
     void Update()
     {
+
+
         switch (state)
         {
             case State.Created:
                 state = State.GeneratingMap;
                 logger.Log("generating new map");
-                generationTask = Task.Run(() => GridMap.Instance.GenerateMap(new Vector3Int(64, 64, 64)));
+
+                GenerationParameters parameters = GetParameters();
+                oldParameters = parameters;
+                generationTask = Task.Run(() => GridMap.Instance.GenerateMap(mapSize, parameters));
                 break;
             case State.GeneratingMap:
             case State.LoadingMap:
@@ -157,6 +198,12 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
             case State.MeshGeneratorsCreated:
                 break;
         }
+        if (!oldParameters.Equals(GetParameters()) && generationTask != null && !generationTask.Status.Equals(TaskStatus.Running))
+        {
+            regenerateMap = false;
+            RegenerateMap();
+        }
+
     }
 
     [System.Serializable]

@@ -7,6 +7,8 @@ public abstract partial class Block
         airBlock,
         grassBlock,
         stairUpDownBlock,
+        snowBlock,
+        waterBlock
     }
 }
 

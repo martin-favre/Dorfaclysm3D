@@ -45,6 +45,8 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     public float heightExponential;
     public float heighFactor;
     public int noiseIterations;
+    public float waterLevel;
+    public float snowLevel;
     GenerationParameters oldParameters = new GenerationParameters();
 
 
@@ -97,7 +99,9 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
             frequency = frequency,
             heighFactor = heighFactor,
             heightExponential = heightExponential,
-            noiseIterations = noiseIterations
+            noiseIterations = noiseIterations,
+            waterLevel = waterLevel,
+            snowLevel = snowLevel
         };
 
 

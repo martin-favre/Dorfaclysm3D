@@ -10,6 +10,8 @@ public class GenerationParameters
     public float heighFactor;
     public float heightExponential;
     public int noiseIterations;
+    public float waterLevel;
+    public float snowLevel;
 
     public override bool Equals(object obj)
     {
@@ -18,7 +20,9 @@ public class GenerationParameters
                frequency.Equals(parameters.frequency) &&
                heighFactor == parameters.heighFactor &&
                heightExponential == parameters.heightExponential &&
-               noiseIterations == parameters.noiseIterations;
+               noiseIterations == parameters.noiseIterations &&
+               waterLevel == parameters.waterLevel &&
+               snowLevel == parameters.snowLevel;
     }
 }
 
@@ -51,12 +55,13 @@ public class MapGenerator
 
                 float noise = 0;
                 float divider = 2;
-                for(int i = 0; i < parameters.noiseIterations; i++) {
+                for (int i = 0; i < parameters.noiseIterations; i++)
+                {
                     noise += Mathf.PerlinNoise(xn, zn) / divider;
-                    divider*=2;
+                    divider *= 2;
                 }
-                int height = Mathf.RoundToInt(Mathf.Pow(noise*parameters.heighFactor, parameters.heightExponential));
-                heightNoise[pos] = height; 
+                int height = Mathf.RoundToInt(Mathf.Pow(noise * parameters.heighFactor, parameters.heightExponential));
+                heightNoise[pos] = height;
             }
         }
         return heightNoise;
@@ -81,11 +86,23 @@ public class MapGenerator
                     int height = heightNoise[new Vector2Int(x, z)];
                     if (pos.y == height)
                     {
-                        map.SetBlock(pos, new GrassBlock());
+                        if(pos.y <= parameters.snowLevel) {
+                            map.SetBlock(pos, new GrassBlock());
+                        } else{
+                            map.SetBlock(pos, new RockBlock());
+                        }
                     }
                     else if (pos.y < height)
                     {
                         map.SetBlock(pos, new RockBlock());
+                    }
+                    else if (pos.y == height + 1 && pos.y > parameters.snowLevel)
+                    {
+                        map.SetBlock(pos, new SnowBlock());
+                    }
+                    else if (pos.y < parameters.waterLevel)
+                    {
+                        map.SetBlock(pos, new WaterBlock());
                     }
                     else
                     {

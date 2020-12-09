@@ -23,7 +23,7 @@ public abstract partial class Block : System.ICloneable, System.IEquatable<Block
         }
     }
     protected static readonly LilLogger logger = new LilLogger("Blocks");
-    private const float textureUnit = 0.5f;
+    private const float textureUnit = 0.25f;
     private readonly BlockType type = BlockType.invalid;
 
     private Vector3 rotation = Vector3.zero;

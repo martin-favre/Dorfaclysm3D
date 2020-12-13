@@ -274,7 +274,7 @@ public class PlayerComponent : MonoBehaviour
                     }
                 }
                 logger.Log("Placed a new blockbuildingsite");
-                BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos, plannedBuildBlock);
+                BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos, (Block)plannedBuildBlock.Clone());
             }
         }
         else

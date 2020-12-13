@@ -13,7 +13,7 @@ public class GenerationParameters
     public int noiseIterations;
     public float waterLevel;
     public float snowLevel;
-    
+
 
     public override bool Equals(object obj)
     {
@@ -96,7 +96,7 @@ public class MapGenerator
         map.SetBlock(pos, new LeafBlock());
         foreach (Vector3Int dir in DeltaPositions.DeltaPositions3D)
         {
-            GenerateLeaves(pos + dir, chance*0.7f);
+            GenerateLeaves(pos + dir, chance * 0.7f);
         }
 
     }
@@ -158,6 +158,11 @@ public class MapGenerator
                     {
                         map.SetBlock(pos, new RockBlock());
                     }
+                    else if (pos.y < parameters.waterLevel)
+                    {
+                        map.SetBlock(pos, new WaterBlock());
+                    }
+
                     else if (pos.y == height + 1)
                     {
                         if (pos.y > parameters.snowLevel)
@@ -165,17 +170,13 @@ public class MapGenerator
                             map.SetBlock(pos, new SnowBlock());
                         }
                         else if (random.Next(1, 40) == 1)
-                        
+
                         {
                             //oneTree = false;
                             MakeTree(pos);
                         }
                     }
-                    else if (pos.y < parameters.waterLevel)
-                    {
-                        map.SetBlock(pos, new WaterBlock());
-                    }
-                    else if(!BlockSet(pos))
+                    else if (!BlockSet(pos))
                     {
                         map.SetBlock(pos, new AirBlock());
                     }

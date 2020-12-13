@@ -10,13 +10,18 @@
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque"}
-        ZWrite On
-        LOD 200
+        Tags {"Queue" = "Transparent" "IgnoreProjector" = "True" "RenderType" = "Transparent"}
+        Pass {
+            ColorMask 0
+        }
 
+        ZWrite On
+        LOD 250
+        Blend SrcAlpha OneMinusSrcAlpha
+        
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows
+        #pragma surface surf Standard fullforwardshadows alpha
 
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
@@ -45,10 +50,10 @@
             // Albedo comes from a texture tinted by color
             fixed4 main = tex2D (_MainTex, IN.uv_MainTex);
             fixed4 details = tex2D (_SecondTex, IN.uv2_SecondTex);
-            fixed4 c = main;
-            if(details.rgb.r != 1 || details.rgb.b != 1 || details.rgb.g != 1) {
-                c = details;
-            }
+            fixed4 c = lerp( main, details, details.a);
+            //if(details.rgb.r != 1 || details.rgb.b != 1 || details.rgb.g != 1) {
+            //  c = details;
+            //}
             o.Albedo = c.rgb;
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;

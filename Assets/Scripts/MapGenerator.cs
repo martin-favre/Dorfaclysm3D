@@ -26,13 +26,25 @@ public class GenerationParameters
                waterLevel == parameters.waterLevel &&
                snowLevel == parameters.snowLevel;
     }
+
+    public override int GetHashCode()
+    {
+        int hashCode = -429925968;
+        hashCode = hashCode * -1521134295 + offset.GetHashCode();
+        hashCode = hashCode * -1521134295 + frequency.GetHashCode();
+        hashCode = hashCode * -1521134295 + heighFactor.GetHashCode();
+        hashCode = hashCode * -1521134295 + heightExponential.GetHashCode();
+        hashCode = hashCode * -1521134295 + noiseIterations.GetHashCode();
+        hashCode = hashCode * -1521134295 + waterLevel.GetHashCode();
+        hashCode = hashCode * -1521134295 + snowLevel.GetHashCode();
+        return hashCode;
+    }
 }
 
 public class MapGenerator
 {
     IHasBlocks map;
     float progress = 0; // 0 to 1
-    bool done;
     GenerationParameters parameters;
     Action callOnDone;
     public MapGenerator(IHasBlocks map, GenerationParameters parameters)
@@ -41,7 +53,6 @@ public class MapGenerator
         this.parameters = parameters;
     }
 
-    public bool Done { get => done; }
     public float Progress { get => progress; }
     System.Random random = new System.Random();
 
@@ -121,8 +132,6 @@ public class MapGenerator
 
         int stepsNeeded = size.x * size.y * size.z;
         int steps = 0;
-
-        bool oneTree = true;
 
         Dictionary<Vector2Int, int> heightNoise = getHeighNoise();
 

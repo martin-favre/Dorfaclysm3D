@@ -131,8 +131,7 @@ namespace StateMachineCollection
 
             public override void OnEntry()
             {
-                this.astarTask = WorkStealingTaskScheduler.Run(() => { return new Astar().CalculatePath(parent.user.GetPos(), parent.targetPos, parent.aStarMargin); });
-                // this.astarTask = Task.Run(() => new Astar().CalculatePath(parent.user.GetPos(), parent.targetPos));
+                this.astarTask = WorkStealingTaskScheduler.Run(() => { return new Astar().CalculatePath(parent.user.GetPos(), parent.data.targetPos, parent.data.aStarMargin); });
             } 
 
             public override IGenericSaveData GetSave()

@@ -57,8 +57,9 @@ public class GridMap : IHasBlocks
     public void GenerateMap(Vector3Int size, GenerationParameters parameters)
     {
         generated = false;
-        new MapGenerator(this, parameters).Generate(size);
-        SetGenerationDone();
+        MapGenerator generator = new MapGenerator(this, parameters);
+        generator.RegisterCallOnDone(SetGenerationDone);
+        generator.Generate(size);
     }
 
     private void SetGenerationDone()
@@ -111,11 +112,6 @@ public class GridMap : IHasBlocks
 
     public bool TryGetBlock(Vector3Int pos, out Block block)
     {
-        if (!IsGenerationDone())
-        {
-            block = null;
-            return false;
-        }
         EnterReadLock();
         bool result = blocks.TryGetValue(pos, out block);
         blockLock.ExitReadLock();

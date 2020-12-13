@@ -28,7 +28,7 @@ public class DorfSpawner : MonoBehaviour
                 spawnedDorfs.Add(DorfController.InstantiateDorf(middleOfMap).gameObject);
             }
         }
-
+        
         if (GridMap.Instance.IsGenerationDone() && correctDorfPositions)
         {
             correctDorfPositions = false;

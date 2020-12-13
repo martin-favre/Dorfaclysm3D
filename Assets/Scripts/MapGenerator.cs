@@ -1,5 +1,6 @@
 
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ public class GenerationParameters
     public int noiseIterations;
     public float waterLevel;
     public float snowLevel;
+    
 
     public override bool Equals(object obj)
     {
@@ -32,6 +34,7 @@ public class MapGenerator
     float progress = 0; // 0 to 1
     bool done;
     GenerationParameters parameters;
+    Action callOnDone;
     public MapGenerator(IHasBlocks map, GenerationParameters parameters)
     {
         this.map = map;
@@ -40,7 +43,7 @@ public class MapGenerator
 
     public bool Done { get => done; }
     public float Progress { get => progress; }
-
+    System.Random random = new System.Random();
 
     Dictionary<Vector2Int, int> getHeighNoise()
     {
@@ -67,12 +70,59 @@ public class MapGenerator
         return heightNoise;
     }
 
+    public void RegisterCallOnDone(Action onDone)
+    {
+        callOnDone = onDone;
+    }
+
+    void GenerateLeaves(Vector3Int pos, float chance)
+    {
+        if (random.NextDouble() > chance) return;
+
+        Block block;
+        map.TryGetBlock(pos, out block);
+        if (block != null && block.Type != Block.BlockType.airBlock) return;
+        map.SetBlock(pos, new LeafBlock());
+        foreach (Vector3Int dir in DeltaPositions.DeltaPositions3D)
+        {
+            GenerateLeaves(pos + dir, chance*0.7f);
+        }
+
+    }
+
+    void MakeTree(Vector3Int pos)
+    {
+        int height = random.Next(1, 10);
+        Vector3Int peakPos = pos;
+        for (int i = 0; i < height; i++)
+        {
+            map.SetBlock(peakPos, new WoodBlock());
+            peakPos += new Vector3Int(0, 1, 0);
+        }
+        peakPos -= new Vector3Int(0, 1, 0);
+
+        foreach (Vector3Int dir in DeltaPositions.DeltaPositions3D)
+        {
+            GenerateLeaves(peakPos + dir, 1);
+        }
+    }
+
+
+
+    public bool BlockSet(Vector3Int pos)
+    {
+        Block block;
+        return map.TryGetBlock(pos, out block);
+    }
+
     public void Generate(Vector3Int size)
     {
         map.SetSize(size);
 
         int stepsNeeded = size.x * size.y * size.z;
         int steps = 0;
+
+        bool oneTree = true;
 
         Dictionary<Vector2Int, int> heightNoise = getHeighNoise();
 
@@ -86,9 +136,12 @@ public class MapGenerator
                     int height = heightNoise[new Vector2Int(x, z)];
                     if (pos.y == height)
                     {
-                        if(pos.y <= parameters.snowLevel) {
+                        if (pos.y <= parameters.snowLevel)
+                        {
                             map.SetBlock(pos, new GrassBlock());
-                        } else{
+                        }
+                        else
+                        {
                             map.SetBlock(pos, new RockBlock());
                         }
                     }
@@ -96,15 +149,24 @@ public class MapGenerator
                     {
                         map.SetBlock(pos, new RockBlock());
                     }
-                    else if (pos.y == height + 1 && pos.y > parameters.snowLevel)
+                    else if (pos.y == height + 1)
                     {
-                        map.SetBlock(pos, new SnowBlock());
+                        if (pos.y > parameters.snowLevel)
+                        {
+                            map.SetBlock(pos, new SnowBlock());
+                        }
+                        else if (random.Next(1, 40) == 1)
+                        
+                        {
+                            //oneTree = false;
+                            MakeTree(pos);
+                        }
                     }
                     else if (pos.y < parameters.waterLevel)
                     {
                         map.SetBlock(pos, new WaterBlock());
                     }
-                    else
+                    else if(!BlockSet(pos))
                     {
                         map.SetBlock(pos, new AirBlock());
                     }
@@ -113,5 +175,6 @@ public class MapGenerator
                 }
             }
         }
+        callOnDone?.Invoke();
     }
 }

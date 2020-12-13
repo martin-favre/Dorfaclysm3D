@@ -8,7 +8,9 @@ public abstract partial class Block
         grassBlock,
         stairUpDownBlock,
         snowBlock,
-        waterBlock
+        waterBlock,
+        woodBlock,
+        leafBlock
     }
 }
 

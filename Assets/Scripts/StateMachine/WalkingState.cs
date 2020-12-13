@@ -15,34 +15,32 @@ namespace StateMachineCollection
             public float timePerStepSecs;
             public Vector3Int targetPos;
             public Astar.Result astarResult;
+            public int aStarMargin;
         }
 
         readonly StateMachine machine;
-        Astar.Result astarResult;
         readonly GridActor user;
-        Vector3Int targetPos;
-        readonly float timePerStepSecs;
+        SaveData data = new SaveData();
 
-        public WalkingState(GridActor user, float secPerStep)
+        public WalkingState(GridActor user, float secPerStep) : this(user, secPerStep, 0){}
+        public WalkingState(GridActor user, float secPerStep, int margin)
         {
             Debug.Assert(user != null);
             this.user = user;
+            this.data.aStarMargin = margin;
+            this.data.timePerStepSecs = secPerStep;
 
             machine = new StateMachine(new AwaitingAstarState(this));
-            timePerStepSecs = secPerStep;
         }
 
         public WalkingState(GridActor user, IGenericSaveData save) : base(((SaveData)save).parent)
         {
             this.user = user;
-            SaveData saveData = (SaveData)save;
-            this.timePerStepSecs = saveData.timePerStepSecs;
-            this.targetPos = saveData.targetPos;
-            this.astarResult = saveData.astarResult;
+            this.data = (SaveData)save;
 
-            if (saveData.activeState != null)
+            if (data.activeState != null)
             {
-                this.machine = new StateMachine(LoadState(saveData.activeState));
+                this.machine = new StateMachine(LoadState(data.activeState));
             }
             else
             {
@@ -53,7 +51,7 @@ namespace StateMachineCollection
 
         public override void OnEntry()
         {
-            targetPos = GetTargetPos();
+            data.targetPos = GetTargetPos();
         }
 
         private State LoadState(IGenericSaveData activeState)
@@ -66,12 +64,12 @@ namespace StateMachineCollection
             }
             else if (type == typeof(WaitABitState))
             {
-                if (astarResult == null) throw new Exception("Can't be in WaitABitState without astar result");
+                if (data.astarResult == null) throw new Exception("Can't be in WaitABitState without astar result");
                 return new WaitABitState(this, activeState);
             }
             else if (type == typeof(TakeStepState))
             {
-                if (astarResult == null) throw new Exception("Can't be in TakeStepState without astar result");
+                if (data.astarResult == null) throw new Exception("Can't be in TakeStepState without astar result");
                 return new TakeStepState(this);
             }
             else
@@ -83,16 +81,9 @@ namespace StateMachineCollection
 
         public override IGenericSaveData GetSave()
         {
-            SaveData save = new SaveData();
-            save.parent = base.GetSave();
-            save.activeState = machine.GetSave();
-            save.timePerStepSecs = timePerStepSecs;
-            save.targetPos = targetPos;
-            if (astarResult != null)
-            {
-                save.astarResult = astarResult;
-            }
-            return save;
+            data.parent = base.GetSave();
+            data.activeState = machine.GetSave();
+            return data;
         }
 
         public override State OnDuring()
@@ -101,7 +92,7 @@ namespace StateMachineCollection
             if (machine.IsTerminated())
             {
                 // did we find a path and did we go all the way there?
-                if (astarResult != null && astarResult.foundPath && astarResult.path.Count == 0)
+                if (data.astarResult != null && data.astarResult.foundPath && data.astarResult.path.Count == 0)
                 {
                     return OnReachedTarget();
                 }
@@ -119,7 +110,7 @@ namespace StateMachineCollection
 
         public Astar.FailReason GetFailReason()
         {
-            return astarResult != null ? astarResult.failReason : Astar.FailReason.NoFail;
+            return data.astarResult != null ? data.astarResult.failReason : Astar.FailReason.NoFail;
         }
 
         private class AwaitingAstarState : State
@@ -140,7 +131,7 @@ namespace StateMachineCollection
 
             public override void OnEntry()
             {
-                this.astarTask = WorkStealingTaskScheduler.Run(() => { return new Astar().CalculatePath(parent.user.GetPos(), parent.targetPos); });
+                this.astarTask = WorkStealingTaskScheduler.Run(() => { return new Astar().CalculatePath(parent.user.GetPos(), parent.targetPos, parent.aStarMargin); });
                 // this.astarTask = Task.Run(() => new Astar().CalculatePath(parent.user.GetPos(), parent.targetPos));
             } 
 
@@ -153,7 +144,7 @@ namespace StateMachineCollection
             {
                 if (astarTask.IsCompleted)
                 {
-                    parent.astarResult = astarTask.Result;
+                    parent.data.astarResult = astarTask.Result;
                     Debug.Log("Calculation took: " + astarTask.Result.executionTime + "ms " + "Result " + astarTask.Result.failReason.ToString());
                     if (astarTask.Result.foundPath)
                     {
@@ -197,9 +188,9 @@ namespace StateMachineCollection
 
             public override State OnDuring()
             {
-                if (parent.astarResult.path.Count > 0)
+                if (parent.data.astarResult.path.Count > 0)
                 {
-                    Vector3Int nextPos = parent.astarResult.path.Pop();
+                    Vector3Int nextPos = parent.data.astarResult.path.Pop();
                     if(GridMap.Instance.IsPosFree(nextPos)){
                         parent.user.Move(nextPos);
                         return new WaitABitState(parent);
@@ -224,7 +215,7 @@ namespace StateMachineCollection
 
             WalkingState parent;
 
-            public WaitABitState(WalkingState parent) : base(parent.timePerStepSecs)
+            public WaitABitState(WalkingState parent) : base(parent.data.timePerStepSecs)
             {
                 this.parent = parent;
             }

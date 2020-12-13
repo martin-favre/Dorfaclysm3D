@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,6 +37,7 @@ public class Astar
         readonly int mLevel;
         readonly int mPriority;
         readonly AstarNode mParent;
+        int remainingDistanceSquared = int.MaxValue;
         public AstarNode(Vector3Int pos, int level, int priority, AstarNode parent)
         {
             mPos = pos;
@@ -51,9 +53,10 @@ public class Astar
             mParent = parent;
         }
 
-        private int GeneratePriority(Vector3Int goal)
+        public int GeneratePriority(Vector3Int goal)
         {
-            return mLevel + Estimate(goal) * estimationWeight;
+            remainingDistanceSquared = Estimate(goal);
+            return mLevel + remainingDistanceSquared * estimationWeight;
         }
 
         private int Estimate(Vector3Int goal)
@@ -68,12 +71,23 @@ public class Astar
         public int GetLevel() { return mLevel; }
         public int GetPriority() { return mPriority; }
         public AstarNode GetParent() { return mParent; }
+        public int GetRemainingDistanceSquared() { return remainingDistanceSquared; }
     }
 
-    public Task<Result> CalculatePath(Vector3Int start, Vector3Int end)
+    public Task<Result> CalculatePath(Vector3Int start, Vector3Int end){
+        return CalculatePath(start, end, 0);
+
+    }
+
+    // minMargin is the number of squares you must be away from the target
+    // maxMargin is the number of squared you may be away from the target
+    // so if minMargin is 3 and if maxMargin is 5, 
+    // your destination may then be anywhere between 3-5 squares
+    public Task<Result> CalculatePath(Vector3Int start, Vector3Int end, int minMargin)
     {
         Stopwatch totalSw = Stopwatch.StartNew();
         Result result = new Result();
+        minMargin = minMargin * minMargin + minMargin * minMargin+ minMargin * minMargin; // convert from tiles to squared distance
         if (!GridMap.Instance.IsPosInMap(start))
         {
             // explicitly don't care if our own block is passable, it just have to exist.
@@ -82,7 +96,7 @@ public class Astar
             result.executionTime = totalSw.ElapsedMilliseconds;
             return Task.FromResult(result);
         }
-        if (!GridMap.Instance.IsPosFree(end))
+        if (minMargin == 0 && !GridMap.Instance.IsPosFree(end)) // with a higher margin it's messier to check if end is valid
         {
             result.failReason = FailReason.InvalidEndPosition;
             result.executionTime = totalSw.ElapsedMilliseconds;
@@ -97,6 +111,7 @@ public class Astar
         const int maxEntries = 100000;
         Priority_Queue.FastPriorityQueue<AstarNode> nodeQueue = new Priority_Queue.FastPriorityQueue<AstarNode>(maxEntries);
         AstarNode currentNode = new AstarNode(start, 0, 0, null);
+        currentNode.GeneratePriority(end);
         nodeQueue.Enqueue(currentNode, 0);
 
         Dictionary<Vector3Int, int> mapWeights = new Dictionary<Vector3Int, int>();
@@ -116,9 +131,7 @@ public class Astar
 
             currentNode = nodeQueue.Dequeue();
             Vector3Int currentPos = currentNode.GetPos();
-            if (currentPos == end)
-            {
-
+            if(currentNode.GetRemainingDistanceSquared() <= minMargin){
                 Unravel(result, currentNode);
                 result.executionTime = totalSw.ElapsedMilliseconds;
                 return Task.FromResult(result);
@@ -188,7 +201,7 @@ public class Astar
             {
                 Block block;
                 GridMap.Instance.TryGetBlock(currentPos, out block);
-                return block != null? block.supportsClimbing() : false;
+                return block != null ? block.supportsClimbing() : false;
             }
             else
             {

@@ -80,7 +80,7 @@ public class MiningJob : IJob
         private readonly MiningRequest request;
         private readonly LilLogger logger;
 
-        public WalkToBlockState(GridActor user, MiningRequest request, LilLogger logger) : base(user, 0.1f)
+        public WalkToBlockState(GridActor user, MiningRequest request, LilLogger logger) : base(user, 0.1f, 1)
         {
             this.user = user;
             this.request = request;
@@ -106,20 +106,7 @@ public class MiningJob : IJob
 
         public override Vector3Int GetTargetPos()
         {
-            Vector3Int actualPos;
-            Debug.Assert(request != null);
-            bool success = GridMapHelper.GetClosestPassablePosition(request.Position, 1, out actualPos);
-            if (success)
-            {
-                logger.Log("I'm heading for " + actualPos);
-                return actualPos;
-            }
-            else
-            {
-                logger.Log("I couldn't find a good position to head to");
-                OnPathFindFail();
-                return request.Position;
-            }
+            return request.Position;
         }
 
         public override State OnPathFindFail()

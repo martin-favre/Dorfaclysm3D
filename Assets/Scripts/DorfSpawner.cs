@@ -22,7 +22,7 @@ public class DorfSpawner : MonoBehaviour
         if (!dorfsSpawned)
         {
             dorfsSpawned = true;
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 1; i++)
             {
                 Vector3Int middleOfMap = new Vector3Int(GridMap.Instance.GetSize().x / 2, 0, GridMap.Instance.GetSize().z / 2);
                 spawnedDorfs.Add(DorfController.InstantiateDorf(middleOfMap).gameObject);

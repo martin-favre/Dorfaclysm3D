@@ -135,7 +135,7 @@ public class MoveItemJob : IJob
             return StateMachine.NoTransition();
         }
 
-        private Task<Vector3Int> FindItem(Vector3Int origin, ItemType itemToFind)
+        private Task<Vector3Int> FindItem(Vector3Int origin, Type itemToFind)
         {
             // breadth first search for the itemtype
             HashSet<Vector3Int> failedPositions = new HashSet<Vector3Int>();

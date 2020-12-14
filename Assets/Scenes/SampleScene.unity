@@ -3929,15 +3929,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4646776401343316107, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
       propertyPath: mapSize.x
-      value: 64
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 4646776401343316107, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
       propertyPath: mapSize.z
-      value: 64
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 4646776401343316107, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
       propertyPath: mapSize.y
-      value: 64
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 4646776401343316107, guid: 8e709839a5f737740be9633b3e7adc8e, type: 3}
       propertyPath: waterLevel

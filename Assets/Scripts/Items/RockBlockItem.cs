@@ -13,11 +13,6 @@ namespace Items
             return "A block of rock";
         }
 
-        public override ItemType GetItemType()
-        {
-            return ItemType.RockBlock;
-        }
-
         public override string GetName()
         {
             return "Rock Block";

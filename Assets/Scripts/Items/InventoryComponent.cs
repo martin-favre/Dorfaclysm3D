@@ -12,7 +12,7 @@ namespace Items
         [Serializable]
         private class SaveData : GenericSaveData<InventoryComponent>
         {
-            public Dictionary<ItemType, ItemStack> itemStacks = new Dictionary<ItemType, ItemStack>();
+            public Dictionary<Type, ItemStack> itemStacks = new Dictionary<Type, ItemStack>();
         }
 
         SaveData data = new SaveData();
@@ -45,11 +45,11 @@ namespace Items
             return data.itemStacks.Count != 0;
         }
 
-        public bool HasItem(ItemType type)
+        public bool HasItem(Type type)
         {
             return data.itemStacks.ContainsKey(type);
         }
-        public Item GetItem(ItemType type)
+        public Item GetItem(Type type)
         {
             ItemStack stack = data.itemStacks[type];
             Item item = stack.GetItem();
@@ -64,14 +64,14 @@ namespace Items
         public void AddItem(Item item)
         {
             ItemStack stack;
-            bool success = data.itemStacks.TryGetValue(item.GetItemType(), out stack);
+            bool success = data.itemStacks.TryGetValue(item.GetType(), out stack);
             if (success)
             {
                 stack.AddItem(item);
             }
             else
             {
-                data.itemStacks[item.GetItemType()] = new ItemStack(item, 1);
+                data.itemStacks[item.GetType()] = new ItemStack(item, 1);
             }
             RunOnItemAddedCallbacks();
         }

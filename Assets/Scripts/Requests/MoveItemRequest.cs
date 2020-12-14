@@ -6,10 +6,10 @@ using UnityEngine;
 [System.Serializable]
 public class MoveItemRequest : PlayerRequest, IEquatable<MoveItemRequest>
 {
-    readonly ItemType typeToFind;
+    readonly Type typeToFind;
     readonly Vector3Int positionToMoveTo;
 
-    public MoveItemRequest(ItemType typeToFind, Vector3Int positionToMoveTo)
+    public MoveItemRequest(Type typeToFind, Vector3Int positionToMoveTo)
     {
         this.typeToFind = typeToFind;
         this.positionToMoveTo = positionToMoveTo;
@@ -17,7 +17,7 @@ public class MoveItemRequest : PlayerRequest, IEquatable<MoveItemRequest>
 
     public Vector3Int PositionToMoveTo => positionToMoveTo;
 
-    public ItemType TypeToFind => typeToFind;
+    public Type TypeToFind => typeToFind;
 
     public bool Equals(MoveItemRequest other)
     {

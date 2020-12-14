@@ -30,7 +30,7 @@ namespace Items
 
         public bool MayAddItem(Item item)
         {
-            return this.item.GetItemType() == item.GetItemType() && count < this.item.GetStackSize();
+            return this.item.GetType() == item.GetType() && count < this.item.GetStackSize();
         }
 
         public void AddItem(Item item)

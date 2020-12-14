@@ -52,7 +52,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         }
         if (!data.hasSpawnedRequest)
         {
-            MoveItemRequest req = new MoveItemRequest(Items.ItemType.RockBlock, actor.GetPos());
+            MoveItemRequest req = new MoveItemRequest(typeof(RockBlockItem), actor.GetPos());
             data.requestGuid = req.Guid;
             MoveItemRequestPool.Instance.PostRequest(req);
             data.hasSpawnedRequest = true;

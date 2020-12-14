@@ -101,7 +101,8 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
             heightExponential = heightExponential,
             noiseIterations = noiseIterations,
             waterLevel = waterLevel,
-            snowLevel = snowLevel
+            snowLevel = snowLevel,
+            size = mapSize
         };
 
 
@@ -116,7 +117,8 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         oldParameters = GetParameters();
         generationTask = Task.Run(() =>
         {
-            GridMap.Instance.GenerateMap(mapSize, oldParameters);
+            MapGenerator generator = new MapGenerator(oldParameters);
+            GridMap.Instance.GenerateMap(generator);
             RegenerateMeshes();
             GridMap.Instance.RegisterCallbackOnBlockChange(OnBlockUpdate);
             BlockEffectMap.RegisterOnEffectAddedCallback(OnBlockUpdate);
@@ -178,8 +180,9 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
                 logger.Log("generating new map");
 
                 GenerationParameters parameters = GetParameters();
+                MapGenerator generator = new MapGenerator(parameters);
                 oldParameters = parameters;
-                generationTask = Task.Run(() => GridMap.Instance.GenerateMap(mapSize, parameters));
+                generationTask = Task.Run(() => GridMap.Instance.GenerateMap(generator));
                 break;
             case State.GeneratingMap:
             case State.LoadingMap:

@@ -14,6 +14,7 @@ public class GenerationParameters
     public float waterLevel;
     public float snowLevel;
 
+    public Vector3Int size;
 
     public override bool Equals(object obj)
     {
@@ -24,32 +25,19 @@ public class GenerationParameters
                heightExponential == parameters.heightExponential &&
                noiseIterations == parameters.noiseIterations &&
                waterLevel == parameters.waterLevel &&
-               snowLevel == parameters.snowLevel;
-    }
-
-    public override int GetHashCode()
-    {
-        int hashCode = -429925968;
-        hashCode = hashCode * -1521134295 + offset.GetHashCode();
-        hashCode = hashCode * -1521134295 + frequency.GetHashCode();
-        hashCode = hashCode * -1521134295 + heighFactor.GetHashCode();
-        hashCode = hashCode * -1521134295 + heightExponential.GetHashCode();
-        hashCode = hashCode * -1521134295 + noiseIterations.GetHashCode();
-        hashCode = hashCode * -1521134295 + waterLevel.GetHashCode();
-        hashCode = hashCode * -1521134295 + snowLevel.GetHashCode();
-        return hashCode;
+               snowLevel == parameters.snowLevel &&
+               size.Equals(parameters.size);
     }
 }
 
-public class MapGenerator
+public class MapGenerator : IMapGenerator
 {
     IHasBlocks map;
     float progress = 0; // 0 to 1
     GenerationParameters parameters;
     Action callOnDone;
-    public MapGenerator(IHasBlocks map, GenerationParameters parameters)
+    public MapGenerator(GenerationParameters parameters)
     {
-        this.map = map;
         this.parameters = parameters;
     }
 
@@ -126,20 +114,22 @@ public class MapGenerator
         return map.TryGetBlock(pos, out block);
     }
 
-    public void Generate(Vector3Int size)
+    public void Generate(IHasBlocks map, Action onDone)
     {
-        map.SetSize(size);
+        this.map = map;
+        this.map.SetSize(parameters.size);
+        callOnDone = onDone;
 
-        int stepsNeeded = size.x * size.y * size.z;
+        int stepsNeeded = parameters.size.x * parameters.size.y * parameters.size.z;
         int steps = 0;
 
         Dictionary<Vector2Int, int> heightNoise = getHeighNoise();
 
-        for (int x = 0; x < size.x; x++)
+        for (int x = 0; x < parameters.size.x; x++)
         {
-            for (int y = 0; y < size.y; y++)
+            for (int y = 0; y < parameters.size.y; y++)
             {
-                for (int z = 0; z < size.z; z++)
+                for (int z = 0; z < parameters.size.z; z++)
                 {
                     Vector3Int pos = new Vector3Int(x, y, z);
                     int height = heightNoise[new Vector2Int(x, z)];

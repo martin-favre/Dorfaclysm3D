@@ -54,12 +54,10 @@ public class GridMap : IHasBlocks
         blockLock.ExitWriteLock();
     }
 
-    public void GenerateMap(Vector3Int size, GenerationParameters parameters)
+    public void GenerateMap(IMapGenerator generator)
     {
         generated = false;
-        MapGenerator generator = new MapGenerator(this, parameters);
-        generator.RegisterCallOnDone(SetGenerationDone);
-        generator.Generate(size);
+        generator.Generate(this, SetGenerationDone);
     }
 
     private void SetGenerationDone()

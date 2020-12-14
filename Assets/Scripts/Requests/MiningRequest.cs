@@ -5,14 +5,14 @@ using UnityEngine;
 [System.Serializable]
 public class MiningRequest : PlayerRequest, IEquatable<MiningRequest>
 {
-    readonly Block.BlockType blockType;
+    readonly Type blockType;
     readonly Vector3Int position;
 
     public Vector3Int Position => position;
 
-    public Block.BlockType BlockType => blockType;
+    public Type BlockType => blockType;
 
-    public MiningRequest(Vector3Int position, Block.BlockType blockType)
+    public MiningRequest(Vector3Int position, Type blockType)
     {
         Debug.Assert(position != null);
         this.position = position;

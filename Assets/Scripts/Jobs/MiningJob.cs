@@ -168,7 +168,7 @@ public class MiningJob : IJob
             {
                 Block block;
                 GridMap.Instance.TryGetBlock(request.Position, out block);
-                if (block != null && block.Type == request.BlockType)
+                if (block != null && block.GetType() == request.BlockType)
                 {
                     logger.Log("Mined the block at " + request.Position);
                     GridMap.Instance.SetBlock(request.Position, new AirBlock());

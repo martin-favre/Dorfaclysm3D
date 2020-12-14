@@ -84,10 +84,10 @@ public class PlayerComponent : MonoBehaviour
 
     private void OnBlockDropdownChanged(int index)
     {
-        Block.BlockType[] intToBlock = { Block.BlockType.rockBlock, Block.BlockType.stairUpDownBlock };
+        Func<Vector3, Block>[] intToBlock = { (rot) => new RockBlock(rot) , (rot) => new StairUpDownBlock(rot) };
         if (index < intToBlock.Length)
         {
-            SetBlockToBuild(intToBlock[index]);
+            SetBlockToBuild(intToBlock[index](plannedBuildBlock.Rotation));
         }
         else
         {
@@ -95,22 +95,9 @@ public class PlayerComponent : MonoBehaviour
         }
     }
 
-    private void SetBlockToBuild(Block.BlockType blockType)
+    private void SetBlockToBuild(Block block)
     {
-        Vector3 rotation = plannedBuildBlock.Rotation;
-        switch (blockType)
-        {
-            case Block.BlockType.rockBlock:
-                plannedBuildBlock = new RockBlock(rotation);
-                break;
-            case Block.BlockType.stairUpDownBlock:
-                plannedBuildBlock = new StairUpDownBlock(rotation);
-                break;
-            default:
-                logger.Log("Unknown blocktype! " + blockType.ToString());
-                plannedBuildBlock = new AirBlock();
-                break;
-        }
+        plannedBuildBlock = block;
 
         if (plannedBuildGhost)
         {
@@ -199,7 +186,7 @@ public class PlayerComponent : MonoBehaviour
         Vector3Int blockPos;
         Block block;
         bool success = GetBlockAtMouse(Input.mousePosition, out blockPos, out block);
-        if (success && block.Type != Block.BlockType.airBlock)
+        if (success && !(block is AirBlock))
         {
             MiningRequestPool.Instance.CancelRequest(blockPos);
         }
@@ -260,7 +247,7 @@ public class PlayerComponent : MonoBehaviour
             Block block;
             bool foundBlock = GridMap.Instance.TryGetBlock(blockPos, out block);
             logger.Log("FoundBlock " + foundBlock);
-            if (foundBlock && block.Type == Block.BlockType.airBlock)
+            if (foundBlock && block is AirBlock)
             {
                 logger.Log("It was airblock ");
 
@@ -292,7 +279,7 @@ public class PlayerComponent : MonoBehaviour
         if (success)
         {
             logger.Log("Mined " + blockPos);
-            MiningRequest req = new MiningRequest(blockPos, block.Type);
+            MiningRequest req = new MiningRequest(blockPos, block.GetType());
             MiningRequestPool.Instance.PostRequest(req);
         }
     }

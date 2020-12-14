@@ -10,7 +10,7 @@ public class StairUpDownBlock : Block
     static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.StairUpDownBlock);
 
 
-    public StairUpDownBlock(Vector3 rotation) : base(BlockType.stairUpDownBlock, rotation)
+    public StairUpDownBlock(Vector3 rotation) : base(rotation)
     {
 
     }

@@ -6,7 +6,7 @@ using UnityEngine;
 public class GrassBlock : SolidBlock
 {
     static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.GrassBlock);
-    public GrassBlock() : base(BlockType.grassBlock) { }
+    public GrassBlock() : base() { }
 
     public override object Clone()
     {

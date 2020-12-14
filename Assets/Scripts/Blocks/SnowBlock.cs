@@ -6,7 +6,7 @@ using UnityEngine;
 public class SnowBlock : SolidBlock
 {
     static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.SnowBlock);
-    public SnowBlock() : base(BlockType.snowBlock) { }
+    public SnowBlock() : base() { }
 
     public override object Clone()
     {

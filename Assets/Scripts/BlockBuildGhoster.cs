@@ -66,7 +66,7 @@ public class BlockBuildGhoster : MonoBehaviour
             return;
         }
 
-        if(block.Type != Block.BlockType.airBlock) {
+        if(!(block is AirBlock)) {
             RenderNothing();
             return;
         }

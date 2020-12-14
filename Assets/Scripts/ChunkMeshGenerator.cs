@@ -89,7 +89,7 @@ public class ChunkMeshGenerator : MonoBehaviour
                     //This code will run for every block in the chunk
                     Vector3Int currPos = new Vector3Int(x, y, z);
                     Block block = GetBlock(currPos);
-                    if (block != null && block.Type != Block.BlockType.airBlock)
+                    if (block != null && !(block is AirBlock))
                     {
                         PartMeshInfo meshInfo = block.GetMesh(currPos, maxY.Value, blockOwner);
                         meshInfo.Validate();

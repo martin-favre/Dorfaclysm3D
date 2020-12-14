@@ -5,8 +5,8 @@ using UnityEngine;
 [System.Serializable]
 public class AirBlock : Block
 {
-    public AirBlock() : base(BlockType.airBlock) { }
-    public AirBlock(Vector3 rotation) : base(BlockType.airBlock, rotation) { }
+    public AirBlock() : base() { }
+    public AirBlock(Vector3 rotation) : base(rotation) { }
 
     public override object Clone()
     {

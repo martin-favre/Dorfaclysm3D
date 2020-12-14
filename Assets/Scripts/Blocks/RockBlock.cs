@@ -6,8 +6,8 @@ using UnityEngine;
 public class RockBlock : Block
 {
     static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.RockBlock);
-    public RockBlock() : base(BlockType.rockBlock) { }
-    public RockBlock(Vector3 rotation) : base(BlockType.rockBlock, rotation) { }
+    public RockBlock() : base() { }
+    public RockBlock(Vector3 rotation) : base(rotation) { }
 
     public override object Clone()
     {

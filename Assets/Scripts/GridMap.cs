@@ -220,7 +220,7 @@ public class GridMap : IHasBlocks
         if (IsGenerationDone())
         {
             RunCallbacks(pos);
-            if (prevBlock != null && block.Type == Block.BlockType.airBlock)
+            if (prevBlock != null && block is AirBlock)
             {
                 PutItem(pos, prevBlock.GetItem());
             }

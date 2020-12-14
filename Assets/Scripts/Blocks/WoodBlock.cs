@@ -6,7 +6,7 @@ using UnityEngine;
 public class WoodBlock : SolidBlock
 {
     static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.WoodBlock);
-    public WoodBlock() : base(BlockType.woodBlock) { }
+    public WoodBlock() : base() { }
 
     public override object Clone()
     {

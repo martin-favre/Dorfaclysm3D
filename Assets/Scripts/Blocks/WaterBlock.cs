@@ -6,7 +6,7 @@ using UnityEngine;
 public class WaterBlock : Block
 {
     static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.WaterBlock);
-    public WaterBlock() : base(BlockType.waterBlock) { }
+    public WaterBlock() : base() { }
 
     public override object Clone()
     {

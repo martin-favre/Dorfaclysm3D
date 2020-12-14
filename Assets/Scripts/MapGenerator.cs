@@ -80,7 +80,7 @@ public class MapGenerator : IMapGenerator
 
         Block block;
         map.TryGetBlock(pos, out block);
-        if (block != null && block.Type != Block.BlockType.airBlock) return;
+        if (block != null && !(block is AirBlock)) return;
         map.SetBlock(pos, new LeafBlock());
         foreach (Vector3Int dir in DeltaPositions.DeltaPositions3D)
         {

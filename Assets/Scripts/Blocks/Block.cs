@@ -5,7 +5,7 @@ using Logging;
 using UnityEngine;
 
 [System.Serializable]
-public abstract partial class Block : System.ICloneable, System.IEquatable<Block>
+public abstract class Block : System.ICloneable, System.IEquatable<Block>
 {
     protected class Face
     {
@@ -24,21 +24,15 @@ public abstract partial class Block : System.ICloneable, System.IEquatable<Block
     }
     protected static readonly LilLogger logger = new LilLogger("Blocks");
     private const float textureUnit = 0.25f;
-    private readonly BlockType type = BlockType.invalid;
-
     private Vector3 rotation = Vector3.zero;
-
-    public BlockType Type => type;
 
     public Vector3 Rotation { get => rotation; set => rotation = value; }
 
-    public Block(BlockType type)
+    public Block()
     {
-        this.type = type;
     }
-    public Block(BlockType type, Vector3 rotation)
+    public Block(Vector3 rotation)
     {
-        this.type = type;
         this.rotation = rotation;
     }
 
@@ -64,7 +58,7 @@ public abstract partial class Block : System.ICloneable, System.IEquatable<Block
     public abstract PartMeshInfo GetMesh(Vector3Int thisBlockPos, int maxY, IHasBlocks blockOwner);
     protected bool FaceShouldBeRendered(Block neighbour)
     {
-        return neighbour == null || neighbour.Type == Block.BlockType.airBlock || neighbour.Type == Block.BlockType.stairUpDownBlock;
+        return neighbour == null || neighbour is AirBlock || neighbour is StairUpDownBlock;
     }
 
     protected Block GetBlock(Vector3Int pos, int maxY, IHasBlocks blockOwner)
@@ -258,21 +252,16 @@ public abstract partial class Block : System.ICloneable, System.IEquatable<Block
         }
     }
 
-
     public bool Equals(Block other)
     {
-        return other.type == type;
-    }
-
-    public override bool Equals(object obj)
-    {
-        Block b = (Block)obj;
-        return b.type == type;
+        return other.rotation == rotation;
     }
 
     public override int GetHashCode()
     {
-        return type.GetHashCode();
+        int hashCode = -2012710218;
+        hashCode = hashCode * -1521134295 + rotation.GetHashCode();
+        return hashCode;
     }
 }
 

@@ -5,11 +5,11 @@ using UnityEngine;
 [System.Serializable]
 public abstract class SolidBlock : Block
 {
-    protected SolidBlock(BlockType type) : base(type)
+    protected SolidBlock() : base()
     {
     }
 
-    protected SolidBlock(BlockType type, Vector3 rotation) : base(type, rotation)
+    protected SolidBlock( Vector3 rotation) : base( rotation)
     {
     }
     public override PartMeshInfo GetMesh(Vector3Int thisBlockPos, int maxY, IHasBlocks blockOwner)

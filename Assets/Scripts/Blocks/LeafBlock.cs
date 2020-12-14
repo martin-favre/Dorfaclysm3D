@@ -6,7 +6,7 @@ using UnityEngine;
 public class LeafBlock : SolidBlock
 {
     static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.LeafBlock);
-    public LeafBlock() : base(BlockType.leafBlock) { }
+    public LeafBlock() : base() { }
 
     public override object Clone()
     {

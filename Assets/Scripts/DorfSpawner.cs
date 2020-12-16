@@ -31,7 +31,6 @@ public class DorfSpawner : MonoBehaviour
         
         if (GridMap.Instance.IsGenerationDone() && correctDorfPositions)
         {
-            return;
             correctDorfPositions = false;
             foreach(GameObject g in spawnedDorfs){
                 GridActor actor = g.GetComponent<GridActor>();

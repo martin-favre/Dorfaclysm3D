@@ -12,6 +12,7 @@ namespace Items
 
         GridActor actor;
         InventoryComponent inventory;
+        BlockVisualizer visualizer;
 
         public static DroppedItemComponent InstantiateNew(Vector3Int position)
         {
@@ -37,9 +38,20 @@ namespace Items
             if (actor && inventory)
             {
                 inventory.RegisterOnItemRemovedCallback(OnItemRemoved);
+                inventory.RegisterOnItemAddedCallback(OnItemAdded);
                 ItemMap.RegisterInventory(inventory, actor.GetPos());
                 transform.position = actor.GetPos() + new Vector3(.5f, -.5f, .5f);
+
+
+                Item mainItem = inventory.GetMostCommonItem();
+                visualizer = GetComponent<BlockVisualizer>();
             }
+            
+        }
+
+        void OnItemAdded()
+        {
+            
         }
 
         void OnItemRemoved()

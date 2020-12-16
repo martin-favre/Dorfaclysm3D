@@ -10,6 +10,10 @@ namespace Items
         private readonly Item item;
         private uint count;
 
+        public uint Count { get => count; }
+
+        public Item Item => item;
+
         public ItemStack(Item item, uint count)
         {
             this.item = item;
@@ -30,7 +34,7 @@ namespace Items
 
         public bool MayAddItem(Item item)
         {
-            return this.item.GetType() == item.GetType() && count < this.item.GetStackSize();
+            return this.item.GetType() == item.GetType() && Count < this.item.GetStackSize();
         }
 
         public void AddItem(Item item)

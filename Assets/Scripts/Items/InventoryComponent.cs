@@ -45,6 +45,28 @@ namespace Items
             return data.itemStacks.Count != 0;
         }
 
+        public Item GetMostCommonItem()
+        {
+            ItemStack mostCommonItem = null;
+            
+            foreach(KeyValuePair<Type, ItemStack> stack in data.itemStacks)
+            {
+                if(mostCommonItem == null || stack.Value.Count > mostCommonItem.Count)
+                {
+                    mostCommonItem = stack.Value;
+                }
+            }
+
+            if(mostCommonItem != null)
+            {
+                return mostCommonItem.Item;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public bool HasItem(Type type)
         {
             return data.itemStacks.ContainsKey(type);

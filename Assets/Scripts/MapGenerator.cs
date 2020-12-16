@@ -166,7 +166,8 @@ public class MapGenerator : IMapGenerator
                             MakeTree(pos);
                         }
                     }
-                    else if (!BlockSet(pos))
+                    
+                    if (!BlockSet(pos))
                     {
                         map.SetBlock(pos, new AirBlock());
                     }

@@ -78,16 +78,18 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
         int z = thisBlockPos.z;
         PartMeshInfo meshInfo = new PartMeshInfo();
         Block neighbourBlock = GetBlock(new Vector3Int(x, y + 1, z), maxY, blockOwner);
+        Vector2 texturePos = GetTexturePos();
+        Vector2 effectPos = BlockEffectMap.GetBlockEffect(thisBlockPos);
         if (FaceShouldBeRendered(neighbourBlock))
         {
             //Block above is air
-            CubeTop(thisBlockPos, meshInfo);
+            CubeTop(thisBlockPos, meshInfo, texturePos, effectPos);
         }
         neighbourBlock = GetBlock(new Vector3Int(x, y - 1, z), maxY, blockOwner);
         if (FaceShouldBeRendered(neighbourBlock))
         {
             //Block below is air
-            CubeBot(thisBlockPos, meshInfo);
+            CubeBot(thisBlockPos, meshInfo, texturePos, effectPos);
 
         }
 
@@ -95,7 +97,7 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
         if (FaceShouldBeRendered(neighbourBlock))
         {
             //Block east is air
-            CubeEast(thisBlockPos, meshInfo);
+            CubeEast(thisBlockPos, meshInfo, texturePos, effectPos);
 
         }
 
@@ -103,7 +105,7 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
         if (FaceShouldBeRendered(neighbourBlock))
         {
             //Block west is air
-            CubeWest(thisBlockPos, meshInfo);
+            CubeWest(thisBlockPos, meshInfo, texturePos, effectPos);
 
         }
 
@@ -111,20 +113,20 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
         if (FaceShouldBeRendered(neighbourBlock))
         {
             //Block north is air
-            CubeNorth(thisBlockPos, meshInfo);
+            CubeNorth(thisBlockPos, meshInfo, texturePos, effectPos);
 
         }
         neighbourBlock = GetBlock(new Vector3Int(x, y, z - 1), maxY, blockOwner);
         if (FaceShouldBeRendered(neighbourBlock))
         {
             //Block south is air
-            CubeSouth(thisBlockPos, meshInfo);
+            CubeSouth(thisBlockPos, meshInfo, texturePos, effectPos);
         }
 
         return meshInfo;
 
     }
-    protected void CubeTop(Vector3Int pos, PartMeshInfo meshInfo)
+    public static void CubeTop(Vector3Int pos, PartMeshInfo meshInfo, Vector2 texturePos, Vector2 effectPos)
     {
         Face face = new Face(
             new Vector3(pos.x, pos.y, pos.z + 1),
@@ -132,11 +134,11 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
             new Vector3(pos.x + 1, pos.y, pos.z),
             pos);
         MakeFace(face, meshInfo);
-        SetUvs(GetTexturePos(), BlockEffectMap.GetBlockEffect(pos), meshInfo);
+        SetUvs(texturePos, effectPos, meshInfo);
 
     }
 
-    protected void CubeNorth(Vector3Int pos, PartMeshInfo meshInfo)
+    public static void CubeNorth(Vector3Int pos, PartMeshInfo meshInfo, Vector2 texturePos, Vector2 effectPos)
     {
         Face face = new Face(
             new Vector3(pos.x + 1, pos.y - 1, pos.z + 1),
@@ -145,11 +147,11 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
             new Vector3(pos.x, pos.y - 1, pos.z + 1));
 
         MakeFace(face, meshInfo);
-        SetUvs(GetTexturePos(), BlockEffectMap.GetBlockEffect(pos), meshInfo);
+        SetUvs(texturePos, effectPos, meshInfo);
 
     }
 
-    protected void CubeEast(Vector3Int pos, PartMeshInfo meshInfo)
+    public static void CubeEast(Vector3Int pos, PartMeshInfo meshInfo, Vector2 texturePos, Vector2 effectPos)
     {
 
         Face face = new Face(
@@ -159,10 +161,10 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
             new Vector3(pos.x + 1, pos.y - 1, pos.z + 1));
 
         MakeFace(face, meshInfo);
-        SetUvs(GetTexturePos(), BlockEffectMap.GetBlockEffect(pos), meshInfo);
+        SetUvs(texturePos, effectPos, meshInfo);
     }
 
-    protected void CubeSouth(Vector3Int pos, PartMeshInfo meshInfo)
+    public static void CubeSouth(Vector3Int pos, PartMeshInfo meshInfo, Vector2 texturePos, Vector2 effectPos)
     {
         Face face = new Face(
             new Vector3(pos.x, pos.y - 1, pos.z),
@@ -170,11 +172,11 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
             new Vector3(pos.x + 1, pos.y, pos.z),
             new Vector3(pos.x + 1, pos.y - 1, pos.z));
         MakeFace(face, meshInfo);
-        SetUvs(GetTexturePos(), BlockEffectMap.GetBlockEffect(pos), meshInfo);
+        SetUvs(texturePos, effectPos, meshInfo);
 
     }
 
-    protected void CubeWest(Vector3Int pos, PartMeshInfo meshInfo)
+    public static void CubeWest(Vector3Int pos, PartMeshInfo meshInfo, Vector2 texturePos, Vector2 effectPos)
     {
         Face face = new Face(
             new Vector3(pos.x, pos.y - 1, pos.z + 1),
@@ -182,11 +184,11 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
             pos,
             new Vector3(pos.x, pos.y - 1, pos.z));
         MakeFace(face, meshInfo);
-        SetUvs(GetTexturePos(), BlockEffectMap.GetBlockEffect(pos), meshInfo);
+        SetUvs(texturePos, effectPos, meshInfo);
 
     }
 
-    protected void CubeBot(Vector3Int pos, PartMeshInfo meshInfo)
+    public static void CubeBot(Vector3Int pos, PartMeshInfo meshInfo, Vector2 texturePos, Vector2 effectPos)
     {
         Face face = new Face(
             new Vector3(pos.x, pos.y - 1, pos.z),
@@ -194,10 +196,10 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
             new Vector3(pos.x + 1, pos.y - 1, pos.z + 1),
             new Vector3(pos.x, pos.y - 1, pos.z + 1));
         MakeFace(face, meshInfo);
-        SetUvs(GetTexturePos(), BlockEffectMap.GetBlockEffect(pos), meshInfo);
+        SetUvs(texturePos, effectPos, meshInfo);
     }
 
-    protected void MakeFace(Face face, PartMeshInfo meshInfo)
+    protected static void MakeFace(Face face, PartMeshInfo meshInfo)
     {
         meshInfo.Vertices.Add(face.topLeft);
         meshInfo.Vertices.Add(face.topRight);
@@ -212,7 +214,7 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
         meshInfo.Triangles.Add(meshInfo.TriangleCount + 3); //4
         meshInfo.IncrementTriangleCount(4);
     }
-    void SetUvs(Vector2 texturePos, Vector2 effectPos, PartMeshInfo meshInfo)
+    static void SetUvs(Vector2 texturePos, Vector2 effectPos, PartMeshInfo meshInfo)
     {
         meshInfo.BaseUuv.Add(new Vector2(textureUnit * texturePos.x + textureUnit, textureUnit * texturePos.y));
         meshInfo.BaseUuv.Add(new Vector2(textureUnit * texturePos.x + textureUnit, textureUnit * texturePos.y + textureUnit));

@@ -8,6 +8,7 @@ public class BlockVisualizer : MonoBehaviour
     {
         readonly Vector3Int origin;
         readonly Block expectedBlock;
+
         public MyBlock(Vector3Int origin, Block expectedBlock)
         {
             this.origin = origin;
@@ -49,6 +50,8 @@ public class BlockVisualizer : MonoBehaviour
             }
         }
     }
+
+    Mesh mesh;
     ChunkMeshGenerator meshGenerator;
 
     public void RenderBlock(Block originBlock)
@@ -63,5 +66,34 @@ public class BlockVisualizer : MonoBehaviour
         meshGenerator.ChunkSize = 1;
         meshGenerator.BlockOwner = blockOwner;
         meshGenerator.GenerateMesh();
+    }
+    PartMeshInfo GenerateMesh(Vector3Int thisBlockPos, int maxY, Vector2 texturePos)
+    {
+        PartMeshInfo meshInfo = new PartMeshInfo();
+        if (thisBlockPos.y <= maxY)
+        {
+            Block.CubeTop(thisBlockPos, meshInfo, texturePos, BlockEffects.NoEffect);
+            Block.CubeBot(thisBlockPos, meshInfo, texturePos, BlockEffects.NoEffect);
+            Block.CubeEast(thisBlockPos, meshInfo, texturePos, BlockEffects.NoEffect);
+            Block.CubeWest(thisBlockPos, meshInfo, texturePos, BlockEffects.NoEffect);
+            Block.CubeNorth(thisBlockPos, meshInfo, texturePos, BlockEffects.NoEffect);
+            Block.CubeSouth(thisBlockPos, meshInfo, texturePos, BlockEffects.NoEffect);
+        }
+        return meshInfo;
+    }
+
+    public void RenderBlock(Vector2 texturePos)
+    {
+        if(mesh == null) mesh = GetComponent<MeshFilter>().mesh;
+        
+        PartMeshInfo meshinfo = GenerateMesh(Vector3Int.zero, ChunkMeshGenerator.MaxY.Value, texturePos);
+
+        mesh.Clear();
+        mesh.vertices = meshinfo.Vertices.ToArray();
+        mesh.uv = meshinfo.BaseUuv.ToArray();
+        mesh.uv2 = meshinfo.EffectUuv.ToArray();
+        mesh.triangles = meshinfo.Triangles.ToArray();
+        mesh.Optimize();
+        mesh.RecalculateNormals();
     }
 }

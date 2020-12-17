@@ -40,11 +40,12 @@ namespace Items
                 inventory.RegisterOnItemRemovedCallback(OnItemRemoved);
                 inventory.RegisterOnItemAddedCallback(OnItemAdded);
                 ItemMap.RegisterInventory(inventory, actor.GetPos());
-                transform.position = actor.GetPos() + new Vector3(.5f, -.5f, .5f);
+                transform.position = actor.GetPos() + new Vector3(.25f, -.25f, .25f);
 
 
                 Item mainItem = inventory.GetMostCommonItem();
                 visualizer = GetComponent<BlockVisualizer>();
+                visualizer.RenderBlock(mainItem.GetTexturePosition());
             }
             
         }

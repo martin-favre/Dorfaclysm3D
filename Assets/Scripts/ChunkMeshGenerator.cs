@@ -27,7 +27,7 @@ public class ChunkMeshGenerator : MonoBehaviour
     public Vector3Int ChunkOrigin { get => chunkOrigin; set => chunkOrigin = value; }
     public int ChunkSize { get => chunkSize; set => chunkSize = value; }
     internal IHasBlocks BlockOwner { set => blockOwner = value; }
-    public static int? MaxY { set => maxY = value; }
+    public static int? MaxY { set => maxY = value; get => maxY;}
 
     private Vector3Int chunkOrigin;
 

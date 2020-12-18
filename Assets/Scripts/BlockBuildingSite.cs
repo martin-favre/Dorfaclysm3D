@@ -11,6 +11,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         public bool requestFinished = false;
         public Guid requestGuid;
         public Block targetBlock;
+        public Type itemRequired;
     }
 
     GridActor actor;
@@ -20,7 +21,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     const string prefabName = "Prefabs/BlockBuildingObject";
     static GameObject prefabObj;
 
-    public static BlockBuildingSite InstantiateNew(Vector3Int position, Block blockToBuild)
+    public static BlockBuildingSite InstantiateNew(Vector3Int position, Block blockToBuild, Type itemRequired)
     {
 
         if (prefabObj == null)
@@ -36,6 +37,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         BlockBuildingSite bbs = obj.GetComponent<BlockBuildingSite>();
         if (!bbs) throw new System.Exception("No BlockBuildingSite on prefab " + prefabName);
         bbs.data.targetBlock = blockToBuild;
+        bbs.data.itemRequired = itemRequired;
         return bbs;
     }
     void Start()
@@ -52,7 +54,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         }
         if (!data.hasSpawnedRequest)
         {
-            MoveItemRequest req = new MoveItemRequest(typeof(RockBlockItem), actor.GetPos());
+            MoveItemRequest req = new MoveItemRequest(data.itemRequired, actor.GetPos());
             data.requestGuid = req.Guid;
             MoveItemRequestPool.Instance.PostRequest(req);
             data.hasSpawnedRequest = true;

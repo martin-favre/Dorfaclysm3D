@@ -7,6 +7,7 @@ public class GrassBlock : SolidBlock
 {
     static readonly Vector2 texturePos = TexturePositions.GrassBlock;
     public GrassBlock() : base() { }
+    public GrassBlock(Vector3 rotation) : base(rotation) { }
 
     public override object Clone()
     {

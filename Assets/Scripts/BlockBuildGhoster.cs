@@ -72,7 +72,9 @@ public class BlockBuildGhoster : MonoBehaviour
         }
 
         transform.position = blockPos;
-        visualizer.RenderBlock(plannedBlock);
+        if(visualizer) {
+            visualizer.RenderBlock(plannedBlock);
+        }
     }
 
 

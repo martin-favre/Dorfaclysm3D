@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Items;
 using Logging;
 using TMPro;
 using UnityEngine;
@@ -84,7 +85,11 @@ public class PlayerComponent : MonoBehaviour
 
     private void OnBlockDropdownChanged(int index)
     {
-        Func<Vector3, Block>[] intToBlock = { (rot) => new RockBlock(rot) , (rot) => new StairUpDownBlock(rot) };
+        Func<Vector3, Block>[] intToBlock = {
+            (rot) => new RockBlock(rot),
+            (rot) => new StairUpDownBlock(rot),
+            (rot) => new GrassBlock(rot),
+            (rot) => new WoodBlock(rot) };
         if (index < intToBlock.Length)
         {
             SetBlockToBuild(intToBlock[index](plannedBuildBlock.Rotation));
@@ -237,6 +242,24 @@ public class PlayerComponent : MonoBehaviour
         }
     }
 
+    Type GetRequiredItemForBlock(Block block)
+    {
+        switch (block)
+        {
+            case RockBlock e:
+                return typeof(RockBlockItem);
+            case GrassBlock e:
+                return typeof(GrassBlockItem);
+            case WoodBlock e:
+                return typeof(WoodBlockItem);
+            case StairUpDownBlock e:
+                return typeof(RockBlockItem);
+            default:
+                logger.Log("Unknown blocktype " + block.ToString());
+                return typeof(RockBlockItem);
+        }
+    }
+
     private void HandlePlacing()
     {
         Vector3Int blockPos;
@@ -261,7 +284,7 @@ public class PlayerComponent : MonoBehaviour
                     }
                 }
                 logger.Log("Placed a new blockbuildingsite");
-                BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos, (Block)plannedBuildBlock.Clone());
+                BlockBuildingSite site = BlockBuildingSite.InstantiateNew(blockPos, (Block)plannedBuildBlock.Clone(), GetRequiredItemForBlock(plannedBuildBlock));
             }
         }
         else

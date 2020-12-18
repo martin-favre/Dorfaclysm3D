@@ -7,6 +7,7 @@ public class WoodBlock : SolidBlock
 {
     static readonly Vector2 texturePos = TexturePositions.WoodBlock;
     public WoodBlock() : base() { }
+    public WoodBlock(Vector3 rotation) : base(rotation) { }
 
     public override object Clone()
     {

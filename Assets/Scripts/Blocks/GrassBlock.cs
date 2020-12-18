@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class GrassBlock : SolidBlock
 {
-    static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.GrassBlock);
+    static readonly Vector2 texturePos = TexturePositions.GrassBlock;
     public GrassBlock() : base() { }
 
     public override object Clone()
@@ -15,7 +15,7 @@ public class GrassBlock : SolidBlock
 
     public override Item GetItem()
     {
-        return new RockBlockItem();
+        return new GrassBlockItem();
     }
 
     public override PartMeshInfo GetMesh(Vector3Int thisBlockPos, int maxY, IHasBlocks blockOwner)

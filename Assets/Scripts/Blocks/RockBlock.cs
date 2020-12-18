@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class RockBlock : Block
 {
-    static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.RockBlock);
+    static readonly Vector2 texturePos = TexturePositions.RockBlock;
     public RockBlock() : base() { }
     public RockBlock(Vector3 rotation) : base(rotation) { }
 

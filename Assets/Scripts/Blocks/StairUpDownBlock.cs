@@ -7,7 +7,7 @@ using UnityEngine;
 [System.Serializable]
 public class StairUpDownBlock : Block
 {
-    static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.StairUpDownBlock);
+    static readonly Vector2 texturePos = TexturePositions.StairUpDownBlock;
 
 
     public StairUpDownBlock(Vector3 rotation) : base(rotation)

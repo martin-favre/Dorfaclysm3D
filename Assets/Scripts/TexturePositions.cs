@@ -3,28 +3,11 @@ using UnityEngine;
 
 public static class TexturePositions
 {
-    public enum Name
-    {
-        RockBlock,
-        GrassBlock,
-        StairUpDownBlock,
-        SnowBlock,
-        WaterBlock,
-        LeafBlock,
-        WoodBlock,
-    }
-    public static readonly Dictionary<Name, Vector2> texturePositions = new Dictionary<Name, Vector2>(){
-         {Name.WaterBlock, new Vector2(0,0)},
-         {Name.RockBlock, new Vector2(1,1)},
-         {Name.GrassBlock, new Vector2(0,1)},
-         {Name.StairUpDownBlock, new Vector2(1,0)},
-         {Name.SnowBlock, new Vector2(0,2)},
-         {Name.LeafBlock, new Vector2(0,3)},
-         {Name.WoodBlock, new Vector2(1,2)},
-    };
-
-    public static Vector2 Get(Name ident)
-    {
-        return texturePositions[ident];
-    }
+    public static readonly Vector2 WaterBlock = new Vector2(0, 0);
+    public static readonly Vector2 RockBlock = new Vector2(1, 1);
+    public static readonly Vector2 GrassBlock = new Vector2(0, 1);
+    public static readonly Vector2 StairUpDownBlock = new Vector2(1, 0);
+    public static readonly Vector2 SnowBlock = new Vector2(0, 2);
+    public static readonly Vector2 WoodBlock = new Vector2(1, 2);
+    public static readonly Vector2 LeafBlock = new Vector2(0, 3);
 }

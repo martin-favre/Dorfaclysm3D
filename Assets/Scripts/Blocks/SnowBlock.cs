@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class SnowBlock : SolidBlock
 {
-    static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.SnowBlock);
+    static readonly Vector2 texturePos = TexturePositions.SnowBlock;
     public SnowBlock() : base() { }
 
     public override object Clone()

@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class WaterBlock : Block
 {
-    static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.WaterBlock);
+    static readonly Vector2 texturePos = TexturePositions.WaterBlock;
     public WaterBlock() : base() { }
 
     public override object Clone()

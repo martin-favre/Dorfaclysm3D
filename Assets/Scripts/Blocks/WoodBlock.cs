@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class WoodBlock : SolidBlock
 {
-    static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.WoodBlock);
+    static readonly Vector2 texturePos = TexturePositions.WoodBlock;
     public WoodBlock() : base() { }
 
     public override object Clone()

@@ -3,21 +3,21 @@ using UnityEngine;
 namespace Items
 {
     [System.Serializable]
-    public class WoodBlockItem : Item
+    public class GrassBlockItem : Item
     {
         public object Clone()
         {
-            return new WoodBlockItem();
+            return new GrassBlockItem();
         }
 
         public string GetDescription()
         {
-            return "A block of wood";
+            return "A block of grass";
         }
 
         public string GetName()
         {
-            return "Wood Block";
+            return "Grass Block";
         }
 
         public uint GetStackSize()
@@ -27,7 +27,7 @@ namespace Items
 
         public Vector2 GetTexturePosition()
         {
-            return TexturePositions.WoodBlock;
+            return TexturePositions.GrassBlock;
         }
 
         public int GetValue()

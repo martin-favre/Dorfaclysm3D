@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class LeafBlock : SolidBlock
 {
-    static readonly Vector2 texturePos = TexturePositions.Get(TexturePositions.Name.LeafBlock);
+    static readonly Vector2 texturePos = TexturePositions.LeafBlock;
     public LeafBlock() : base() { }
 
     public override object Clone()

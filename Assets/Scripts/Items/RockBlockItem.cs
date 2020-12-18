@@ -27,7 +27,7 @@ namespace Items
 
         public Vector2 GetTexturePosition()
         {
-            return TexturePositions.texturePositions[TexturePositions.Name.RockBlock];
+            return TexturePositions.RockBlock;
         }
 
         public int GetValue()

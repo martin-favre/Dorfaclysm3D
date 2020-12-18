@@ -15,7 +15,7 @@ public class LeafBlock : SolidBlock
 
     public override Item GetItem()
     {
-        return new RockBlockItem();
+        return null;
     }
 
     public override string GetName()

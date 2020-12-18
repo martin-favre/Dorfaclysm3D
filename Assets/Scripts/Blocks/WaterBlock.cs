@@ -15,7 +15,7 @@ public class WaterBlock : Block
 
     public override Item GetItem()
     {
-        return new RockBlockItem();
+        return null;
     }
 
     public override PartMeshInfo GetMesh(Vector3Int thisBlockPos, int maxY, IHasBlocks blockOwner)

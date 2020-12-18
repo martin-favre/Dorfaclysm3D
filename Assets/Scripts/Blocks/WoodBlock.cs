@@ -15,7 +15,7 @@ public class WoodBlock : SolidBlock
 
     public override Item GetItem()
     {
-        return new RockBlockItem();
+        return new WoodBlockItem();
     }
 
     public override string GetName()

@@ -10,11 +10,6 @@ namespace Items
             return new WoodBlockItem();
         }
 
-        public Block GetBlock()
-        {
-            return new WoodBlock();
-        }
-
         public string GetDescription()
         {
             return "A block of wood";

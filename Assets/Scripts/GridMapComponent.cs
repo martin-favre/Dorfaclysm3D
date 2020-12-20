@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 using Logging;
 
-public class GridMapComponent : MonoBehaviour, ISaveableComponent
+public class GridMapComponent : MonoBehaviour, ISaveableComponent, IObserver<CameraController>
 {
 
     static readonly int chunkSize = 8;
@@ -49,13 +49,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     public float snowLevel;
     GenerationParameters oldParameters = new GenerationParameters();
 
-
-    void OnVerticalLevelChange()
-    {
-        logger.Log("OnVerticalLevelChange");
-        UpdateMaxVerticalLevel();
-        RegenerateMeshes();
-    }
+    IDisposable cameraSubscription;
 
     void UpdateMaxVerticalLevel()
     {
@@ -163,9 +157,9 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         }
         GridMap.Instance.UnregisterCallbackOnBlockChange(OnBlockUpdate);
         BlockEffectMap.UnregisterOnEffectAddedCallback(OnBlockUpdate);
-        if (mainCam)
+        if (cameraSubscription != null)
         {
-            mainCam.ClearOnVerticalLevelChanged();
+            cameraSubscription.Dispose();
         }
     }
 
@@ -202,7 +196,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
                 RegenerateMeshes();
                 if (mainCam)
                 {
-                    mainCam.SetOnVerticalLevelChanged(OnVerticalLevelChange);
+                    cameraSubscription = mainCam.Subscribe(this);
                 }
                 state = State.MeshGeneratorsCreated;
                 break;
@@ -237,5 +231,21 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         state = State.LoadingMap;
         generationTask = Task.Run(() => GridMap.Instance.LoadSave(save.gridmap));
         logger.Log("Loaded GridMapComponent");
+    }
+
+    public void OnCompleted()
+    {
+        this.cameraSubscription.Dispose();
+    }
+
+    public void OnError(Exception error)
+    {
+        throw error;
+    }
+
+    public void OnNext(CameraController value)
+    {
+        UpdateMaxVerticalLevel();
+        RegenerateMeshes();
     }
 }

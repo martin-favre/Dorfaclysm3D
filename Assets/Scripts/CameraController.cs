@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour, ISaveableComponent
+public class CameraController : MonoBehaviour, ISaveableComponent, IObservable<CameraController>
 {
-
     [System.Serializable]
     private class SaveData : GenericSaveData<CameraController>
     {
@@ -28,8 +27,8 @@ public class CameraController : MonoBehaviour, ISaveableComponent
 
     public Vector3 initialPosition = new Vector3(0.5f, 0.5f, 7.5f);
 
-    
-    Action onVerticalLevelChanged;
+
+    List<IObserver<CameraController>> onVerticalLevelChanged = new List<IObserver<CameraController>>();
     int verticalLevel = 1;
 
     // Start is called before the first frame update
@@ -39,6 +38,7 @@ public class CameraController : MonoBehaviour, ISaveableComponent
         transform.SetParent(viewReference.transform);
         verticalLevel = Mathf.RoundToInt(viewReference.transform.position.y);
         HandleRotation();
+        UpdateSubscribers();
     }
 
     // Update is called once per frame
@@ -68,15 +68,6 @@ public class CameraController : MonoBehaviour, ISaveableComponent
 
     }
 
-    public void SetOnVerticalLevelChanged(Action onChanged)
-    {
-        this.onVerticalLevelChanged = onChanged;
-    }
-    public void ClearOnVerticalLevelChanged()
-    {
-        this.onVerticalLevelChanged = null;
-    }
-
     public int GetVerticalPosition()
     {
         return verticalLevel;
@@ -100,16 +91,27 @@ public class CameraController : MonoBehaviour, ISaveableComponent
             if (verticalLevel < 0) verticalLevel = 0;
             viewReference.transform.position = new Vector3(refPos.x, verticalLevel, refPos.z);
         }
-        if (onVerticalLevelChanged != null && viewReference.transform.position != oldPos)
+        if (viewReference.transform.position != oldPos)
         {
-            onVerticalLevelChanged();
+            foreach (var a in onVerticalLevelChanged)
+            {
+                UpdateSubscribers();
+            }
+        }
+    }
+
+    private void UpdateSubscribers()
+    {
+        foreach (var a in onVerticalLevelChanged)
+        {
+            a.OnNext(this);
         }
     }
 
     private void HandleScroll()
     {
         float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
-        if(scrollDelta == 0) return;
+        if (scrollDelta == 0) return;
         Vector3 refPos = viewReference.transform.position;
         Vector3 deltaPos = refPos - transform.position;
         Vector3 direction = deltaPos.normalized;
@@ -119,7 +121,7 @@ public class CameraController : MonoBehaviour, ISaveableComponent
         deltaPos = shellPos - transform.position;
 
 
-        
+
         float deltaPosMagn = deltaPos.magnitude;
         if (scrollDelta > 0)
         {
@@ -187,7 +189,6 @@ public class CameraController : MonoBehaviour, ISaveableComponent
         viewReference.transform.position += dir * translationSpeed;
     }
 
-
     public IGenericSaveData Save()
     {
         var save = new SaveData();
@@ -205,5 +206,17 @@ public class CameraController : MonoBehaviour, ISaveableComponent
         transform.rotation = save.rot;
         initialPosition = save.referencePos;
         rotationAngle = save.rotationAngle;
+    }
+
+    public IDisposable Subscribe(IObserver<CameraController> observer)
+    {
+        IDisposable sub = new GenericUnsubscriber<CameraController>(onVerticalLevelChanged, observer);
+        observer.OnNext(this);
+        return sub;
+    }
+
+    public bool PositionShouldBeVisible(Vector3Int pos)
+    {
+        return pos.y <= GetVerticalPosition();
     }
 }

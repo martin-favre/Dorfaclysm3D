@@ -22,8 +22,8 @@ public class WalkRandomlyJob : IJob
         this.logger = logger;
         logger.Log("Starting a WalkRandomlyJob");
         Vector3Int size = GridMap.Instance.GetSize();
-        Vector3Int pos = Helpers.GetRandom(Vector3Int.zero, size);
-        machine = new StateMachine(new WalkRandomlyState(user, pos, logger));
+
+        machine = new StateMachine(new WalkRandomlyState(user, logger));
     }
 
     public WalkRandomlyJob(GridActor user, IGenericSaveData save, LilLogger logger)
@@ -77,52 +77,50 @@ public class WalkRandomlyJob : IJob
         }
     }
 
-    private class WalkRandomlyState : WalkingState
+    private class WalkRandomlyState : State
     {
         Vector3Int targetPos;
         private readonly LilLogger logger;
 
-        public WalkRandomlyState(GridActor user, Vector3Int targetPos, LilLogger logger) : base(user, 0.5f)
+        private readonly GridActor user;
+        [System.Serializable]
+        private class SaveData : GenericSaveData<WalkRandomlyState>
         {
-            this.targetPos = targetPos;
+            public IGenericSaveData parent;
+        }
+        public override IGenericSaveData GetSave()
+        {
+            SaveData save = new SaveData();
+            save.parent = base.GetSave();
+            return save;
+        }
+
+        public WalkRandomlyState(GridActor user, LilLogger logger)
+        {
             this.logger = logger;
+            this.user = user;
             logger.Log("Initialized a WalkRandomlyState");
         }
 
-        public WalkRandomlyState(GridActor user, IGenericSaveData save, LilLogger logger) : base(user, save)
+        public WalkRandomlyState(GridActor user, IGenericSaveData save, LilLogger logger) : base(save)
         {
             this.logger = logger;
+            this.user = user;
         }
 
-        public override Vector3Int GetTargetPos()
+        public override State OnDuring()
         {
-            Vector3Int actualPos;
-            bool success = GridMapHelper.GetClosestPassablePosition(targetPos, 5, out actualPos);
-            if (success)
+            Vector3Int currPos = user.GetPos();
+            foreach (var delta in DeltaPositions.GetRandomDeltaPositions3D())
             {
-                logger.Log("I'll randomly walk to " + actualPos.ToString());
-                return actualPos;
+                Vector3Int newPos = currPos + delta;
+                if (Astar.IsStepValid(newPos, currPos, delta))
+                {
+                    user.Move(newPos);
+                    break;
+                }
             }
-            else
-            {
-                logger.Log("I couldn't find a good position to walk to");
-                OnPathFindFail();
-                return targetPos;
-            }
-
-        }
-
-        public override State OnPathFindFail()
-        {
-            logger.Log("I could not get to where I wanted due to: " + GetFailReason().ToString());
-            return new WaitState(logger);
-            
-        }
-
-        public override State OnReachedTarget()
-        {
-            logger.Log("I reached where I wanted to go!");
-            return new WaitState(logger);
+            return new WaitState(this.logger);
         }
     }
 

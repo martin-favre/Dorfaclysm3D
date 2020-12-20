@@ -19,7 +19,7 @@ namespace StateMachineCollection
         }
 
         readonly StateMachine machine;
-        readonly GridActor user;
+        protected readonly GridActor user;
         SaveData data = new SaveData();
 
         public WalkingState(GridActor user, float secPerStep) : this(user, secPerStep, 0){}

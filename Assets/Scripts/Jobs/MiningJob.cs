@@ -76,13 +76,11 @@ public class MiningJob : IJob
             public MiningRequest request;
         }
 
-        private readonly GridActor user;
         private readonly MiningRequest request;
         private readonly LilLogger logger;
 
         public WalkToBlockState(GridActor user, MiningRequest request, LilLogger logger) : base(user, 0.1f, 1)
         {
-            this.user = user;
             this.request = request;
             this.logger = logger;
             logger.Log("Initialized a WalkToBlockState with request " + request);
@@ -90,7 +88,6 @@ public class MiningJob : IJob
         }
         public WalkToBlockState(GridActor user, IGenericSaveData saveData, LilLogger logger) : base(user, ((SaveData)saveData).parent)
         {
-            this.user = user;
             this.logger = logger;
             SaveData save = saveData as SaveData;
             this.request = save.request;

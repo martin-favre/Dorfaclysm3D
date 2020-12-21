@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 using Logging;
 
-public class GridMapComponent : MonoBehaviour, ISaveableComponent, IObserver<CameraController>
+public class GridMapComponent : MonoBehaviour, ISaveableComponent
 {
 
     static readonly int chunkSize = 8;
@@ -28,6 +28,8 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent, IObserver<Cam
     State state = State.Created;
 
     CameraController mainCam;
+
+    SimpleObserver<CameraController> cameraObserver;
     private void Awake()
     {
     }
@@ -35,7 +37,6 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent, IObserver<Cam
     private void Start()
     {
         mainCam = Camera.main.GetComponent<CameraController>();
-
     }
 
     public bool regenerateMap = false;
@@ -48,8 +49,6 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent, IObserver<Cam
     public float waterLevel;
     public float snowLevel;
     GenerationParameters oldParameters = new GenerationParameters();
-
-    IDisposable cameraSubscription;
 
     void UpdateMaxVerticalLevel()
     {
@@ -157,10 +156,6 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent, IObserver<Cam
         }
         GridMap.Instance.UnregisterCallbackOnBlockChange(OnBlockUpdate);
         BlockEffectMap.UnregisterOnEffectAddedCallback(OnBlockUpdate);
-        if (cameraSubscription != null)
-        {
-            cameraSubscription.Dispose();
-        }
     }
 
     void Update()
@@ -194,11 +189,13 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent, IObserver<Cam
                 createMeshCreators();
                 UpdateMaxVerticalLevel();
                 RegenerateMeshes();
-                if (mainCam)
-                {
-                    cameraSubscription = mainCam.Subscribe(this);
-                }
                 state = State.MeshGeneratorsCreated;
+                cameraObserver = new SimpleObserver<CameraController>(mainCam, (cam) =>
+                {
+                    UpdateMaxVerticalLevel();
+                    RegenerateMeshes();
+                });
+
                 break;
             case State.MeshGeneratorsCreated:
                 break;
@@ -231,21 +228,5 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent, IObserver<Cam
         state = State.LoadingMap;
         generationTask = Task.Run(() => GridMap.Instance.LoadSave(save.gridmap));
         logger.Log("Loaded GridMapComponent");
-    }
-
-    public void OnCompleted()
-    {
-        this.cameraSubscription.Dispose();
-    }
-
-    public void OnError(Exception error)
-    {
-        throw error;
-    }
-
-    public void OnNext(CameraController value)
-    {
-        UpdateMaxVerticalLevel();
-        RegenerateMeshes();
     }
 }

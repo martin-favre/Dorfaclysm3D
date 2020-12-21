@@ -6,7 +6,7 @@ using System;
 
 namespace Items
 {
-    public class DroppedItemComponent : MonoBehaviour, ISaveableComponent, IObserver<CameraController>
+    public class DroppedItemComponent : MonoBehaviour, ISaveableComponent
     {
         private class SaveData : GenericSaveData<DroppedItemComponent>
         {
@@ -71,8 +71,7 @@ namespace Items
 
         SaveData data = new SaveData();
 
-        IDisposable cameraSubscription;
-
+        SimpleObserver<CameraController> cameraObserver;
         MeshRenderer myRenderer;
 
         public static DroppedItemComponent InstantiateNew(Vector3Int position)
@@ -109,8 +108,14 @@ namespace Items
                 visualizer = GetComponent<BlockVisualizer>();
                 visualizer.RenderBlock(mainItem.GetTexturePosition());
             }
+            cameraObserver = new SimpleObserver<CameraController>(Camera.main.GetComponent<CameraController>(), (c) =>
+            {
+                if (this.myRenderer && actor)
+                {
+                    this.myRenderer.enabled = c.PositionShouldBeVisible(actor.GetPos());
+                }
 
-            cameraSubscription = Camera.main.GetComponent<CameraController>().Subscribe(this);
+            });
 
         }
 
@@ -141,7 +146,6 @@ namespace Items
         {
             if (actor && inventory)
             {
-                cameraSubscription.Dispose();
                 ItemMap.UnregisterInventory(inventory, actor.GetPos());
             }
         }
@@ -154,24 +158,6 @@ namespace Items
         public void Load(IGenericSaveData data)
         {
             this.data = (SaveData)data;
-        }
-
-        public void OnCompleted()
-        {
-            this.cameraSubscription.Dispose();
-        }
-
-        public void OnError(Exception error)
-        {
-            throw error;
-        }
-
-        public void OnNext(CameraController value)
-        {
-            if (this.myRenderer && actor)
-            {
-                this.myRenderer.enabled = value.PositionShouldBeVisible(actor.GetPos());
-            }
         }
     }
 }

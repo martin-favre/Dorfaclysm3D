@@ -12,12 +12,13 @@ namespace Tests
         [Test]
         public void GetSetSizeTest()
         {
+            GridMap.Instance.SetSize(new Vector3Int(5, 5, 5));
             Vector3Int size = new Vector3Int(10, 10, 10);
             Assert.AreNotEqual(size, GridMap.Instance.GetSize()); // reality check
 
             GridMap.Instance.SetSize(size);
 
-            Assert.IsTrue(size == GridMap.Instance.GetSize());
+            Assert.IsTrue(size.Equals(GridMap.Instance.GetSize()));
         }
 
         [Test]

@@ -50,6 +50,7 @@ public class DorfController : MonoBehaviour, ISaveableComponent
 
     void Update()
     {
+        if(PauseManager.IsPaused) return;
         if (!stateMachine.IsTerminated())
         {
             stateMachine.Update();

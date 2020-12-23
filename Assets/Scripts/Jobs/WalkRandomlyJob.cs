@@ -42,7 +42,7 @@ public class WalkRandomlyJob : IJob
     {
         logger.Log("Loading a WalkRandomlyState");
         Type type = activeState.GetSaveType();
-        if (type == typeof(WalkingState))
+        if (type == typeof(WalkRandomlyState))
         {
             return new WalkRandomlyState(user, activeState, logger);
         }
@@ -128,7 +128,7 @@ public class WalkRandomlyJob : IJob
     {
         private readonly LilLogger logger;
 
-        public WaitState(LilLogger logger) : base(3)
+        public WaitState(LilLogger logger) : base(1000)
         {
             this.logger = logger;
             logger.Log("Starting my WaitState");

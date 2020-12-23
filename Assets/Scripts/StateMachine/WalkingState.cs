@@ -12,7 +12,7 @@ namespace StateMachineCollection
         {
             public IGenericSaveData parent;
             public IGenericSaveData activeState;
-            public float timePerStepSecs;
+            public float timePerStepMs;
             public Vector3Int targetPos;
             public Astar.Result astarResult;
             public int aStarMargin;
@@ -22,13 +22,13 @@ namespace StateMachineCollection
         protected readonly GridActor user;
         SaveData data = new SaveData();
 
-        public WalkingState(GridActor user, float secPerStep) : this(user, secPerStep, 0){}
-        public WalkingState(GridActor user, float secPerStep, int margin)
+        public WalkingState(GridActor user, float msPerStep) : this(user, msPerStep, 0){}
+        public WalkingState(GridActor user, float msPerStep, int margin)
         {
             Debug.Assert(user != null);
             this.user = user;
             this.data.aStarMargin = margin;
-            this.data.timePerStepSecs = secPerStep;
+            this.data.timePerStepMs = msPerStep;
 
             machine = new StateMachine(new AwaitingAstarState(this));
         }
@@ -214,7 +214,7 @@ namespace StateMachineCollection
 
             WalkingState parent;
 
-            public WaitABitState(WalkingState parent) : base(parent.data.timePerStepSecs)
+            public WaitABitState(WalkingState parent) : base(parent.data.timePerStepMs)
             {
                 this.parent = parent;
             }

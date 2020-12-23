@@ -7,26 +7,39 @@ namespace StateMachineCollection
 {
     public abstract class WaitingState : State
     {
-        readonly float waitDurationSecs;
-        readonly float startTime;
+        [System.Serializable]
+        private class SaveData : GenericSaveData<WaitingState>
+        {
+            public IGenericSaveData parent;
+            public IGenericSaveData timerSave;
+            public bool elapsed;
+        }
 
+        SaveData data = new SaveData();
+
+        public PausableTimer timer;
 
         // If no nextState is specified the machine will terminate on state transition instead
-        public WaitingState(float waitDurationSecs)
+        public WaitingState(float waitDurationMs)
         {
-            this.waitDurationSecs = waitDurationSecs;
-            startTime = Time.time;
+            timer = new PausableTimer(waitDurationMs);
+            timer.Elapsed += ((a, b) => { data.elapsed = true; });
+            timer.Start();
         }
 
         public WaitingState(IGenericSaveData saveData) : base(((SaveData)saveData).parent)
         {
-            SaveData save = (SaveData)saveData;
-            this.waitDurationSecs = save.waitDurationSecs;
-            this.startTime = Time.time - save.passedTime;
+            data = (SaveData)saveData;
+            timer = new PausableTimer(data.timerSave);
+            if (!data.elapsed)
+            {
+                timer.Elapsed += ((a, b) => { data.elapsed = true; });
+                timer.Start();
+            }
         }
         public override State OnDuring()
         {
-            if (startTime + waitDurationSecs < Time.time)
+            if (data.elapsed)
             {
                 State nextState = GetNextState();
                 if (nextState != null)
@@ -42,19 +55,11 @@ namespace StateMachineCollection
         }
 
         public abstract State GetNextState();
-        [System.Serializable]
-        private class SaveData : GenericSaveData<WaitingState>
-        {
-            public IGenericSaveData parent;
-            public float waitDurationSecs;
-            public float passedTime;
-        }
         public override IGenericSaveData GetSave()
         {
             SaveData save = new SaveData();
             save.parent = base.GetSave();
-            save.waitDurationSecs = waitDurationSecs;
-            save.passedTime = Time.time - startTime;
+            save.timerSave = timer.GetSave();
             return save;
         }
     }

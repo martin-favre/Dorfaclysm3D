@@ -80,7 +80,10 @@ public class PauseManager : MonoBehaviour, IObservable<bool>
 
     void OnDestroy()
     {
-        foreach (var observer in observers)
+        // OnCompleted modifies the observers collection
+        // clone it to avoid problems
+        IObserver<bool>[] tmpObservers = observers.ToArray();
+        foreach (var observer in tmpObservers)
         {
             observer.OnCompleted();
         }

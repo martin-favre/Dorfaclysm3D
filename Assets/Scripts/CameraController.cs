@@ -31,31 +31,42 @@ public class CameraController : MonoBehaviour, ISaveableComponent, IObservable<C
     List<IObserver<CameraController>> onVerticalLevelChanged = new List<IObserver<CameraController>>();
     int verticalLevel = 1;
 
+    Vector2 rotationRequest;
+    Vector3 requestedTranslationMovement;
+    float requestedScrollDelta;
+
     // Start is called before the first frame update
     void Start()
     {
         viewReference = Instantiate(new GameObject(), initialPosition, transform.rotation) as GameObject;
         transform.SetParent(viewReference.transform);
         verticalLevel = Mathf.RoundToInt(viewReference.transform.position.y);
-        HandleRotation();
+
+        // Update rotation on start
+        // We'll have a bit of choppyness on the first rotation otherwise
+        ReadRotationInput();
+        UpdateRotation();
+        
         UpdateSubscribers();
     }
 
     // Update is called once per frame
     void Update()
     {
-        HandleTranslationMovement();
+        ReadTranslationInput();
         if (Input.GetMouseButton(1))
         {
-            HandleRotation();
+            ReadRotationInput();
         }
         if (Input.GetKey(KeyCode.LeftShift))
         {
+            // Currently handled in update as it seems to work fine.
+            // Might move to FixedUpdate if this is no longer the case
             HandleVerticalMovement();
         }
         else
         {
-            HandleScroll();
+            ReadScrollInput();
         }
         if (Input.GetKeyDown(KeyCode.F5))
         {
@@ -66,6 +77,74 @@ public class CameraController : MonoBehaviour, ISaveableComponent, IObservable<C
             SaveLoadManager.RequestLoad();
         }
 
+    }
+
+    void UpdateRotation()
+    {
+        print("Handling request " + rotationRequest + " Deltatime: " + Time.deltaTime);
+        rotationAngle.x += rotationRequest.x * dragSpeed * Time.deltaTime;
+        rotationAngle.y -= rotationRequest.y * dragSpeed * Time.deltaTime;
+        rotationAngle.y = ClampAngle(rotationAngle.y, rotationLimits.x, rotationLimits.y);
+
+        Quaternion rotation = Quaternion.Euler(rotationAngle.y, rotationAngle.x, 0);
+
+
+        Vector3 refPos = viewReference.transform.position;
+        Vector3 deltaPos = refPos - transform.position;
+        Vector3 negDistance = new Vector3(0.0f, 0.0f, -deltaPos.magnitude);
+        Vector3 position = rotation * negDistance + viewReference.transform.position;
+
+        transform.position = position;
+        transform.rotation = rotation;
+        rotationRequest = Vector2.zero;
+    }
+
+    void UpdateScroll()
+    {
+
+        if (requestedScrollDelta == 0) return;
+        Vector3 refPos = viewReference.transform.position;
+        Vector3 deltaPos = refPos - transform.position;
+        Vector3 direction = deltaPos.normalized;
+        Vector3 reverseDirection = -direction;
+
+        Vector3 shellPos = refPos + reverseDirection * minMaxZoom.x;
+        deltaPos = shellPos - transform.position;
+
+
+
+        float deltaPosMagn = deltaPos.magnitude;
+        if (requestedScrollDelta > 0)
+        {
+            transform.position += (deltaPos * zoomSpeed * Time.deltaTime);
+            // we are scrolling forward/zooming in
+
+        }
+        else if (requestedScrollDelta < 0)
+        {
+            if (deltaPosMagn < 0.1f) deltaPos *= 5;
+            if (deltaPosMagn > minMaxZoom.y) return;
+            transform.position += (deltaPos * -zoomSpeed * Time.deltaTime);
+            // we are scrolling backwards/zooming out
+        }
+
+        requestedScrollDelta = 0;
+
+    }
+
+    void FixedUpdate()
+    {
+
+        if (rotationRequest != Vector2.zero)
+        {
+            UpdateRotation();
+        }
+        if (requestedTranslationMovement != Vector3.zero)
+        {
+            viewReference.transform.position += requestedTranslationMovement * Time.deltaTime;
+            requestedTranslationMovement = Vector3.zero;
+        }
+        UpdateScroll();
     }
 
     public int GetVerticalPosition()
@@ -108,35 +187,9 @@ public class CameraController : MonoBehaviour, ISaveableComponent, IObservable<C
         }
     }
 
-    private void HandleScroll()
+    private void ReadScrollInput()
     {
-        float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
-        if (scrollDelta == 0) return;
-        Vector3 refPos = viewReference.transform.position;
-        Vector3 deltaPos = refPos - transform.position;
-        Vector3 direction = deltaPos.normalized;
-        Vector3 reverseDirection = -direction;
-
-        Vector3 shellPos = refPos + reverseDirection * minMaxZoom.x;
-        deltaPos = shellPos - transform.position;
-
-
-
-        float deltaPosMagn = deltaPos.magnitude;
-        if (scrollDelta > 0)
-        {
-            transform.position += (deltaPos * zoomSpeed);
-            // we are scrolling forward/zooming in
-
-        }
-        else if (scrollDelta < 0)
-        {
-            if (deltaPosMagn < 0.1f) deltaPos *= 5;
-            if (deltaPosMagn > minMaxZoom.y) return;
-            transform.position += (deltaPos * -zoomSpeed);
-            // we are scrolling backwards/zooming out
-
-        }
+        requestedScrollDelta += Input.GetAxis("Mouse ScrollWheel");
     }
 
 
@@ -148,27 +201,13 @@ public class CameraController : MonoBehaviour, ISaveableComponent, IObservable<C
             angle -= 360F;
         return Mathf.Clamp(angle, min, max);
     }
-    void HandleRotation()
+    void ReadRotationInput()
     {
-
-        Vector3 refPos = viewReference.transform.position;
-        Vector3 deltaPos = refPos - transform.position;
-        rotationAngle.x += Input.GetAxis("Mouse X") * dragSpeed;
-        rotationAngle.y -= Input.GetAxis("Mouse Y") * dragSpeed;
-        rotationAngle.y = ClampAngle(rotationAngle.y, rotationLimits.x, rotationLimits.y);
-
-        Quaternion rotation = Quaternion.Euler(rotationAngle.y, rotationAngle.x, 0);
-
-
-        Vector3 negDistance = new Vector3(0.0f, 0.0f, -deltaPos.magnitude);
-        Vector3 position = rotation * negDistance + viewReference.transform.position;
-
-        transform.rotation = rotation;
-        transform.position = position;
-
+        rotationRequest += new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        print(rotationRequest);
     }
 
-    void HandleTranslationMovement()
+    void ReadTranslationInput()
     {
         Vector3 movementDirection = Vector3.zero;
         Vector3 refPos = viewReference.transform.position;
@@ -181,12 +220,7 @@ public class CameraController : MonoBehaviour, ISaveableComponent, IObservable<C
         if (Input.GetKey(KeyCode.A)) movementDirection += rotDir;
         if (Input.GetKey(KeyCode.S)) movementDirection -= direction;
         if (Input.GetKey(KeyCode.D)) movementDirection -= rotDir;
-        TranslateCamera(movementDirection);
-    }
-
-    void TranslateCamera(Vector3 dir)
-    {
-        viewReference.transform.position += dir * translationSpeed;
+        requestedTranslationMovement = movementDirection * translationSpeed;
     }
 
     public IGenericSaveData Save()

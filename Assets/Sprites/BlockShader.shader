@@ -51,9 +51,7 @@
             fixed4 main = tex2D (_MainTex, IN.uv_MainTex);
             fixed4 details = tex2D (_SecondTex, IN.uv2_SecondTex);
             fixed4 c = lerp( main, details, details.a);
-            //if(details.rgb.r != 1 || details.rgb.b != 1 || details.rgb.g != 1) {
-            //  c = details;
-            //}
+ 
             o.Albedo = c.rgb;
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;

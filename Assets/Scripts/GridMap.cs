@@ -103,7 +103,7 @@ public class GridMap : IHasBlocks
         TryGetBlock(pos, out block);
         if (block != null)
         {
-            return block.supportsWalkingThrough();
+            return block.SupportsWalkingThrough();
         }
         return false; // If we don't have a block, you can't walk there
     }

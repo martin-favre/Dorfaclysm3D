@@ -33,22 +33,27 @@ public class AirBlock : Block
         return Vector2.zero; // Has no texture
     }
 
-    public override bool isVisible()
+    public override bool IsVisible()
     {
         return false;
     }
 
-    public override bool supportsClimbing()
+    public override bool NeighbourShouldBeRendered()
+    {
+        return true;
+    }
+
+    public override bool SupportsClimbing()
     {
         return false;
     }
 
-    public override bool supportsWalkingOnTop()
+    public override bool SupportsWalkingOnTop()
     {
         return false;
     }
 
-    public override bool supportsWalkingThrough()
+    public override bool SupportsWalkingThrough()
     {
         return true;
     }

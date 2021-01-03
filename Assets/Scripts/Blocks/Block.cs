@@ -41,15 +41,17 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
     public abstract Vector2 GetTexturePos();
 
     // Can you walk through this block?
-    public abstract bool supportsWalkingThrough();
+    public abstract bool SupportsWalkingThrough();
 
     // Can you ascend from this block?
-    public abstract bool supportsClimbing();
+    public abstract bool SupportsClimbing();
 
     //Can you walk on top of this block?
-    public abstract bool supportsWalkingOnTop();
+    public abstract bool SupportsWalkingOnTop();
     public abstract string GetName();
-    public abstract bool isVisible();
+    public abstract bool IsVisible();
+
+    public abstract bool NeighbourShouldBeRendered();
 
     public abstract Item GetItem();
 
@@ -58,7 +60,7 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
     public abstract PartMeshInfo GetMesh(Vector3Int thisBlockPos, int maxY, IHasBlocks blockOwner);
     protected bool FaceShouldBeRendered(Block neighbour)
     {
-        return neighbour == null || neighbour is AirBlock || neighbour is StairUpDownBlock;
+        return neighbour == null || neighbour.NeighbourShouldBeRendered();
     }
 
     protected Block GetBlock(Vector3Int pos, int maxY, IHasBlocks blockOwner)

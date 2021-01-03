@@ -17,23 +17,28 @@ public abstract class SolidBlock : Block
         return GenerateMesh(thisBlockPos, maxY, blockOwner);
     }
 
-    public override bool isVisible()
+    public override bool IsVisible()
     {
         return true;
     }
 
-    public override bool supportsClimbing()
+    public override bool SupportsClimbing()
     {
         return false;
     }
 
-    public override bool supportsWalkingOnTop()
+    public override bool SupportsWalkingOnTop()
     {
         return true;
     }
 
-    public override bool supportsWalkingThrough()
+    public override bool SupportsWalkingThrough()
     {
         return false;
     }
+    public override bool NeighbourShouldBeRendered()
+    {
+        return false;
+    }
+
 }

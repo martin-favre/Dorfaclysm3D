@@ -201,7 +201,7 @@ public class Astar
             {
                 Block block;
                 GridMap.Instance.TryGetBlock(currentPos, out block);
-                return block != null ? block.supportsClimbing() : false;
+                return block != null ? block.SupportsClimbing() : false;
             }
             else
             {
@@ -215,7 +215,7 @@ public class Astar
             GridMap.Instance.TryGetBlock(posBelowNext, out nextBlock);
             if (nextBlock != null)
             {
-                return nextBlock.supportsWalkingOnTop();
+                return nextBlock.SupportsWalkingOnTop();
             }
             else
             {

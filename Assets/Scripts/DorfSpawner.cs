@@ -39,7 +39,7 @@ public class DorfSpawner : MonoBehaviour
                 for (int y = 0; y < GridMap.Instance.GetSize().y; y++)
                 {
                     newPos = new Vector3Int(pos.x, y, pos.z);
-                    if (GridMap.Instance.GetBlock(newPos).supportsWalkingThrough())
+                    if (GridMap.Instance.GetBlock(newPos).SupportsWalkingThrough())
                     {
                         break;
                     }

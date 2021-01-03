@@ -3,7 +3,7 @@ using Items;
 using UnityEngine;
 
 [System.Serializable]
-public class RockBlock : Block
+public class RockBlock : SolidBlock
 {
     static readonly Vector2 texturePos = TexturePositions.RockBlock;
     public RockBlock() : base() { }
@@ -32,25 +32,5 @@ public class RockBlock : Block
     public override Vector2 GetTexturePos()
     {
         return texturePos;
-    }
-
-    public override bool isVisible()
-    {
-        return true;
-    }
-
-    public override bool supportsClimbing()
-    {
-        return false;
-    }
-
-    public override bool supportsWalkingOnTop()
-    {
-        return true;
-    }
-
-    public override bool supportsWalkingThrough()
-    {
-        return false;
     }
 }

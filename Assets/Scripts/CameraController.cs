@@ -46,7 +46,7 @@ public class CameraController : MonoBehaviour, ISaveableComponent, IObservable<C
         // We'll have a bit of choppyness on the first rotation otherwise
         ReadRotationInput();
         UpdateRotation();
-        
+
         UpdateSubscribers();
     }
 
@@ -81,7 +81,6 @@ public class CameraController : MonoBehaviour, ISaveableComponent, IObservable<C
 
     void UpdateRotation()
     {
-        print("Handling request " + rotationRequest + " Deltatime: " + Time.deltaTime);
         rotationAngle.x += rotationRequest.x * dragSpeed * Time.deltaTime;
         rotationAngle.y -= rotationRequest.y * dragSpeed * Time.deltaTime;
         rotationAngle.y = ClampAngle(rotationAngle.y, rotationLimits.x, rotationLimits.y);
@@ -204,7 +203,6 @@ public class CameraController : MonoBehaviour, ISaveableComponent, IObservable<C
     void ReadRotationInput()
     {
         rotationRequest += new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-        print(rotationRequest);
     }
 
     void ReadTranslationInput()

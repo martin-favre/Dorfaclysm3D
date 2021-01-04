@@ -5,6 +5,7 @@ using System.Timers;
 
 public class PausableTimer : Timer
 {
+    [System.Serializable]
     private class SaveData : GenericSaveData<PausableTimer>
     {
         public double initialInterval;

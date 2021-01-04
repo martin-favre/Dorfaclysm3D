@@ -19,16 +19,10 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     InventoryComponent inventory;
     SaveData data = new SaveData();
     const string prefabName = "Prefabs/BlockBuildingObject";
-    static GameObject prefabObj;
 
     public static BlockBuildingSite InstantiateNew(Vector3Int position, Block blockToBuild, Type itemRequired)
     {
-
-        if (prefabObj == null)
-        {
-            prefabObj = Resources.Load(prefabName) as GameObject;
-            if (!prefabObj) throw new System.Exception("Could not load prefab " + prefabName);
-        }
+        GameObject prefabObj = PrefabLoader.GetPrefab(prefabName);
         GameObject obj = Instantiate(prefabObj) as GameObject;
         if (!obj) throw new System.Exception("Could not instantiate prefab " + prefabName);
         GridActor actor = obj.GetComponent<GridActor>();

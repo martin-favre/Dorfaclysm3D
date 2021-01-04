@@ -252,6 +252,8 @@ public class PlayerComponent : MonoBehaviour
                 return typeof(GrassBlockItem);
             case WoodBlock e:
                 return typeof(WoodBlockItem);
+            case SnowBlock e:
+                return typeof(SnowBlockItem);
             case StairUpDownBlock e:
                 return typeof(RockBlockItem);
             default:

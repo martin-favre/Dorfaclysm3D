@@ -14,7 +14,6 @@ namespace Items
         }
 
         const string prefabName = "Prefabs/ItemContainerObject";
-        static GameObject prefabObj;
 
         static readonly float[] fallPositions = {
             0.25f,
@@ -76,11 +75,7 @@ namespace Items
 
         public static DroppedItemComponent InstantiateNew(Vector3Int position)
         {
-            if (prefabObj == null)
-            {
-                prefabObj = Resources.Load(prefabName) as GameObject;
-                if (!prefabObj) throw new System.Exception("Could not load prefab " + prefabName);
-            }
+            GameObject prefabObj = PrefabLoader.GetPrefab(prefabName);
             GameObject obj = Instantiate(prefabObj) as GameObject;
             if (!obj) throw new System.Exception("Could not instantiate prefab " + prefabName);
             GridActor gridActor = obj.GetComponent<GridActor>();

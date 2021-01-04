@@ -37,20 +37,8 @@ public class BlockMeshes
 
     private static MeshInfo LoadMesh(string path)
     {
-        GameObject gObj = Resources.Load(path) as GameObject;
-        if (gObj == null)
-        {
-            logger.Log("Could not load resource " + path, LogLevel.Error);
-            return null;
-        }
-        MeshFilter filter = gObj.GetComponent<MeshFilter>();
-        if (filter == null)
-        {
-            logger.Log("Resource " + path + " did not contain MeshFilter", LogLevel.Error);
-            return null;
-        }
-
-        return new MeshInfo(filter.sharedMesh);
+    
+        return new MeshInfo(ModelLoader.GetMesh(path).sharedMesh);
     }
 
     // Must be called from main thread

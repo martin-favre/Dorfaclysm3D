@@ -39,6 +39,7 @@ public static class SaveLoadManager
             GameObject.Destroy(comp.gameObject);
         }
     }
+
     public static void RequestLoad()
     {
 
@@ -57,7 +58,7 @@ public static class SaveLoadManager
             try
             {
                 string path = "Prefabs/" + save.prefabPath;
-                GameObject obj = Resources.Load(path) as GameObject;
+                GameObject obj = PrefabLoader.GetPrefab(path);
                 if (obj == null) throw new Exception("Could not load prefab " + path);
                 SaveLoadComponent comp = GameObject.Instantiate(obj).GetComponent<SaveLoadComponent>();
                 if (comp == null) throw new Exception("No SaveLoadComponent on gameobject " + obj.name);

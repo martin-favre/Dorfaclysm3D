@@ -17,7 +17,6 @@ public class DorfController : MonoBehaviour, ISaveableComponent
 
     GridActor gridActor;
     const string prefabName = "Prefabs/Dorf";
-    static GameObject prefabObj;
     StateMachine stateMachine;
     LilLogger logger;
 
@@ -30,11 +29,7 @@ public class DorfController : MonoBehaviour, ISaveableComponent
 
     public static DorfController InstantiateDorf(Vector3Int spawnPos)
     {
-        if (prefabObj == null)
-        {
-            prefabObj = Resources.Load(prefabName) as GameObject;
-            if (!prefabObj) throw new System.Exception("Could not load prefab " + prefabName);
-        }
+        GameObject prefabObj = PrefabLoader.GetPrefab(prefabName);
         GameObject obj = Instantiate(prefabObj) as GameObject;
         obj.name = "Dorf_" + obj.GetInstanceID().ToString();
         if (!obj) throw new System.Exception("Could not instantiate prefab " + prefabName);

@@ -15,7 +15,7 @@ public class SnowBlock : SolidBlock
 
     public override Item GetItem()
     {
-        return new RockBlockItem();
+        return new SnowBlockItem();
     }
 
 

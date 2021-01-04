@@ -47,12 +47,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunkGeneratorPrefab: {fileID: 8299210676744196419, guid: 293376161a56e244f94cf7924d38d86e, type: 3}
   regenerateMap: 0
-  mapSize: {x: 128, y: 24, z: 128}
+  mapSize: {x: 32, y: 64, z: 32}
   offset: {x: 0, y: 0}
   frequency: {x: 0.05, y: 0.05}
   heightExponential: 2.5
   heighFactor: 4
   noiseIterations: 10
+  waterLevel: 3
+  snowLevel: 100
 --- !u!114 &1062947670
 MonoBehaviour:
   m_ObjectHideFlags: 0

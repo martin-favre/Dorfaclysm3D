@@ -97,9 +97,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36461105cf6c1833f9af91d14966322a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  translationSpeed: 0.06
-  zoomSpeed: 0.3
-  dragSpeed: 6
+  translationSpeed: 14
+  zoomSpeed: 20
+  dragSpeed: 135
   shellSize: 3
   minMaxZoom: {x: 1, y: 20}
   rotationLimits: {x: 5, y: 80}

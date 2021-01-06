@@ -16,7 +16,8 @@ public class PlayerComponent : MonoBehaviour
         Mining,
         Placing,
         Cancelling,
-        QuickBlockRemove
+        QuickBlockRemove,
+        BuildObject
     };
     RequestState requestState = RequestState.Mining;
     LilLogger logger;
@@ -112,7 +113,7 @@ public class PlayerComponent : MonoBehaviour
 
     void OnRequestDropdownChanged(int index)
     {
-        RequestState[] intToReq = { RequestState.Mining, RequestState.Placing, RequestState.Cancelling, RequestState.QuickBlockRemove };
+        RequestState[] intToReq = { RequestState.Mining, RequestState.Placing, RequestState.Cancelling, RequestState.QuickBlockRemove, RequestState.BuildObject };
         if (index < intToReq.Length)
         {
             SetRequestState(intToReq[index]);
@@ -161,12 +162,54 @@ public class PlayerComponent : MonoBehaviour
             {
                 HandleCancelling();
             }
+            else if (requestState == RequestState.BuildObject)
+            {
+                HandleBuildObject();
+            }
         }
 
         if (requestState == RequestState.Placing && Input.GetKeyDown(KeyCode.R))
         {
             handleRotatePlacement();
         }
+    }
+
+    private void HandleBuildObject()
+    {
+        Vector3Int blockPos;
+        bool success = BlockLaser.GetBlockPositionAtMouse(Input.mousePosition, out blockPos, -0.001f);
+        if (success)
+        {
+            logger.Log("Pointed at " + blockPos);
+            Block block;
+            bool foundBlock = GridMap.Instance.TryGetBlock(blockPos, out block);
+            logger.Log("FoundBlock " + foundBlock);
+            if (foundBlock && block is AirBlock)
+            {
+                logger.Log("It was airblock ");
+
+                GridActor[] actors = GridActorMap.GetGridActors(blockPos);
+                foreach (GridActor actor in actors)
+                {
+                    if (actor.gameObject.GetComponent<BuildingSite>() != null)
+                    {
+                        logger.Log("There was already a BuildingSite there");
+                        return;
+                    }
+                }
+                logger.Log("Placed a new BuildingSite");
+                BuildingBlueprint blueprint = new BuildingBlueprint("Prefabs/BedPrefab", blockPos, new List<Tuple<Type, int>>
+                () {
+                    new Tuple<Type, int>(typeof(RockBlockItem), 3)
+                });
+                BuildingSite site = BuildingSite.InstantiateNew(blueprint);
+            }
+        }
+        else
+        {
+            logger.Log("Did not hit a valid block ");
+        }
+
     }
 
     private bool GetBlockAtMouse(Vector3 origin, out Vector3Int position, out Block block)

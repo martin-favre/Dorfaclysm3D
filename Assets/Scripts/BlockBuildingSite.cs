@@ -20,6 +20,8 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     SaveData data = new SaveData();
     const string prefabName = "Prefabs/BlockBuildingObject";
 
+    SimpleObserver<RequestPoolUpdateEvent<MoveItemRequest>> myObserver;
+
     public static BlockBuildingSite InstantiateNew(Vector3Int position, Block blockToBuild, Type itemRequired)
     {
         GameObject prefabObj = PrefabLoader.GetPrefab(prefabName);
@@ -53,8 +55,11 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
             MoveItemRequestPool.Instance.PostRequest(req);
             data.hasSpawnedRequest = true;
         }
-
-        MoveItemRequestPool.Instance.RegisterOnCancelledCallback(data.requestGuid, OnRequestCancelled);
+        myObserver = new SimpleObserver<RequestPoolUpdateEvent<MoveItemRequest>>(MoveItemRequestPool.Instance, (updateEvent)=> {
+            if(updateEvent.Type == RequestPoolUpdateEvent<MoveItemRequest>.EventType.Cancelled) {
+                OnRequestCancelled(updateEvent.Request);
+            }
+        });
 
         BlockVisualizer visualizer = GetComponent<BlockVisualizer>();
         if (visualizer)
@@ -81,7 +86,6 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
             inventory.UnregisterOnItemAddedCallback(OnItemAdded);
         }
 
-        MoveItemRequestPool.Instance.UnregisterOnCancelledCallback(data.requestGuid);
         if (!data.requestFinished && data.hasSpawnedRequest)
         {
             // I.e. if we got destroyed while our request is still out there

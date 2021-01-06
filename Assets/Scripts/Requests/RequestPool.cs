@@ -8,7 +8,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections.Concurrent;
 
-public abstract class RequestPool<T> where T : PlayerRequest
+public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>> where T : PlayerRequest
 {
     [System.Serializable]
     protected class RequestOnCooldown : IEquatable<RequestOnCooldown>
@@ -46,13 +46,13 @@ public abstract class RequestPool<T> where T : PlayerRequest
 
     readonly protected object lockObject = new object();
 
-    ConcurrentDictionary<Guid, Action<T>> onCancelledCallbacks = new ConcurrentDictionary<Guid, Action<T>>();
-
     protected LilLogger logger = new LilLogger(typeof(T).Name + "RequestPool");
 
     protected HashSet<T> Requests { get => data.requests; }
     protected HashSet<T> HandedOutRequests { get => data.handedOutRequests; }
     protected List<RequestOnCooldown> CoolingDownRequests { get => coolingDownRequests; }
+
+    private List<IObserver<RequestPoolUpdateEvent<T>>> observers = new List<IObserver<RequestPoolUpdateEvent<T>>>();
 
     protected void ReturnCooledDownTasks(bool returnAll)
     {
@@ -132,15 +132,6 @@ public abstract class RequestPool<T> where T : PlayerRequest
         return success;
     }
 
-    public void RegisterOnCancelledCallback(Guid requestGuid, Action<T> action)
-    {
-        onCancelledCallbacks[requestGuid] = action;
-    }
-    public void UnregisterOnCancelledCallback(Guid requestGuid)
-    {
-        bool success = onCancelledCallbacks.TryRemove(requestGuid, out _);
-    }
-
     protected virtual void OnRequestAdded(T request)
     {
         // May be implemented by children
@@ -158,6 +149,7 @@ public abstract class RequestPool<T> where T : PlayerRequest
         {
             HandedOutRequests.Remove(request);
             CoolingDownRequests.Add(new RequestOnCooldown(request, Time.time));
+            GenerateUpdateEvents(request, RequestPoolUpdateEvent<T>.EventType.Returned);
         }
     }
 
@@ -188,7 +180,7 @@ public abstract class RequestPool<T> where T : PlayerRequest
             HandedOutRequests.Remove(request);
             Requests.Remove(request);
             CoolingDownRequests.Remove(new RequestOnCooldown(request, 0));
-            onCancelledCallbacks.TryGetValue(request.Guid, out callback);
+            GenerateUpdateEvents(request, RequestPoolUpdateEvent<T>.EventType.Finished);
         }
         if (callback != null)
         {
@@ -240,6 +232,7 @@ public abstract class RequestPool<T> where T : PlayerRequest
         {
             HandedOutRequests.Remove(request);
             request.Finish();
+            GenerateUpdateEvents(request, RequestPoolUpdateEvent<T>.EventType.Finished);
         }
         OnRequestRemoved(request);
     }
@@ -264,4 +257,16 @@ public abstract class RequestPool<T> where T : PlayerRequest
     }
 
     public abstract T GetRequest(GridActor actor);
+
+    public IDisposable Subscribe(IObserver<RequestPoolUpdateEvent<T>> observer) {
+        IDisposable sub = new GenericUnsubscriber<RequestPoolUpdateEvent<T>>(observers, observer);
+        return sub;
+    }
+
+    void GenerateUpdateEvents(T request, RequestPoolUpdateEvent<T>.EventType type) {
+        RequestPoolUpdateEvent<T> action = new RequestPoolUpdateEvent<T>(request, type);
+        foreach(var observer in observers) {
+            observer.OnNext(action);
+        }
+    }
 }

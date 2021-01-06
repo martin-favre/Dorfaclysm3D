@@ -73,6 +73,8 @@ namespace Items
         SimpleObserver<CameraController> cameraObserver;
         MeshRenderer myRenderer;
 
+        SimpleObserver<InventoryUpdateEvent> inventoryObserver;
+
         public static DroppedItemComponent InstantiateNew(Vector3Int position)
         {
             GameObject prefabObj = PrefabLoader.GetPrefab(prefabName);
@@ -93,8 +95,17 @@ namespace Items
             inventory = GetComponent<InventoryComponent>();
             if (actor && inventory)
             {
-                inventory.RegisterOnItemRemovedCallback(OnItemRemoved);
-                inventory.RegisterOnItemAddedCallback(OnItemAdded);
+                inventoryObserver = new SimpleObserver<InventoryUpdateEvent>(inventory, (update) =>
+                {
+                    if (update.Type == InventoryUpdateEvent.UpdateType.Added)
+                    {
+                        OnItemAdded();
+                    }
+                    else if (update.Type == InventoryUpdateEvent.UpdateType.Removed)
+                    {
+                        OnItemRemoved();
+                    }
+                });
                 ItemMap.RegisterInventory(inventory, actor.GetPos());
                 transform.position = actor.GetPos() + new Vector3(.25f, -.25f, .25f);
 

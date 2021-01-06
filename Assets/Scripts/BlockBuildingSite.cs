@@ -20,6 +20,8 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
     SaveData data = new SaveData();
     const string prefabName = "Prefabs/BlockBuildingObject";
 
+    SimpleObserver<InventoryUpdateEvent> inventoryObserver;
+
     SimpleObserver<RequestPoolUpdateEvent<MoveItemRequest>> myObserver;
 
     public static BlockBuildingSite InstantiateNew(Vector3Int position, Block blockToBuild, Type itemRequired)
@@ -41,7 +43,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         inventory = GetComponent<InventoryComponent>();
         if (inventory)
         {
-            inventory.RegisterOnItemAddedCallback(OnItemAdded);
+            inventoryObserver = new SimpleObserver<InventoryUpdateEvent>(inventory, OnInventoryUpdate);
         }
         actor = GetComponent<GridActor>();
         if (actor)
@@ -55,9 +57,12 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
             MoveItemRequestPool.Instance.PostRequest(req);
             data.hasSpawnedRequest = true;
         }
-        myObserver = new SimpleObserver<RequestPoolUpdateEvent<MoveItemRequest>>(MoveItemRequestPool.Instance, (updateEvent)=> {
-            if(updateEvent.Type == RequestPoolUpdateEvent<MoveItemRequest>.EventType.Cancelled) {
-                OnRequestCancelled(updateEvent.Request);
+        myObserver = new SimpleObserver<RequestPoolUpdateEvent<MoveItemRequest>>(MoveItemRequestPool.Instance, (updateEvent) =>
+        {
+            if (updateEvent.Type == RequestPoolUpdateEvent<MoveItemRequest>.EventType.Cancelled && updateEvent.Request.Guid.Equals(data.requestGuid))
+            {
+                data.requestFinished = true;
+                GameObject.Destroy(gameObject);
             }
         });
 
@@ -73,18 +78,8 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         return data.targetBlock;
     }
 
-    void OnRequestCancelled(MoveItemRequest req)
-    {
-        data.requestFinished = true;
-        GameObject.Destroy(gameObject);
-    }
-
     void OnDestroy()
     {
-        if (inventory)
-        {
-            inventory.UnregisterOnItemAddedCallback(OnItemAdded);
-        }
 
         if (!data.requestFinished && data.hasSpawnedRequest)
         {
@@ -93,8 +88,9 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         }
     }
 
-    void OnItemAdded()
+    void OnInventoryUpdate(InventoryUpdateEvent update)
     {
+        if (update.Type != InventoryUpdateEvent.UpdateType.Added) return;
         // Need to add a more thorough check on what we added here
         if (actor)
         {

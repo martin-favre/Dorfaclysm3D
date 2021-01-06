@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Items
 {
 
-    public class InventoryComponent : MonoBehaviour, ISaveableComponent
+    public class InventoryComponent : MonoBehaviour, ISaveableComponent, IObservable<InventoryUpdateEvent>
     {
         [Serializable]
         private class SaveData : GenericSaveData<InventoryComponent>
@@ -16,29 +16,7 @@ namespace Items
         }
 
         SaveData data = new SaveData();
-
-        List<Action> onItemAdded = new List<Action>();
-        List<Action> onItemRemoved = new List<Action>();
-
-        public void RegisterOnItemAddedCallback(Action action)
-        {
-            onItemAdded.Add(action);
-        }
-
-        public void UnregisterOnItemAddedCallback(Action action)
-        {
-            onItemAdded.Remove(action);
-        }
-
-        public void RegisterOnItemRemovedCallback(Action action)
-        {
-            onItemRemoved.Add(action);
-        }
-
-        public void UnregisterOnItemRemovedCallback(Action action)
-        {
-            onItemRemoved.Remove(action);
-        }
+        private List<IObserver<InventoryUpdateEvent>> observers = new List<IObserver<InventoryUpdateEvent>>();
 
         public bool HasItems()
         {
@@ -48,16 +26,16 @@ namespace Items
         public Item GetMostCommonItem()
         {
             ItemStack mostCommonItem = null;
-            
-            foreach(KeyValuePair<Type, ItemStack> stack in data.itemStacks)
+
+            foreach (KeyValuePair<Type, ItemStack> stack in data.itemStacks)
             {
-                if(mostCommonItem == null || stack.Value.Count > mostCommonItem.Count)
+                if (mostCommonItem == null || stack.Value.Count > mostCommonItem.Count)
                 {
                     mostCommonItem = stack.Value;
                 }
             }
 
-            if(mostCommonItem != null)
+            if (mostCommonItem != null)
             {
                 return mostCommonItem.Item;
             }
@@ -79,7 +57,7 @@ namespace Items
             {
                 data.itemStacks.Remove(type);
             }
-            RunOnItemRemovedCallbacks();
+            GenerateItemUpdateEvents(item, InventoryUpdateEvent.UpdateType.Removed);
             return item;
         }
 
@@ -95,25 +73,17 @@ namespace Items
             {
                 data.itemStacks[item.GetType()] = new ItemStack(item, 1);
             }
-            RunOnItemAddedCallbacks();
+            GenerateItemUpdateEvents(item, InventoryUpdateEvent.UpdateType.Added);
         }
 
-        void RunOnItemAddedCallbacks()
+        void GenerateItemUpdateEvents(Item item, InventoryUpdateEvent.UpdateType type)
         {
-            foreach (Action action in onItemAdded)
+            InventoryUpdateEvent newEvent = new InventoryUpdateEvent(item, type);
+            foreach (var observer in observers)
             {
-                action();
+                observer.OnNext(newEvent);
             }
         }
-
-        void RunOnItemRemovedCallbacks()
-        {
-            foreach (Action action in onItemRemoved)
-            {
-                action();
-            }
-        }
-
         public IGenericSaveData Save()
         {
             return data;
@@ -122,6 +92,12 @@ namespace Items
         public void Load(IGenericSaveData data)
         {
             this.data = (SaveData)data;
+        }
+
+        public IDisposable Subscribe(IObserver<InventoryUpdateEvent> observer)
+        {
+            IDisposable sub = new GenericUnsubscriber<InventoryUpdateEvent>(observers, observer);
+            return sub;
         }
     }
 

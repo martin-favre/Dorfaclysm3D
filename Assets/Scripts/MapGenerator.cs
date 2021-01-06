@@ -28,6 +28,20 @@ public class GenerationParameters
                snowLevel == parameters.snowLevel &&
                size.Equals(parameters.size);
     }
+
+    public override int GetHashCode()
+    {
+        int hashCode = -1817041268;
+        hashCode = hashCode * -1521134295 + offset.GetHashCode();
+        hashCode = hashCode * -1521134295 + frequency.GetHashCode();
+        hashCode = hashCode * -1521134295 + heighFactor.GetHashCode();
+        hashCode = hashCode * -1521134295 + heightExponential.GetHashCode();
+        hashCode = hashCode * -1521134295 + noiseIterations.GetHashCode();
+        hashCode = hashCode * -1521134295 + waterLevel.GetHashCode();
+        hashCode = hashCode * -1521134295 + snowLevel.GetHashCode();
+        hashCode = hashCode * -1521134295 + size.GetHashCode();
+        return hashCode;
+    }
 }
 
 public class MapGenerator : IMapGenerator

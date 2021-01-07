@@ -8,7 +8,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections.Concurrent;
 
-public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>> where T : PlayerRequest
+public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>>, IKeyObservable<RequestPoolUpdateEvent<T>, Guid> where T : PlayerRequest
 {
     [System.Serializable]
     protected class RequestOnCooldown : IEquatable<RequestOnCooldown>
@@ -52,7 +52,9 @@ public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>> wh
     protected HashSet<T> HandedOutRequests { get => data.handedOutRequests; }
     protected List<RequestOnCooldown> CoolingDownRequests { get => coolingDownRequests; }
 
-    private List<IObserver<RequestPoolUpdateEvent<T>>> observers = new List<IObserver<RequestPoolUpdateEvent<T>>>();
+    private List<IObserver<RequestPoolUpdateEvent<T>>> generalObservers = new List<IObserver<RequestPoolUpdateEvent<T>>>();
+
+    private Dictionary<Guid, IObserver<RequestPoolUpdateEvent<T>>> specificObservers = new Dictionary<Guid, IObserver<RequestPoolUpdateEvent<T>>>();
 
     protected void ReturnCooledDownTasks(bool returnAll)
     {
@@ -106,7 +108,7 @@ public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>> wh
 
     public bool PostRequest(T request)
     {
-        logger.Log("Attempting posting request " + request + " of type " + typeof(T).ToString());
+        logger.Log("Attempting posting request " + request + " of type " + typeof(T).ToString() + " Guid: " + request.Guid.ToString());
         bool success = false;
         lock (lockObject)
         {
@@ -144,7 +146,7 @@ public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>> wh
 
     public void ReturnRequest(T request)
     {
-        logger.Log("Returned request of type " + typeof(T).ToString());
+        logger.Log("Returned request of type " + typeof(T).ToString() + " Guid:" + request.Guid.ToString());
         lock (lockObject)
         {
             HandedOutRequests.Remove(request);
@@ -171,7 +173,7 @@ public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>> wh
 
     public void CancelRequest(T request)
     {
-        logger.Log("Cancelled request " + request + " of type " + typeof(T).ToString());
+        logger.Log("Cancelled request " + request + " of type " + typeof(T).ToString() + " Guid: " + request.Guid.ToString());
 
         Action<T> callback = null;
         lock (lockObject)
@@ -196,7 +198,9 @@ public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>> wh
         if (req != null)
         {
             CancelRequest(req);
-        } else {
+        }
+        else
+        {
             logger.Log("Found no match of that guid");
         }
     }
@@ -225,9 +229,33 @@ public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>> wh
         return null;
     }
 
+    private bool HasRequestByGuid(Guid guid)
+    {
+        lock (lockObject)
+        {
+            T match = Requests.FirstOrDefault((req) =>
+            {
+                return req.Guid.Equals(guid);
+            });
+            if (match != null) return true;
+            match = HandedOutRequests.FirstOrDefault((req) =>
+            {
+                return req.Guid.Equals(guid);
+            });
+            if (match != null) return true;
+            RequestOnCooldown coolMatch = CoolingDownRequests.FirstOrDefault((req) =>
+            {
+                return req.request.Guid.Equals(guid);
+            });
+            if (coolMatch != null) return true;
+
+        }
+        return false;
+    }
+
     public void FinishRequest(T request)
     {
-        logger.Log("Finished request " + request + " of type " + typeof(T).ToString());
+        logger.Log("Finished request " + request + " of type " + typeof(T).ToString() + " Guid: " + request.Guid.ToString());
         lock (lockObject)
         {
             HandedOutRequests.Remove(request);
@@ -248,7 +276,7 @@ public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>> wh
 
     protected void HandOutRequest(T request)
     {
-        logger.Log("Handed out request " + request + " of type " + typeof(T).ToString());
+        logger.Log("Handed out request " + request + " of type " + typeof(T).ToString() + " Guid: " + request.Guid.ToString());
         lock (lockObject)
         {
             Requests.Remove(request);
@@ -258,14 +286,36 @@ public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>> wh
 
     public abstract T GetRequest(GridActor actor);
 
-    public IDisposable Subscribe(IObserver<RequestPoolUpdateEvent<T>> observer) {
-        IDisposable sub = new GenericUnsubscriber<RequestPoolUpdateEvent<T>>(observers, observer);
+    public IDisposable Subscribe(IObserver<RequestPoolUpdateEvent<T>> observer, Guid guid)
+    {
+        if (HasRequestByGuid(guid))
+        {
+            IDisposable sub = new GenericKeyUnsubscriber<RequestPoolUpdateEvent<T>, Guid>(specificObservers, guid, observer);
+            return sub;
+        }
+        else
+        {
+            logger.Log("Trying to subscribe to non-existing request " + guid.ToString());
+            return null;
+        }
+    }
+
+    public IDisposable Subscribe(IObserver<RequestPoolUpdateEvent<T>> observer)
+    {
+        IDisposable sub = new GenericUnsubscriber<RequestPoolUpdateEvent<T>>(generalObservers, observer);
         return sub;
     }
 
-    void GenerateUpdateEvents(T request, RequestPoolUpdateEvent<T>.EventType type) {
+    void GenerateUpdateEvents(T request, RequestPoolUpdateEvent<T>.EventType type)
+    {
         RequestPoolUpdateEvent<T> action = new RequestPoolUpdateEvent<T>(request, type);
-        foreach(var observer in observers) {
+        foreach (var generalObserver in generalObservers)
+        {
+            generalObserver.OnNext(action);
+        }
+        IObserver<RequestPoolUpdateEvent<T>> observer;
+        bool success = specificObservers.TryGetValue(request.Guid, out observer);
+        if(success) {
             observer.OnNext(action);
         }
     }

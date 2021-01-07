@@ -10,6 +10,7 @@ class BuildingSite : MonoBehaviour
     class SaveData : GenericSaveData<BlockBuildingSite>
     {
         public BuildingBlueprint blueprint;
+        public List<Guid> spawnedRequests;
     }
     const string prefabPath = "Prefabs/BuildingSite";
 
@@ -18,10 +19,9 @@ class BuildingSite : MonoBehaviour
     GridActor actor;
     GameObject blueprintPrefab;
     LilLogger logger = new LilLogger("BuildingSites");
-    SimpleObserver<RequestPoolUpdateEvent<MoveItemRequest>> requestObserver;
     SimpleObserver<InventoryUpdateEvent> inventoryObserver;
 
-
+    List<SimpleKeyObserver<RequestPoolUpdateEvent<MoveItemRequest>, Guid>> requestObservers = new List<SimpleKeyObserver<RequestPoolUpdateEvent<MoveItemRequest>, Guid>>();
 
     public static BuildingSite InstantiateNew(BuildingBlueprint blueprint)
     {
@@ -32,19 +32,8 @@ class BuildingSite : MonoBehaviour
         return site;
     }
 
-    void Start()
+    void SetupMesh()
     {
-        inventory = Helpers.GetComponent<InventoryComponent>(gameObject, logger);
-        if (inventory)
-        {
-            inventoryObserver = new SimpleObserver<InventoryUpdateEvent>(inventory, OnInventoryUpdated);
-        }
-        actor = Helpers.GetComponent<GridActor>(gameObject, logger);
-        if (actor)
-        {
-            actor.Move(data.blueprint.Location);
-            transform.position = actor.GetPos();
-        }
         if (data.blueprint != null)
         {
             blueprintPrefab = PrefabLoader.GetPrefab(data.blueprint.PrefabPath);
@@ -64,15 +53,99 @@ class BuildingSite : MonoBehaviour
                 MeshRenderer prefabRenderer = Helpers.GetComponent<MeshRenderer>(blueprintPrefab, logger);
                 if (prefabRenderer)
                 {
-                    renderer.materials = prefabRenderer.sharedMaterials;
+                    renderer.material.mainTexture = prefabRenderer.sharedMaterial.mainTexture;
                 }
             }
         }
+
+    }
+
+    void Start()
+    {
+        inventory = Helpers.GetComponent<InventoryComponent>(gameObject, logger);
+        if (inventory)
+        {
+            inventoryObserver = new SimpleObserver<InventoryUpdateEvent>(inventory, OnInventoryUpdated);
+        }
+        actor = Helpers.GetComponent<GridActor>(gameObject, logger);
+        if (actor)
+        {
+            actor.Move(data.blueprint.Location);
+            transform.position = actor.GetPos();
+        }
+        SetupMesh();
+
+        SetupRequests();
+    }
+
+    private void SetupRequests()
+    {
+        if (data.spawnedRequests == null)
+        {
+            data.spawnedRequests = new List<Guid>();
+            foreach (var ingredient in data.blueprint.RequiredItems)
+            {
+                MoveItemRequest newReq = new MoveItemRequest(ingredient.Item1, actor.GetPos());
+                data.spawnedRequests.Add(newReq.Guid);
+                MoveItemRequestPool.Instance.PostRequest(
+                    newReq
+                );
+
+            }
+        }
+        foreach (var requestGuid in data.spawnedRequests)
+        {
+            requestObservers.Add(new SimpleKeyObserver<RequestPoolUpdateEvent<MoveItemRequest>, Guid>(MoveItemRequestPool.Instance, requestGuid,
+                                (reqUpdate) =>
+                                {
+                                    if (reqUpdate.Type == RequestPoolUpdateEvent<MoveItemRequest>.EventType.Cancelled)
+                                    {
+                                        GameObject.Destroy(gameObject);
+                                    }
+                                    if (reqUpdate.Type == RequestPoolUpdateEvent<MoveItemRequest>.EventType.Finished)
+                                    {
+                                        data.spawnedRequests.Remove(reqUpdate.Request.Guid);
+                                    }
+                                }
+                            ));
+        }
+    }
+
+    private void OnDestroy()
+    {
+        Guid[] guidsToRemove = data.spawnedRequests.ToArray();
+        foreach (var requestGuid in guidsToRemove)
+        {
+            MoveItemRequestPool.Instance.CancelRequest(requestGuid);
+        }
+    }
+
+    private bool AreAllRequiredItemsAvailable()
+    {
+        foreach (var ingredient in data.blueprint.RequiredItems)
+        {
+            if (ingredient.Item2 != inventory.GetItemCount(ingredient.Item1))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     void OnInventoryUpdated(InventoryUpdateEvent update)
     {
+        if (update.Type != InventoryUpdateEvent.UpdateType.Added) return;
+        if (inventory == null) return;
+        if (actor == null) return;
 
+        if (AreAllRequiredItemsAvailable())
+        {
+            GameObject newObj = Instantiate(blueprintPrefab) as GameObject;
+            GridActor newActor = newObj.GetComponent<GridActor>();
+            if (actor) newActor.Move(actor.GetPos());
+
+            GameObject.Destroy(gameObject);
+        }
     }
 
 }

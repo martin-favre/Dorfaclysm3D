@@ -61,6 +61,14 @@ namespace Items
             return item;
         }
 
+        public int GetItemCount(Type type) 
+        {
+            ItemStack stack; 
+            bool success = data.itemStacks.TryGetValue(type, out stack);
+            if(!success) return 0;
+            return (int)stack.Count;
+        }
+
         public void AddItem(Item item)
         {
             ItemStack stack;

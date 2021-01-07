@@ -301,14 +301,14 @@ public class MoveItemJob : IJob
                 BlockBuildingSite comp = actor.gameObject.GetComponent<BlockBuildingSite>();
                 if (comp)
                 {
-                    logger.Log("Found my target block, giving it my item");
+                    logger.Log("Found my target GridActor, giving it my item");
                     comp.GetComponent<InventoryComponent>().AddItem(item);
                     MoveItemRequestPool.Instance.FinishRequest(request);
                     TerminateMachine();
                     return StateMachine.NoTransition();
                 }
             }
-            logger.Log("Did not find my target block, dropping my item");
+            logger.Log("Did not find my target GridActor at the target, dropping my item");
             GridMap.Instance.PutItem(this.request.PositionToMoveTo, item);
             return OnPathFindFail();
         }

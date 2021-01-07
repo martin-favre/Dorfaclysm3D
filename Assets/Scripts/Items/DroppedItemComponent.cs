@@ -8,6 +8,7 @@ namespace Items
 {
     public class DroppedItemComponent : MonoBehaviour, ISaveableComponent
     {
+        [System.Serializable]
         private class SaveData : GenericSaveData<DroppedItemComponent>
         {
             public int dropIndex = 0;

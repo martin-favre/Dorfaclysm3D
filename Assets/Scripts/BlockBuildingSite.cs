@@ -48,11 +48,11 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         actor = GetComponent<GridActor>();
         if (actor)
         {
-            transform.position = actor.GetPos();
+            transform.position = actor.Position;
         }
         if (!data.hasSpawnedRequest)
         {
-            MoveItemRequest req = new MoveItemRequest(data.itemRequired, actor.GetPos());
+            MoveItemRequest req = new MoveItemRequest(data.itemRequired, actor.Position);
             data.requestGuid = req.Guid;
             MoveItemRequestPool.Instance.PostRequest(req);
             data.hasSpawnedRequest = true;
@@ -94,7 +94,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         // Need to add a more thorough check on what we added here
         if (actor)
         {
-            GridMap.Instance.SetBlock(actor.GetPos(), GetBlock());
+            GridMap.Instance.SetBlock(actor.Position, GetBlock());
         }
         data.requestFinished = true;
         GameObject.Destroy(gameObject);

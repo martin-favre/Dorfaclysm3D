@@ -10,8 +10,10 @@ public class GridActor : MonoBehaviour, ISaveableComponent
     }
 
     // public to be viewed in inspector
-    public Vector3Int gridPosition;
+    private Vector3Int gridPosition;
     bool registered = false;
+
+    public Vector3Int Position { get => gridPosition; }
 
     void Start()
     {
@@ -36,11 +38,6 @@ public class GridActor : MonoBehaviour, ISaveableComponent
     public bool IsBlocking()
     {
         return false;
-    }
-
-    public Vector3Int GetPos()
-    {
-        return gridPosition;
     }
 
     void RegisterMe()

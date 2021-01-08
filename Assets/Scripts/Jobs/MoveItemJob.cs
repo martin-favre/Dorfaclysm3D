@@ -113,7 +113,7 @@ public class MoveItemJob : IJob
         public override void OnEntry()
         {
             logger.Log("Trying to find an item...");
-            this.findItemTask = Task.Run(() => FindItem(actor.GetPos(), request.TypeToFind));
+            this.findItemTask = Task.Run(() => FindItem(actor.Position, request.TypeToFind));
         }
         public override State OnDuring()
         {
@@ -223,13 +223,13 @@ public class MoveItemJob : IJob
 
         public override State OnReachedTarget()
         {
-            GridActor[] actors = GridActorMap.GetGridActors(actor.GetPos());
+            GridActor[] actors = GridActorMap.GetGridActors(actor.Position);
             foreach (GridActor actor in actors)
             {
                 InventoryComponent comp = actor.GetComponent<InventoryComponent>();
                 if (comp && comp.HasItem(request.TypeToFind))
                 {
-                    logger.Log("Found my item at " + actor.GetPos());
+                    logger.Log("Found my item at " + actor.Position);
                     return new WalkToTargetState(this.actor, request, comp.GetItem(request.TypeToFind), logger);
                 }
             }
@@ -288,7 +288,7 @@ public class MoveItemJob : IJob
             logger.Log("MoveItemJob, WalkToTargetState, OnPathFindFail " + GetFailReason().ToString());
             logger.Log("Dropping my item");
             TerminateMachine();
-            GridMap.Instance.PutItem(actor.GetPos(), item);
+            GridMap.Instance.PutItem(actor.Position, item);
             MoveItemRequestPool.Instance.ReturnRequest(request);
             return StateMachine.NoTransition();
         }

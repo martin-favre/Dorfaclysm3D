@@ -33,7 +33,7 @@ public class DorfSpawner : MonoBehaviour
             correctDorfPositions = false;
             foreach(GameObject g in spawnedDorfs){
                 GridActor actor = g.GetComponent<GridActor>();
-                Vector3Int pos = actor.GetPos();
+                Vector3Int pos = actor.Position;
                 Vector3Int newPos = Vector3Int.zero;
                 for (int y = 0; y < GridMap.Instance.GetSize().y; y++)
                 {

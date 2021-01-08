@@ -23,10 +23,10 @@ public class DorfVisualizer : MonoBehaviour
     void Start()
     {
         actor = GetComponent<GridActor>();
-        transform.position = GridPosToRealPos(actor.GetPos());
+        transform.position = GridPosToRealPos(actor.Position);
         if (actor)
         {
-            RecordPos(actor.GetPos());
+            RecordPos(actor.Position);
         }
         camController = Camera.main.GetComponent<CameraController>();
         meshRenderer = GetComponent<MeshRenderer>();
@@ -36,7 +36,7 @@ public class DorfVisualizer : MonoBehaviour
     {
         if (actor)
         {
-            Vector3Int currentPos = actor.GetPos();
+            Vector3Int currentPos = actor.Position;
             // If the actor has moved to a new position
             if (currentPos != gridTargetPos)
             {
@@ -62,7 +62,7 @@ public class DorfVisualizer : MonoBehaviour
         bool visible = true;
         if (camController && actor)
         {
-            int myY = actor.GetPos().y;
+            int myY = actor.Position.y;
             int maxy = camController.GetVerticalPosition();
             visible = myY <= maxy;
         }

@@ -107,8 +107,8 @@ namespace Items
                         OnItemRemoved();
                     }
                 });
-                ItemMap.RegisterInventory(inventory, actor.GetPos());
-                transform.position = actor.GetPos() + new Vector3(.25f, -.25f, .25f);
+                ItemMap.RegisterInventory(inventory, actor.Position);
+                transform.position = actor.Position + new Vector3(.25f, -.25f, .25f);
 
 
                 Item mainItem = inventory.GetMostCommonItem();
@@ -119,7 +119,7 @@ namespace Items
             {
                 if (this.myRenderer && actor)
                 {
-                    this.myRenderer.enabled = c.PositionShouldBeVisible(actor.GetPos());
+                    this.myRenderer.enabled = c.PositionShouldBeVisible(actor.Position);
                 }
 
             });
@@ -130,7 +130,7 @@ namespace Items
         {
             if (data.dropIndex < fallPositions.Length)
             {
-                transform.position = actor.GetPos() + new Vector3(.25f, -.50f + fallPositions[data.dropIndex], .25f);
+                transform.position = actor.Position + new Vector3(.25f, -.50f + fallPositions[data.dropIndex], .25f);
                 data.dropIndex++;
             }
         }
@@ -153,7 +153,7 @@ namespace Items
         {
             if (actor && inventory)
             {
-                ItemMap.UnregisterInventory(inventory, actor.GetPos());
+                ItemMap.UnregisterInventory(inventory, actor.Position);
             }
         }
 

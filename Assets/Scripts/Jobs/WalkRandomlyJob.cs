@@ -110,7 +110,7 @@ public class WalkRandomlyJob : IJob
 
         public override State OnDuring()
         {
-            Vector3Int currPos = user.GetPos();
+            Vector3Int currPos = user.Position;
             foreach (var delta in DeltaPositions.GetRandomDeltaPositions3D())
             {
                 Vector3Int newPos = currPos + delta;

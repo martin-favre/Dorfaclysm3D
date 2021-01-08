@@ -71,7 +71,7 @@ class BuildingSite : MonoBehaviour
         if (actor)
         {
             actor.Move(data.blueprint.Location);
-            transform.position = actor.GetPos();
+            transform.position = actor.Position;
         }
         SetupMesh();
 
@@ -85,7 +85,7 @@ class BuildingSite : MonoBehaviour
             data.spawnedRequests = new List<Guid>();
             foreach (var ingredient in data.blueprint.RequiredItems)
             {
-                MoveItemRequest newReq = new MoveItemRequest(ingredient.Item1, actor.GetPos());
+                MoveItemRequest newReq = new MoveItemRequest(ingredient.Item1, actor.Position);
                 data.spawnedRequests.Add(newReq.Guid);
                 MoveItemRequestPool.Instance.PostRequest(
                     newReq
@@ -142,7 +142,7 @@ class BuildingSite : MonoBehaviour
         {
             GameObject newObj = Instantiate(blueprintPrefab) as GameObject;
             GridActor newActor = newObj.GetComponent<GridActor>();
-            if (actor) newActor.Move(actor.GetPos());
+            if (actor) newActor.Move(actor.Position);
 
             GameObject.Destroy(gameObject);
         }

@@ -28,7 +28,7 @@ public class MiningRequestPool : RequestPool<MiningRequest>
     {
         // Get the closest request
         ReturnCooledDownTasks(false);
-        Vector3Int actorPos = actor.GetPos();
+        Vector3Int actorPos = actor.Position;
         int smallestDistance = int.MaxValue;
         MiningRequest closestReq = null;
         lock (lockObject)

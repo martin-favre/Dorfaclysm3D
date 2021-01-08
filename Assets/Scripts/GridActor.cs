@@ -1,8 +1,9 @@
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class GridActor : MonoBehaviour, ISaveableComponent, IHasGuid
+public class GridActor : MonoBehaviour, ISaveableComponent, IHasGuid, IObservable<Vector3Int>
 {
     [System.Serializable]
     public class SaveData : GenericSaveData<GridActor>
@@ -17,6 +18,8 @@ public class GridActor : MonoBehaviour, ISaveableComponent, IHasGuid
     SaveData data = new SaveData();
 
     public Vector3Int Position { get => data.position; }
+
+    List<IObserver<Vector3Int>> observers = new List<IObserver<Vector3Int>>();
 
     public Guid Guid
     {
@@ -42,10 +45,13 @@ public class GridActor : MonoBehaviour, ISaveableComponent, IHasGuid
 
     public void Move(Vector3Int newPos)
     {
-        UnregisterMe();
-        data.position = newPos;
-        RegisterMe();
-
+        if (data.position != newPos)
+        {
+            UnregisterMe();
+            data.position = newPos;
+            RegisterMe();
+            UpdateObservers();
+        }
     }
 
     public bool IsBlocking()
@@ -66,6 +72,13 @@ public class GridActor : MonoBehaviour, ISaveableComponent, IHasGuid
         }
     }
 
+    void UpdateObservers()
+    {
+        foreach(var observer in observers) {
+            observer.OnNext(data.position);
+        }
+    }
+
     public IGenericSaveData Save()
     {
         return data;
@@ -74,5 +87,10 @@ public class GridActor : MonoBehaviour, ISaveableComponent, IHasGuid
     public void Load(IGenericSaveData data)
     {
         this.data = (SaveData)data;
+    }
+
+    public IDisposable Subscribe(IObserver<Vector3Int> observer)
+    {
+        return new GenericUnsubscriber<Vector3Int>(observers, observer);
     }
 }

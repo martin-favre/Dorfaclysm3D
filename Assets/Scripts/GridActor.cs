@@ -1,23 +1,36 @@
 
+using System;
 using UnityEngine;
 
-public class GridActor : MonoBehaviour, ISaveableComponent
+public class GridActor : MonoBehaviour, ISaveableComponent, IHasGuid
 {
     [System.Serializable]
     public class SaveData : GenericSaveData<GridActor>
     {
         public Vector3Int position;
+        public Guid guid;
     }
 
     // public to be viewed in inspector
-    private Vector3Int gridPosition;
     bool registered = false;
 
-    public Vector3Int Position { get => gridPosition; }
+    SaveData data = new SaveData();
+
+    public Vector3Int Position { get => data.position; }
+
+    public Guid Guid
+    {
+        get
+        {
+            if (data.guid == Guid.Empty) data.guid = Guid.NewGuid();
+            return data.guid;
+        }
+    }
 
     void Start()
     {
-        if(!registered) {
+        if (!registered)
+        {
             RegisterMe();
         }
     }
@@ -30,7 +43,7 @@ public class GridActor : MonoBehaviour, ISaveableComponent
     public void Move(Vector3Int newPos)
     {
         UnregisterMe();
-        gridPosition = newPos;
+        data.position = newPos;
         RegisterMe();
 
     }
@@ -42,27 +55,24 @@ public class GridActor : MonoBehaviour, ISaveableComponent
 
     void RegisterMe()
     {
-        GridActorMap.RegisterGridActor(this, gridPosition);
+        GridActorMap.RegisterGridActor(this, data.position);
         registered = true;
     }
     void UnregisterMe()
     {
         if (registered)
         {
-            GridActorMap.UnregisterGridActor(this, gridPosition);
+            GridActorMap.UnregisterGridActor(this, data.position);
         }
     }
 
     public IGenericSaveData Save()
     {
-        SaveData save = new SaveData();
-        save.position = (gridPosition);
-        return save;
+        return data;
     }
 
     public void Load(IGenericSaveData data)
     {
-        SaveData savedata = (SaveData)data;
-        Move(savedata.position);
+        this.data = (SaveData)data;
     }
 }

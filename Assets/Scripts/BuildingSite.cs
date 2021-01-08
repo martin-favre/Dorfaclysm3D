@@ -85,12 +85,14 @@ class BuildingSite : MonoBehaviour
             data.spawnedRequests = new List<Guid>();
             foreach (var ingredient in data.blueprint.RequiredItems)
             {
-                MoveItemRequest newReq = new MoveItemRequest(ingredient.Item1, actor.Position);
-                data.spawnedRequests.Add(newReq.Guid);
-                MoveItemRequestPool.Instance.PostRequest(
-                    newReq
-                );
-
+                for (int ii = 0; ii < ingredient.Item2; ii++)
+                {
+                    MoveItemRequest newReq = new MoveItemRequest(ingredient.Item1, actor.Position, actor.Guid);
+                    data.spawnedRequests.Add(newReq.Guid);
+                    MoveItemRequestPool.Instance.PostRequest(
+                        newReq
+                    );
+                }
             }
         }
         foreach (var requestGuid in data.spawnedRequests)

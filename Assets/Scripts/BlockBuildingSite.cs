@@ -52,7 +52,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
         }
         if (!data.hasSpawnedRequest)
         {
-            MoveItemRequest req = new MoveItemRequest(data.itemRequired, actor.Position);
+            MoveItemRequest req = new MoveItemRequest(data.itemRequired, actor.Position, actor.Guid);
             data.requestGuid = req.Guid;
             MoveItemRequestPool.Instance.PostRequest(req);
             data.hasSpawnedRequest = true;

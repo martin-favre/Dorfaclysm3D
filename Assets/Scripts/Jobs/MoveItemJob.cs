@@ -298,12 +298,21 @@ public class MoveItemJob : IJob
             GridActor[] actors = GridActorMap.GetGridActors(this.request.PositionToMoveTo);
             foreach (GridActor actor in actors)
             {
-                BlockBuildingSite comp = actor.gameObject.GetComponent<BlockBuildingSite>();
-                if (comp)
+                if (actor.Guid.Equals(this.request.TargetGuid))
                 {
                     logger.Log("Found my target GridActor, giving it my item");
-                    comp.GetComponent<InventoryComponent>().AddItem(item);
-                    MoveItemRequestPool.Instance.FinishRequest(request);
+
+                    InventoryComponent inventory = actor.GetComponent<InventoryComponent>();
+                    if (inventory)
+                    {
+                        inventory.AddItem(item);
+                        MoveItemRequestPool.Instance.FinishRequest(request);
+                    }
+                    else
+                    {
+                        MoveItemRequestPool.Instance.CancelRequest(request);
+                        logger.Log("My target GridActor did not have an inventory", LogLevel.Error);
+                    }
                     TerminateMachine();
                     return StateMachine.NoTransition();
                 }

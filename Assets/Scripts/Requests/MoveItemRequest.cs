@@ -8,16 +8,20 @@ public class MoveItemRequest : PlayerRequest, IEquatable<MoveItemRequest>
 {
     readonly Type typeToFind;
     readonly Vector3Int positionToMoveTo;
+    readonly Guid targetGuid;
 
-    public MoveItemRequest(Type typeToFind, Vector3Int positionToMoveTo)
+    public MoveItemRequest(Type typeToFind, Vector3Int positionToMoveTo, Guid targetGuid)
     {
         this.typeToFind = typeToFind;
         this.positionToMoveTo = positionToMoveTo;
+        this.targetGuid = targetGuid;
     }
 
     public Vector3Int PositionToMoveTo => positionToMoveTo;
 
     public Type TypeToFind => typeToFind;
+
+    public Guid TargetGuid => targetGuid;
 
     public bool Equals(MoveItemRequest other)
     {

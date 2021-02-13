@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Logging;
 using UnityEngine;
 
 public class BlockEffectMap
@@ -11,6 +12,8 @@ public class BlockEffectMap
     readonly static object callbackLock = new object();
 
     static List<Action<Vector3Int>> runOnBlockChange = new List<Action<Vector3Int>>();
+
+    static readonly LilLogger logger = new LilLogger("BlockEffectMap");
 
     static void GetReadLockBlockLock()
     {
@@ -84,7 +87,7 @@ public class BlockEffectMap
         try
         {
             bool success = blockEffects[pos].Remove(effect);
-            if (!success) throw new Exception("Tried to remove nonexistant effect");
+            if (!success) logger.Log("Tried to remove nonexistant effect", LogLevel.Warning);
         }
         finally
         {
@@ -106,7 +109,7 @@ public class BlockEffectMap
         lock (callbackLock)
         {
             bool success = runOnBlockChange.Remove(callback);
-            if (!success) throw new Exception("Tried to remove unregistered callback");
+            if (!success) logger.Log("Tried to remove unregistered callback", LogLevel.Warning);
         }
     }
 

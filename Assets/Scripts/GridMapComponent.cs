@@ -30,6 +30,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     CameraController mainCam;
 
     SimpleObserver<CameraController> cameraObserver;
+    SimpleValueDisplayer generationProgressDisplayer;
     private void Awake()
     {
     }
@@ -108,9 +109,10 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         GridMap.Instance.UnregisterCallbackOnBlockChange(OnBlockUpdate);
         BlockEffectMap.UnregisterOnEffectAddedCallback(OnBlockUpdate);
         oldParameters = GetParameters();
+        MapGenerator generator = new MapGenerator(oldParameters);
+        MapGenerationProgress.InstantiateNew(generator);
         generationTask = Task.Run(() =>
         {
-            MapGenerator generator = new MapGenerator(oldParameters);
             GridMap.Instance.GenerateMap(generator);
             RegenerateMeshes();
             GridMap.Instance.RegisterCallbackOnBlockChange(OnBlockUpdate);
@@ -170,6 +172,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
                 GenerationParameters parameters = GetParameters();
                 MapGenerator generator = new MapGenerator(parameters);
+                MapGenerationProgress.InstantiateNew(generator);
                 oldParameters = parameters;
                 generationTask = Task.Run(() => GridMap.Instance.GenerateMap(generator));
                 break;

@@ -6,18 +6,27 @@ using UnityEngine;
 public class GridActor : MonoBehaviour, ISaveableComponent, IHasGuid, IObservable<Vector3Int>
 {
     [System.Serializable]
+
     public class SaveData : GenericSaveData<GridActor>
     {
         public Vector3Int position;
+        public Vector3Int size;
         public Guid guid;
     }
 
-    // public to be viewed in inspector
+    // Size and position extracted from SaveData to be viewable in editor
+    [SerializeField]
+    private Vector3Int size = new Vector3Int(1, 1, 1);
+
+    [SerializeField]
+    private Vector3Int position;
+
     bool registered = false;
 
     SaveData data = new SaveData();
 
-    public Vector3Int Position { get => data.position; }
+    public Vector3Int Position { get => position; }
+    public Vector3Int Size { get => size; }
 
     List<IObserver<Vector3Int>> observers = new List<IObserver<Vector3Int>>();
 
@@ -43,12 +52,22 @@ public class GridActor : MonoBehaviour, ISaveableComponent, IHasGuid, IObservabl
         UnregisterMe();
     }
 
-    public void Move(Vector3Int newPos)
+    public void SetSize(Vector3Int newSize)
     {
-        if (data.position != newPos)
+        if (size != newSize)
         {
             UnregisterMe();
-            data.position = newPos;
+            size = newSize;
+            RegisterMe();
+        }
+    }
+
+    public void Move(Vector3Int newPos)
+    {
+        if (position != newPos)
+        {
+            UnregisterMe();
+            position = newPos;
             RegisterMe();
             UpdateObservers();
         }
@@ -61,32 +80,43 @@ public class GridActor : MonoBehaviour, ISaveableComponent, IHasGuid, IObservabl
 
     void RegisterMe()
     {
-        GridActorMap.RegisterGridActor(this, data.position);
+        Helpers.ForEachPosition(this.Position, this.Size, (position) =>
+        {
+            GridActorMap.RegisterGridActor(this, position);
+        });
         registered = true;
     }
     void UnregisterMe()
     {
         if (registered)
         {
-            GridActorMap.UnregisterGridActor(this, data.position);
+            Helpers.ForEachPosition(this.Position, this.Size, (position) =>
+            {
+                GridActorMap.UnregisterGridActor(this, position);
+            });
         }
     }
 
     void UpdateObservers()
     {
-        foreach(var observer in observers) {
-            observer.OnNext(data.position);
+        foreach (var observer in observers)
+        {
+            observer.OnNext(position);
         }
     }
 
     public IGenericSaveData Save()
     {
+        data.position = Position;
+        data.size = Size;
         return data;
     }
 
     public void Load(IGenericSaveData data)
     {
         this.data = (SaveData)data;
+        position = this.data.position;
+        size = this.data.size;
     }
 
     public IDisposable Subscribe(IObserver<Vector3Int> observer)

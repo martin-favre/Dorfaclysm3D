@@ -34,30 +34,25 @@ class BuildingSite : MonoBehaviour
 
     void SetupMesh()
     {
-        if (data.blueprint != null)
+        MeshFilter meshFilter = Helpers.GetComponent<MeshFilter>(gameObject, logger);
+        if (meshFilter)
         {
-            blueprintPrefab = PrefabLoader.GetPrefab(data.blueprint.PrefabPath);
-            MeshFilter meshFilter = Helpers.GetComponent<MeshFilter>(gameObject, logger);
-            if (meshFilter)
+            MeshFilter prefabMesh = Helpers.GetComponent<MeshFilter>(blueprintPrefab, logger);
+            if (prefabMesh)
             {
-                MeshFilter prefabMesh = Helpers.GetComponent<MeshFilter>(blueprintPrefab, logger);
-                if (prefabMesh)
-                {
-                    meshFilter.mesh = prefabMesh.sharedMesh;
-                }
-            }
-
-            MeshRenderer renderer = Helpers.GetComponent<MeshRenderer>(gameObject, logger);
-            if (renderer)
-            {
-                MeshRenderer prefabRenderer = Helpers.GetComponent<MeshRenderer>(blueprintPrefab, logger);
-                if (prefabRenderer)
-                {
-                    renderer.material.mainTexture = prefabRenderer.sharedMaterial.mainTexture;
-                }
+                meshFilter.mesh = prefabMesh.sharedMesh;
             }
         }
 
+        MeshRenderer renderer = Helpers.GetComponent<MeshRenderer>(gameObject, logger);
+        if (renderer)
+        {
+            MeshRenderer prefabRenderer = Helpers.GetComponent<MeshRenderer>(blueprintPrefab, logger);
+            if (prefabRenderer)
+            {
+                renderer.material.mainTexture = prefabRenderer.sharedMaterial.mainTexture;
+            }
+        }
     }
 
     void Start()
@@ -73,9 +68,25 @@ class BuildingSite : MonoBehaviour
             actor.Move(data.blueprint.Location);
             transform.position = actor.Position;
         }
-        SetupMesh();
+        if (data.blueprint != null)
+        {
+            blueprintPrefab = PrefabLoader.GetPrefab(data.blueprint.PrefabPath);
+            SetupMesh();
 
-        SetupRequests();
+            SetupGridActor();
+
+            SetupRequests();
+        }
+
+    }
+
+    private void SetupGridActor()
+    {
+        GridActor prefabActor = blueprintPrefab.GetComponent<GridActor>();
+        if (prefabActor && actor)
+        {
+            actor.SetSize(prefabActor.Size);
+        }
     }
 
     private void SetupRequests()

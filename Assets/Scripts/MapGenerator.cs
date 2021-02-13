@@ -50,6 +50,8 @@ public class MapGenerator : IMapGenerator
     float progress = 0; // 0 to 1
     GenerationParameters parameters;
     Action callOnDone;
+
+    bool completed = false;
     public MapGenerator(GenerationParameters parameters)
     {
         this.parameters = parameters;
@@ -130,6 +132,7 @@ public class MapGenerator : IMapGenerator
 
     public void Generate(IHasBlocks map, Action onDone)
     {
+        completed = false;
         this.map = map;
         this.map.SetSize(parameters.size);
         callOnDone = onDone;
@@ -186,10 +189,21 @@ public class MapGenerator : IMapGenerator
                         map.SetBlock(pos, new AirBlock());
                     }
                     steps++;
-                    progress = steps / stepsNeeded;
+                    progress = (float)steps / (float)stepsNeeded;
                 }
             }
         }
+        completed = true;
         callOnDone?.Invoke();
+    }
+
+    public float GetProgress()
+    {
+        return progress;
+    }
+
+    public bool IsComplete()
+    {
+        return completed;
     }
 }

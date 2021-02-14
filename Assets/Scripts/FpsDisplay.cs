@@ -22,7 +22,6 @@ public class FpsDisplay : MonoBehaviour
         deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
         float msec = deltaTime * 1000.0f;
         float fps = 1.0f / deltaTime;
-        // string text = string.Format("{0:0.0} ms ({1:0.} fps)", msec, fps);
         string msString = string.Format("Ms: {0:0.0}", msec);
         string fpsString = string.Format("Fps: {0:0.}", fps);
 		msPerFrameHook.UpdateValue(msString);

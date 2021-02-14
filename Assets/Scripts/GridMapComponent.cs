@@ -30,15 +30,10 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     CameraController mainCam;
 
     SimpleObserver<CameraController> cameraObserver;
+    SimpleObserver<BlockEffectMap.BlockEffectUpdate> blockEffectObserver;
+    SimpleObserver<GridMap.BlockUpdate> gridMapObserver;
     SimpleValueDisplayer generationProgressDisplayer;
-    private void Awake()
-    {
-    }
 
-    private void Start()
-    {
-        mainCam = Camera.main.GetComponent<CameraController>();
-    }
 
     public bool regenerateMap = false;
     public Vector3Int mapSize;
@@ -50,6 +45,14 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     public float waterLevel;
     public float snowLevel;
     GenerationParameters oldParameters = new GenerationParameters();
+
+
+    private void Start()
+    {
+        mainCam = Camera.main.GetComponent<CameraController>();
+        blockEffectObserver = new SimpleObserver<BlockEffectMap.BlockEffectUpdate>(BlockEffectMap.Instance, update => OnBlockUpdate(update.Position));
+        gridMapObserver = new SimpleObserver<GridMap.BlockUpdate>(GridMap.Instance, update => OnBlockUpdate(update.Position));
+    }
 
     void UpdateMaxVerticalLevel()
     {
@@ -106,8 +109,6 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     // As not much though has been placed in here
     private void RegenerateMap()
     {
-        GridMap.Instance.UnregisterCallbackOnBlockChange(OnBlockUpdate);
-        BlockEffectMap.UnregisterOnEffectAddedCallback(OnBlockUpdate);
         oldParameters = GetParameters();
         MapGenerator generator = new MapGenerator(oldParameters);
         MapGenerationProgress.InstantiateNew(generator);
@@ -115,8 +116,6 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         {
             GridMap.Instance.GenerateMap(generator);
             RegenerateMeshes();
-            GridMap.Instance.RegisterCallbackOnBlockChange(OnBlockUpdate);
-            BlockEffectMap.RegisterOnEffectAddedCallback(OnBlockUpdate);
         });
     }
 
@@ -156,8 +155,6 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
         {
             generationTask.GetAwaiter().GetResult(); // Sleep until task done
         }
-        GridMap.Instance.UnregisterCallbackOnBlockChange(OnBlockUpdate);
-        BlockEffectMap.UnregisterOnEffectAddedCallback(OnBlockUpdate);
     }
 
     void Update()
@@ -182,8 +179,6 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
                 {
                     logger.Log("Map finished generation");
                     state = State.MapGenerated;
-                    GridMap.Instance.RegisterCallbackOnBlockChange(OnBlockUpdate);
-                    BlockEffectMap.RegisterOnEffectAddedCallback(OnBlockUpdate);
                 }
                 break;
             case State.MapGenerated:

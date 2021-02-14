@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 
-public class GenericKeyUnsubscriber<T, Key> : IDisposable
+public class KeyUnsubscriber<T, Key> : IDisposable
 {
     readonly Dictionary<Key, IObserver<T>> allObserversRef;
     readonly IObserver<T> myObserver;
     readonly Key key;
-    public GenericKeyUnsubscriber(Dictionary<Key, IObserver<T>> allObserversRef, Key key, IObserver<T> myObserver)
+    public KeyUnsubscriber(Dictionary<Key, IObserver<T>> allObserversRef, Key key, IObserver<T> myObserver)
     {
         this.allObserversRef = allObserversRef;
         this.myObserver = myObserver;

@@ -1,30 +1,63 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using Logging;
 using UnityEngine;
 
-public class BlockEffectMap
+public class BlockEffectMap : IObservable<BlockEffectMap.BlockEffectUpdate>
 {
+
+    public class BlockEffectUpdate
+    {
+        public enum ChangeType
+        {
+            Added,
+            Removed
+        };
+        readonly Vector3Int position;
+        readonly Vector2 effect;
+        readonly ChangeType changeType;
+
+        public Vector3Int Position => position;
+
+        public Vector2 Effect => effect;
+
+        public ChangeType ChangeType1 => changeType;
+
+        public BlockEffectUpdate(Vector3Int position, Vector2 effect, ChangeType changeType)
+        {
+            this.position = position;
+            this.effect = effect;
+            this.changeType = changeType;
+        }
+    }
+
+    static BlockEffectMap instance;
     static Dictionary<Vector3Int, List<Vector2>> blockEffects = new Dictionary<Vector3Int, List<Vector2>>();
     const int lockTimeout = 10000; // ms
     static readonly ReaderWriterLockSlim blockLock = new ReaderWriterLockSlim();
-    readonly static object callbackLock = new object();
 
-    static List<Action<Vector3Int>> runOnBlockChange = new List<Action<Vector3Int>>();
+    static ConcurrentDictionary<IObserver<BlockEffectUpdate>, IObserver<BlockEffectUpdate>> observers = new ConcurrentDictionary<IObserver<BlockEffectUpdate>, IObserver<BlockEffectUpdate>>();
 
     static readonly LilLogger logger = new LilLogger("BlockEffectMap");
 
-    static void GetReadLockBlockLock()
+    public static BlockEffectMap Instance { get => instance; }
+
+    static BlockEffectMap() {
+        instance = new BlockEffectMap();
+    }
+
+    void GetReadLockBlockLock()
     {
         if (!blockLock.TryEnterReadLock(lockTimeout)) throw new Exception("Blocklock timeout");
     }
-    static void GetWriteLockBlockLock()
+    void GetWriteLockBlockLock()
     {
         if (!blockLock.TryEnterWriteLock(lockTimeout)) throw new Exception("Blocklock timeout");
     }
 
-    public static void SetEffect(Vector3Int pos, Vector2 effect)
+    public void SetEffect(Vector3Int pos, Vector2 effect)
     {
         GetWriteLockBlockLock();
         try
@@ -46,10 +79,10 @@ public class BlockEffectMap
         {
             blockLock.ExitWriteLock();
         }
-        RunOnBlockChanges(pos);
+        RunOnBlockChanges(new BlockEffectUpdate(pos, effect, BlockEffectUpdate.ChangeType.Added));
     }
 
-    public static Vector2 GetBlockEffect(Vector3Int pos)
+    public Vector2 GetBlockEffect(Vector3Int pos)
     {
         GetReadLockBlockLock();
         try
@@ -70,18 +103,15 @@ public class BlockEffectMap
         return BlockEffects.NoEffect;
     }
 
-    static void RunOnBlockChanges(Vector3Int pos)
+    void RunOnBlockChanges(BlockEffectUpdate update)
     {
-        lock (callbackLock)
+        foreach (var obs in observers)
         {
-            foreach (Action<Vector3Int> action in runOnBlockChange)
-            {
-                action(pos);
-            }
+            obs.Value.OnNext(update);
         }
     }
 
-    public static void RemoveEffect(Vector3Int pos, Vector2 effect)
+    public void RemoveEffect(Vector3Int pos, Vector2 effect)
     {
         GetReadLockBlockLock();
         try
@@ -93,24 +123,11 @@ public class BlockEffectMap
         {
             blockLock.ExitReadLock();
         }
-        RunOnBlockChanges(pos);
+        RunOnBlockChanges(new BlockEffectUpdate(pos, effect, BlockEffectUpdate.ChangeType.Removed));
     }
 
-    public static void RegisterOnEffectAddedCallback(Action<Vector3Int> callback)
+    public IDisposable Subscribe(IObserver<BlockEffectUpdate> observer)
     {
-        lock (callbackLock)
-        {
-            runOnBlockChange.Add(callback);
-        }
+        return new ConcurrentUnsubscriber<BlockEffectUpdate>(observers, observer);
     }
-
-    public static void UnregisterOnEffectAddedCallback(Action<Vector3Int> callback)
-    {
-        lock (callbackLock)
-        {
-            bool success = runOnBlockChange.Remove(callback);
-            if (!success) logger.Log("Tried to remove unregistered callback", LogLevel.Warning);
-        }
-    }
-
 }

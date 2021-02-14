@@ -6,7 +6,7 @@ using System.Threading;
 using System;
 using Items;
 
-public class GridMap : IHasBlocks
+public class GridMap : IHasBlocks, IObservable<GridMap.BlockUpdate>
 {
     [System.Serializable]
     private class SaveData
@@ -14,8 +14,23 @@ public class GridMap : IHasBlocks
         public Vector3Int size;
         public Dictionary<Vector3Int, Block> blocks;
         public bool generated;
-
     }
+
+    public class BlockUpdate {
+        readonly Vector3Int position;
+        readonly Block block;
+
+        public BlockUpdate(Vector3Int position, Block block)
+        {
+            this.position = position;
+            this.block = block;
+        }
+
+        public Vector3Int Position => position;
+
+        public Block Block => block;
+    }
+    
     static readonly GridMap instance = new GridMap();
     Vector3Int mapSize = Vector3Int.zero;
     Dictionary<Vector3Int, Block> blocks = new Dictionary<Vector3Int, Block>();
@@ -23,7 +38,7 @@ public class GridMap : IHasBlocks
     const int lockTimeout = 10000; // ms
     ReaderWriterLockSlim blockLock = new ReaderWriterLockSlim();
     ReaderWriterLockSlim callbackLock = new ReaderWriterLockSlim();
-    List<Action<Vector3Int>> runOnBlockChange = new List<Action<Vector3Int>>();
+    static ConcurrentDictionary<IObserver<BlockUpdate>, IObserver<BlockUpdate>> observers = new ConcurrentDictionary<IObserver<BlockUpdate>, IObserver<BlockUpdate>>();
 
     public static GridMap Instance { get => instance; }
 
@@ -57,6 +72,9 @@ public class GridMap : IHasBlocks
     public void GenerateMap(IMapGenerator generator)
     {
         generated = false;
+        EnterWriteLock();
+        blocks.Clear();
+        blockLock.ExitWriteLock();
         generator.Generate(this, SetGenerationDone);
     }
 
@@ -68,19 +86,6 @@ public class GridMap : IHasBlocks
     public bool IsGenerationDone()
     {
         return generated;
-    }
-    public void RegisterCallbackOnBlockChange(Action<Vector3Int> func)
-    {
-        if (!callbackLock.TryEnterWriteLock(lockTimeout)) throw new Exception("WriteLock timeout");
-        runOnBlockChange.Add(func);
-        callbackLock.ExitWriteLock();
-    }
-
-    public void UnregisterCallbackOnBlockChange(Action<Vector3Int> func)
-    {
-        if (!callbackLock.TryEnterWriteLock(lockTimeout)) throw new Exception("WriteLock timeout");
-        runOnBlockChange.Remove(func);
-        callbackLock.ExitWriteLock();
     }
 
     public bool IsPosInMap(Vector3Int pos)
@@ -149,14 +154,14 @@ public class GridMap : IHasBlocks
         return inMap;
     }
 
-    private void RunCallbacks(Vector3Int pos)
+    private void RunCallbacks(BlockUpdate update)
     {
         if (!callbackLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
         try
         {
-            foreach (Action<Vector3Int> a in runOnBlockChange)
+            foreach (var a in observers)
             {
-                a(pos);
+                a.Value.OnNext(update);
             }
         }
         finally
@@ -212,14 +217,14 @@ public class GridMap : IHasBlocks
     public void SetBlock(Vector3Int pos, Block block)
     {
         EnterWriteLock();
-
+        
         Block prevBlock;
         blocks.TryGetValue(pos, out prevBlock);
         blocks[pos] = block;
         blockLock.ExitWriteLock();
         if (IsGenerationDone())
         {
-            RunCallbacks(pos);
+            RunCallbacks(new BlockUpdate(pos, block));
             if (prevBlock != null && block is AirBlock)
             {
                 PutItem(pos, prevBlock.GetItem());
@@ -228,4 +233,8 @@ public class GridMap : IHasBlocks
         }
     }
 
+    public IDisposable Subscribe(IObserver<BlockUpdate> observer)
+    {
+        return new ConcurrentUnsubscriber<BlockUpdate>(observers, observer);
+    }
 }

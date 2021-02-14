@@ -33,7 +33,7 @@ public class StairUpDownBlock : Block
 
     private PartMeshInfo renderStair(Vector3Int currPos, int maxY, IHasBlocks blockOwner)
     {
-        Vector2 blockEffect = BlockEffectMap.GetBlockEffect(currPos);
+        Vector2 blockEffect = BlockEffectMap.Instance.GetBlockEffect(currPos);
         PartMeshInfo meshInfo = new PartMeshInfo();
         RenderRefMesh(BlockMeshes.FullStair, currPos, Rotation, GetTexturePos(), blockEffect, meshInfo);
         return meshInfo;

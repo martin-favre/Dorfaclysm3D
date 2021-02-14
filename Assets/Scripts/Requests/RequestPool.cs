@@ -290,7 +290,7 @@ public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>>, I
     {
         if (HasRequestByGuid(guid))
         {
-            IDisposable sub = new GenericKeyUnsubscriber<RequestPoolUpdateEvent<T>, Guid>(specificObservers, guid, observer);
+            IDisposable sub = new KeyUnsubscriber<RequestPoolUpdateEvent<T>, Guid>(specificObservers, guid, observer);
             return sub;
         }
         else

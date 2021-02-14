@@ -81,7 +81,7 @@ public abstract class Block : System.ICloneable, System.IEquatable<Block>
         PartMeshInfo meshInfo = new PartMeshInfo();
         Block neighbourBlock = GetBlock(new Vector3Int(x, y + 1, z), maxY, blockOwner);
         Vector2 texturePos = GetTexturePos();
-        Vector2 effectPos = BlockEffectMap.GetBlockEffect(thisBlockPos);
+        Vector2 effectPos = BlockEffectMap.Instance.GetBlockEffect(thisBlockPos);
         if (FaceShouldBeRendered(neighbourBlock))
         {
             //Block above is air

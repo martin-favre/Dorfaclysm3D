@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-class BuildingBlueprint {
+public class BuildingBlueprint {
     readonly string prefabPath;
     readonly Vector3Int location;
     readonly List<Tuple<Type, int>> requiredItems;

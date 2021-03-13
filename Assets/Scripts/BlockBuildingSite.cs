@@ -26,7 +26,7 @@ public class BlockBuildingSite : MonoBehaviour, ISaveableComponent
 
     public static BlockBuildingSite InstantiateNew(Vector3Int position, Block blockToBuild, Type itemRequired)
     {
-        GameObject prefabObj = PrefabLoader.GetPrefab(prefabName);
+        GameObject prefabObj = PrefabLoader.GetPrefab<GameObject>(prefabName);
         GameObject obj = Instantiate(prefabObj) as GameObject;
         if (!obj) throw new System.Exception("Could not instantiate prefab " + prefabName);
         GridActor actor = obj.GetComponent<GridActor>();

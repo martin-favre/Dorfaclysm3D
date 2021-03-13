@@ -27,7 +27,7 @@ public class ChunkMeshGenerator : MonoBehaviour
     public Vector3Int ChunkOrigin { get => chunkOrigin; set => chunkOrigin = value; }
     public int ChunkSize { get => chunkSize; set => chunkSize = value; }
     internal IHasBlocks BlockOwner { set => blockOwner = value; }
-    public static int? MaxY { set => maxY = value; get => maxY;}
+    public static int? MaxY { set => maxY = value; get => maxY; }
 
     private Vector3Int chunkOrigin;
 
@@ -67,7 +67,7 @@ public class ChunkMeshGenerator : MonoBehaviour
             case State.GeneratingMesh:
                 if (generationTask.IsCompleted)
                 {
-                state = State.MeshResultReceived;
+                    state = State.MeshResultReceived;
                 }
                 break;
             case State.MeshResultReceived:
@@ -95,7 +95,7 @@ public class ChunkMeshGenerator : MonoBehaviour
                         meshInfo.Validate();
                         newSpriteVertices.AddRange(meshInfo.Vertices);
                         int[] triangles = meshInfo.Triangles.ToArray();
-                        for(int i = 0; i < triangles.Length; i++)
+                        for (int i = 0; i < triangles.Length; i++)
                         {
                             triangles[i] += faceCount;
                         }

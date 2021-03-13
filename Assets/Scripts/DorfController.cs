@@ -29,7 +29,7 @@ public class DorfController : MonoBehaviour, ISaveableComponent
 
     public static DorfController InstantiateDorf(Vector3Int spawnPos)
     {
-        GameObject prefabObj = PrefabLoader.GetPrefab(prefabName);
+        GameObject prefabObj = PrefabLoader.GetPrefab<GameObject>(prefabName);
         GameObject obj = Instantiate(prefabObj) as GameObject;
         obj.name = "Dorf_" + obj.GetInstanceID().ToString();
         if (!obj) throw new System.Exception("Could not instantiate prefab " + prefabName);

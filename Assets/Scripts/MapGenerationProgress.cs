@@ -8,7 +8,7 @@ public class MapGenerationProgress : MonoBehaviour
     IMapGenerator generator;
     public static MapGenerationProgress InstantiateNew(IMapGenerator newGenerator)
     {
-        GameObject prefabObj = PrefabLoader.GetPrefab(prefabName);
+        GameObject prefabObj = PrefabLoader.GetPrefab<GameObject>(prefabName);
         GameObject obj = Instantiate(prefabObj) as GameObject;
         if (!obj) throw new System.Exception("Could not instantiate prefab " + prefabName);
         MapGenerationProgress disp = obj.GetComponent<MapGenerationProgress>();

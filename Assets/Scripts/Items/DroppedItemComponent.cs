@@ -78,7 +78,7 @@ namespace Items
 
         public static DroppedItemComponent InstantiateNew(Vector3Int position)
         {
-            GameObject prefabObj = PrefabLoader.GetPrefab(prefabName);
+            GameObject prefabObj = PrefabLoader.GetPrefab<GameObject>(prefabName);
             GameObject obj = Instantiate(prefabObj) as GameObject;
             if (!obj) throw new System.Exception("Could not instantiate prefab " + prefabName);
             GridActor gridActor = obj.GetComponent<GridActor>();

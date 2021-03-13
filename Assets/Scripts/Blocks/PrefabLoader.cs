@@ -5,9 +5,9 @@ using UnityEngine;
 class PrefabLoader
 {
     private readonly static LilLogger logger = new LilLogger("PrefabLoader");
-    private static GameObject LoadPrefab(string path)
+    private static Object LoadPrefab(string path)
     {
-        GameObject obj = Resources.Load(path) as GameObject;
+        Object obj = Resources.Load(path) as Object;
         if (obj == null)
         {
             logger.Log("Could not load resource " + path, LogLevel.Error);
@@ -15,17 +15,17 @@ class PrefabLoader
         return obj;
     }
 
-    readonly static Dictionary<string, GameObject> prefabs = new Dictionary<string, GameObject>();
+    readonly static Dictionary<string, Object> prefabs = new Dictionary<string, Object>();
 
-    public static GameObject GetPrefab(string name)
+    public static T GetPrefab<T>(string name) where T : class
     {
-        GameObject gameObject;
+        Object gameObject;
         prefabs.TryGetValue(name, out gameObject);
         if (gameObject == null)
         {
             gameObject = LoadPrefab(name);
             prefabs[name] = gameObject;
         }
-        return gameObject;
+        return gameObject as T;
     }
 }

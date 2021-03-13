@@ -25,7 +25,7 @@ class BuildingSite : MonoBehaviour
 
     public static BuildingSite InstantiateNew(BuildingBlueprint blueprint)
     {
-        GameObject prefab = PrefabLoader.GetPrefab(prefabPath);
+        GameObject prefab = PrefabLoader.GetPrefab<GameObject>(prefabPath);
         GameObject gObj = Instantiate(prefab) as GameObject;
         BuildingSite site = gObj.GetComponent<BuildingSite>();
         site.data.blueprint = blueprint;
@@ -70,7 +70,7 @@ class BuildingSite : MonoBehaviour
         }
         if (data.blueprint != null)
         {
-            blueprintPrefab = PrefabLoader.GetPrefab(data.blueprint.PrefabPath);
+            blueprintPrefab = PrefabLoader.GetPrefab<GameObject>(data.blueprint.PrefabPath);
             SetupMesh();
 
             SetupGridActor();

@@ -34,16 +34,16 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     SimpleObserver<GridMap.BlockUpdate> gridMapObserver;
     SimpleValueDisplayer generationProgressDisplayer;
 
-
+    public GenerationParameters parameters;
     public bool regenerateMap = false;
-    public Vector3Int mapSize;
-    public Vector2 offset;
-    public Vector2 frequency;
-    public float heightExponential;
-    public float heighFactor;
-    public int noiseIterations;
-    public float waterLevel;
-    public float snowLevel;
+    // public Vector3Int mapSize;
+    // public Vector2 offset;
+    // public Vector2 frequency;
+    // public float heightExponential;
+    // public float heighFactor;
+    // public int noiseIterations;
+    // public float waterLevel;
+    // public float snowLevel;
     GenerationParameters oldParameters = new GenerationParameters();
 
 
@@ -90,19 +90,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
     GenerationParameters GetParameters()
     {
-        return new GenerationParameters
-        {
-            offset = offset,
-            frequency = frequency,
-            heighFactor = heighFactor,
-            heightExponential = heightExponential,
-            noiseIterations = noiseIterations,
-            waterLevel = waterLevel,
-            snowLevel = snowLevel,
-            size = mapSize
-        };
-
-
+        return parameters;
     }
 
     // Only to be called by user in editor

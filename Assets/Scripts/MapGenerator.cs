@@ -3,8 +3,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class GenerationParameters
+[System.Serializable]
+public struct GenerationParameters
 {
     public Vector2 offset;
     public Vector2 frequency;
@@ -13,6 +13,8 @@ public class GenerationParameters
     public int noiseIterations;
     public float waterLevel;
     public float snowLevel;
+
+    public float treeChance;
 
     public Vector3Int size;
 
@@ -26,12 +28,13 @@ public class GenerationParameters
                noiseIterations == parameters.noiseIterations &&
                waterLevel == parameters.waterLevel &&
                snowLevel == parameters.snowLevel &&
+               treeChance == parameters.treeChance &&
                size.Equals(parameters.size);
     }
 
     public override int GetHashCode()
     {
-        int hashCode = -1817041268;
+        int hashCode = -1850914395;
         hashCode = hashCode * -1521134295 + offset.GetHashCode();
         hashCode = hashCode * -1521134295 + frequency.GetHashCode();
         hashCode = hashCode * -1521134295 + heighFactor.GetHashCode();
@@ -39,6 +42,7 @@ public class GenerationParameters
         hashCode = hashCode * -1521134295 + noiseIterations.GetHashCode();
         hashCode = hashCode * -1521134295 + waterLevel.GetHashCode();
         hashCode = hashCode * -1521134295 + snowLevel.GetHashCode();
+        hashCode = hashCode * -1521134295 + treeChance.GetHashCode();
         hashCode = hashCode * -1521134295 + size.GetHashCode();
         return hashCode;
     }
@@ -176,10 +180,9 @@ public class MapGenerator : IMapGenerator
                         {
                             map.SetBlock(pos, new SnowBlock());
                         }
-                        else if (random.Next(1, 40) == 1)
+                        else if (random.NextDouble() < parameters.treeChance)
 
                         {
-                            //oneTree = false;
                             MakeTree(pos);
                         }
                     }

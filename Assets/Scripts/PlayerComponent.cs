@@ -9,7 +9,19 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using static TMPro.TMP_Dropdown;
 
-public class PlayerComponent : MonoBehaviour
+public class PlayerUpdateEvent
+{
+    private readonly PlayerComponent playerComponent;
+
+    public PlayerUpdateEvent(PlayerComponent component)
+    {
+        this.playerComponent = component;
+    }
+
+    public PlayerComponent PlayerComponent => playerComponent;
+}
+
+public class PlayerComponent : MonoBehaviour, IObservable<PlayerUpdateEvent>
 {
     public enum RequestState
     {
@@ -19,20 +31,44 @@ public class PlayerComponent : MonoBehaviour
         QuickBlockRemove,
         BuildObject
     };
-    RequestState requestState = RequestState.Mining;
     LilLogger logger;
-    public TMP_Dropdown requestChooserDropdown;
-    public TMP_Dropdown blockChooserDropdown;
+    [SerializeField] private TMP_Dropdown requestChooserDropdown = null;
+    [SerializeField] private TMP_Dropdown blockChooserDropdown = null;
+    [SerializeField] private GameObject blockBuildGhostObj = null;
 
-    public GameObject blockBuildGhostObj;
+    private RequestState requestState = RequestState.Mining;
 
     private Block plannedBuildBlock = new RockBlock();
     private BlockBuildGhoster plannedBuildGhost;
 
+    private BuildingBlueprint plannedBlueprint = new BuildingBlueprint("Prefabs/BedPrefab", Vector3Int.zero, new List<Tuple<Type, int>>
+    () {
+        new Tuple<Type, int>(typeof(RockBlockItem), 3)
+    });
+    private List<IObserver<PlayerUpdateEvent>> observers = new List<IObserver<PlayerUpdateEvent>>();
+
+    private static PlayerComponent instance;
+
+    public static PlayerComponent Instance { get => instance; }
+    public RequestState PlayerRequestState { get => requestState; }
+    public BuildingBlueprint PlannedBlueprint { get => plannedBlueprint; }
+
+    private void Awake()
+    {
+        logger = new LilLogger(gameObject.name);
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            logger.Log("Duplicate PlayerComponent", LogLevel.Warning);
+            GameObject.Destroy(gameObject);
+        }
+    }
 
     private void Start()
     {
-        logger = new LilLogger(gameObject.name);
         logger.Log("Playercomponent started");
         SetUpDropdown();
         if (blockBuildGhostObj)
@@ -139,6 +175,7 @@ public class PlayerComponent : MonoBehaviour
     void OnRequestStateChanged(RequestState newState)
     {
         if (blockBuildGhostObj != null) blockBuildGhostObj.SetActive(newState == RequestState.Placing);
+        NotifyObservers();
     }
 
     void Update()
@@ -171,6 +208,7 @@ public class PlayerComponent : MonoBehaviour
         if (requestState == RequestState.Placing && Input.GetKeyDown(KeyCode.R))
         {
             handleRotatePlacement();
+            NotifyObservers();
         }
     }
 
@@ -250,6 +288,14 @@ public class PlayerComponent : MonoBehaviour
                     GameObject.Destroy(gObj);
                 }
             }
+        }
+    }
+
+    private void NotifyObservers()
+    {
+        PlayerUpdateEvent update = new PlayerUpdateEvent(this);
+        foreach(var obs in observers) {
+            obs.OnNext(update);
         }
     }
 
@@ -350,5 +396,10 @@ public class PlayerComponent : MonoBehaviour
             MiningRequest req = new MiningRequest(blockPos, block.GetType());
             MiningRequestPool.Instance.PostRequest(req);
         }
+    }
+
+    public IDisposable Subscribe(IObserver<PlayerUpdateEvent> observer)
+    {
+        return new GenericUnsubscriber<PlayerUpdateEvent>(observers, observer);
     }
 }

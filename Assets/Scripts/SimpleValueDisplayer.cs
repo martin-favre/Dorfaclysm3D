@@ -53,9 +53,9 @@ public class SimpleValueDisplayer : MonoBehaviour
         hooks.Remove(hook);
     }
     void OnGUI() {
-        int distanceBetweenValues = 10;
+        int distanceBetweenValues = 21;
         for(int i = 0; i < hooks.Count; i++) {
-            Rect rect = new Rect(10 ,distanceBetweenValues*i, Screen.width, Screen.height * 2 / 100);
+            Rect rect = new Rect(20 ,distanceBetweenValues*i, Screen.width, Screen.height * 2 / 100);
             GUI.Label(rect, hooks[i].LastValue, style);
         }
 

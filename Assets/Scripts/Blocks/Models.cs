@@ -4,31 +4,41 @@ using UnityEngine;
 
 public static class ModelLoader
 {
-    private static LilLogger logger = new LilLogger("Models"); 
+    private static LilLogger logger = new LilLogger("Models");
     private static MeshFilter LoadMesh(string path)
     {
-        GameObject gObj = Resources.Load(path) as GameObject;
-        if (gObj == null)
+        Object obj = Resources.Load(path);
+        if (obj == null)
         {
             logger.Log("Could not load resource " + path, LogLevel.Error);
             return null;
         }
-        MeshFilter filter = gObj.GetComponent<MeshFilter>();
-        if (filter == null)
+        else if (obj is GameObject gObj)
         {
-            logger.Log("Resource " + path + " did not contain MeshFilter", LogLevel.Error);
+            MeshFilter filter = gObj.GetComponent<MeshFilter>();
+            if (filter == null)
+            {
+                logger.Log("Resource " + path + " did not contain MeshFilter", LogLevel.Error);
+                return null;
+            }
+            return filter;
+
+        }
+        else
+        {
+            logger.Log("Could not cast resource to gameobject " + path, LogLevel.Error);
             return null;
         }
-        return filter;
     }
 
     private static readonly Dictionary<string, MeshFilter> meshes = new Dictionary<string, MeshFilter>();
 
-    public static MeshFilter GetMesh(string path) 
+    public static MeshFilter GetMesh(string path)
     {
         MeshFilter mesh;
         meshes.TryGetValue(path, out mesh);
-        if(mesh == null) {
+        if (mesh == null)
+        {
             mesh = LoadMesh(path);
             meshes[path] = mesh;
         }

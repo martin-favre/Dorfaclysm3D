@@ -31,7 +31,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
 
     SimpleObserver<CameraController> cameraObserver;
     SimpleObserver<BlockEffectMap.BlockEffectUpdate> blockEffectObserver;
-    SimpleObserver<GridMap.BlockUpdate> gridMapObserver;
+    SimpleObserver<BlockUpdate> gridMapObserver;
     SimpleValueDisplayer generationProgressDisplayer;
 
     public GenerationParameters parameters;
@@ -51,7 +51,7 @@ public class GridMapComponent : MonoBehaviour, ISaveableComponent
     {
         mainCam = Camera.main.GetComponent<CameraController>();
         blockEffectObserver = new SimpleObserver<BlockEffectMap.BlockEffectUpdate>(BlockEffectMap.Instance, update => OnBlockUpdate(update.Position));
-        gridMapObserver = new SimpleObserver<GridMap.BlockUpdate>(GridMap.Instance, update => OnBlockUpdate(update.Position));
+        gridMapObserver = new SimpleObserver<BlockUpdate>(GridMap.Instance, update => OnBlockUpdate(update.Position));
     }
 
     void UpdateMaxVerticalLevel()

@@ -223,15 +223,11 @@ public class MoveItemJob : IJob
 
         public override State OnReachedTarget()
         {
-            GridActor[] actors = GridActorMap.GetGridActors(actor.Position);
-            foreach (GridActor actor in actors)
+            var item = DroppedItemManager.GetItem(actor.Position, request.TypeToFind);
+            if (item != null)
             {
-                InventoryComponent comp = actor.GetComponent<InventoryComponent>();
-                if (comp && comp.HasItem(request.TypeToFind))
-                {
-                    logger.Log("Found my item at " + actor.Position);
-                    return new WalkToTargetState(this.actor, request, comp.GetItem(request.TypeToFind), logger);
-                }
+                logger.Log("Found my item at " + actor.Position);
+                return new WalkToTargetState(this.actor, request, item, logger);
             }
             logger.Log("MoveItemJob, no item at target");
             return OnPathFindFail();
@@ -288,7 +284,7 @@ public class MoveItemJob : IJob
             logger.Log("MoveItemJob, WalkToTargetState, OnPathFindFail " + GetFailReason().ToString());
             logger.Log("Dropping my item");
             TerminateMachine();
-            GridMap.Instance.PutItem(actor.Position, item);
+            DroppedItemManager.PutItem(actor.Position, item);
             MoveItemRequestPool.Instance.ReturnRequest(request);
             return StateMachine.NoTransition();
         }
@@ -318,7 +314,7 @@ public class MoveItemJob : IJob
                 }
             }
             logger.Log("Did not find my target GridActor at the target, dropping my item");
-            GridMap.Instance.PutItem(this.request.PositionToMoveTo, item);
+            DroppedItemManager.PutItem(this.request.PositionToMoveTo, item);
             return OnPathFindFail();
         }
     }

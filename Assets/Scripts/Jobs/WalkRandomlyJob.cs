@@ -21,7 +21,7 @@ public class WalkRandomlyJob : IJob
     {
         this.logger = logger;
         logger.Log("Starting a WalkRandomlyJob");
-        Vector3Int size = GridMap.Instance.GetSize();
+        Vector3Int size = SingletonProvider.MainGridMap.GetSize();
 
         machine = new StateMachine(new WalkRandomlyState(user, logger));
     }

@@ -5,8 +5,23 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System;
 using Items;
+public class BlockUpdate
+{
+    readonly Vector3Int position;
+    readonly Block block;
 
-public class GridMap : IHasBlocks, IObservable<GridMap.BlockUpdate>
+    public BlockUpdate(Vector3Int position, Block block)
+    {
+        this.position = position;
+        this.block = block;
+    }
+
+    public Vector3Int Position => position;
+
+    public Block Block => block;
+}
+
+public class GridMap : IGridMap
 {
     [System.Serializable]
     private class SaveData
@@ -16,21 +31,7 @@ public class GridMap : IHasBlocks, IObservable<GridMap.BlockUpdate>
         public bool generated;
     }
 
-    public class BlockUpdate {
-        readonly Vector3Int position;
-        readonly Block block;
 
-        public BlockUpdate(Vector3Int position, Block block)
-        {
-            this.position = position;
-            this.block = block;
-        }
-
-        public Vector3Int Position => position;
-
-        public Block Block => block;
-    }
-    
     static readonly GridMap instance = new GridMap();
     Vector3Int mapSize = Vector3Int.zero;
     Dictionary<Vector3Int, Block> blocks = new Dictionary<Vector3Int, Block>();
@@ -180,44 +181,10 @@ public class GridMap : IHasBlocks, IObservable<GridMap.BlockUpdate>
         if (!blockLock.TryEnterReadLock(lockTimeout)) throw new Exception("Readlock timeout");
     }
 
-    public void PutItem(Vector3Int pos, Item itemToAdd)
-    {
-        if (itemToAdd == null) return;
-        Debug.Log("GridMap, Adding item to " + pos);
-        GridActor[] actors = GridActorMap.GetGridActors(pos);
-        DroppedItemComponent itemCont = null;
-        foreach (GridActor actor in actors)
-        {
-            DroppedItemComponent tmpCont = actor.GetComponent<DroppedItemComponent>();
-            if (tmpCont != null)
-            {
-                itemCont = tmpCont;
-                break;
-            }
-        }
-        if (itemCont == null)
-        {
-            itemCont = DroppedItemComponent.InstantiateNew(pos);
-
-            Debug.Log("GridMap, Spawned new DroppedItemComponent");
-        }
-
-        InventoryComponent inv = itemCont.gameObject.GetComponent<InventoryComponent>();
-        if (inv)
-        {
-            inv.AddItem(itemToAdd);
-        }
-        else
-        {
-            Debug.LogWarning("GridMap, No inventory to drop item in");
-        }
-
-    }
-
     public void SetBlock(Vector3Int pos, Block block)
     {
         EnterWriteLock();
-        
+
         Block prevBlock;
         blocks.TryGetValue(pos, out prevBlock);
         blocks[pos] = block;
@@ -227,7 +194,7 @@ public class GridMap : IHasBlocks, IObservable<GridMap.BlockUpdate>
             RunCallbacks(new BlockUpdate(pos, block));
             if (prevBlock != null && block is AirBlock)
             {
-                PutItem(pos, prevBlock.GetItem());
+                DroppedItemManager.PutItem(pos, prevBlock.GetItem());
             }
 
         }

@@ -164,11 +164,11 @@ public class MiningJob : IJob
             if (!request.IsCancelled())
             {
                 Block block;
-                GridMap.Instance.TryGetBlock(request.Position, out block);
+                SingletonProvider.MainGridMap.TryGetBlock(request.Position, out block);
                 if (block != null && block.GetType() == request.BlockType)
                 {
                     logger.Log("Mined the block at " + request.Position);
-                    GridMap.Instance.SetBlock(request.Position, new AirBlock());
+                    SingletonProvider.MainGridMap.SetBlock(request.Position, new AirBlock());
                     logger.Log("Finished the request! " + request);
                     MiningRequestPool.Instance.FinishRequest(request);
                 }

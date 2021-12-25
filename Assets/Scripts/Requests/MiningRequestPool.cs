@@ -33,6 +33,7 @@ public class MiningRequestPool : RequestPool<MiningRequest>
         MiningRequest closestReq = null;
         lock (lockObject)
         {
+            if (Requests.Count == 0) return null;
 
             foreach (MiningRequest req in Requests)
             {

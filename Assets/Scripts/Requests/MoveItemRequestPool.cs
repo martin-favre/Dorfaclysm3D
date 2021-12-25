@@ -19,6 +19,7 @@ public class MoveItemRequestPool : RequestPool<MoveItemRequest>
         MoveItemRequest request = null;
         lock (lockObject)
         {
+            if (Requests.Count == 0) return null;
             foreach (MoveItemRequest req in Requests)
             {
                 request = req;

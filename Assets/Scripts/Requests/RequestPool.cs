@@ -8,7 +8,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections.Concurrent;
 
-public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>>, IKeyObservable<RequestPoolUpdateEvent<T>, Guid> where T : PlayerRequest
+public abstract class RequestPool<T> : IRequestPool<T> where T : PlayerRequest
 {
     [System.Serializable]
     protected class RequestOnCooldown : IEquatable<RequestOnCooldown>
@@ -315,7 +315,8 @@ public abstract class RequestPool<T> : IObservable<RequestPoolUpdateEvent<T>>, I
         }
         IObserver<RequestPoolUpdateEvent<T>> observer;
         bool success = specificObservers.TryGetValue(request.Guid, out observer);
-        if(success) {
+        if (success)
+        {
             observer.OnNext(action);
         }
     }

@@ -38,15 +38,14 @@ namespace Tests
             {
                 elapsed = true;
             };
-            int margin = Mathf.RoundToInt(waitTimeMs * 0.1f);
+            int margin = waitTimeMs / 10;
             timer.Start();
             timer.Pause();
-
             System.Threading.Thread.Sleep(waitTimeMs + margin);
             Assert.IsFalse(elapsed);
 
             timer.Resume();
-            System.Threading.Thread.Sleep(waitTimeMs);
+            System.Threading.Thread.Sleep(waitTimeMs - margin);
             Assert.IsFalse(elapsed);
             System.Threading.Thread.Sleep(2 * margin); // is now time+margin
             Assert.IsTrue(elapsed);

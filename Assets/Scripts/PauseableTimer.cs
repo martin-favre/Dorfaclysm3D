@@ -11,9 +11,7 @@ public class PausableTimer : Timer
         public double initialInterval;
         public bool resumed;
         public double remainingAfterPause;
-
         public bool wasPaused;
-
     }
 
     SaveData data = new SaveData();

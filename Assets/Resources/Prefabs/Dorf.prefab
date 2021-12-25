@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 7398496479924756667}
   - component: {fileID: 7398496479924756666}
   - component: {fileID: 7398496479924756665}
-  - component: {fileID: 1168987304}
   - component: {fileID: -2174884639828253386}
   - component: {fileID: 1175751084443025799}
   - component: {fileID: 3197654349320280901}
+  - component: {fileID: 8742988768547626698}
   m_Layer: 0
   m_Name: Dorf
   m_TagString: Untagged
@@ -85,18 +85,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1168987304
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7398496479924756664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46ac835ba6f7b764eadb28ea3ba2a8f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-2174884639828253386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122,7 +110,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73d7a994699b86940b738c0d08252504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridPosition: {x: 0, y: 0, z: 0}
+  size: {x: 1, y: 1, z: 1}
+  position: {x: 0, y: 0, z: 0}
 --- !u!114 &3197654349320280901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,3 +125,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
+--- !u!114 &8742988768547626698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7398496479924756664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1690d969be6e69c428327be75fb76cab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

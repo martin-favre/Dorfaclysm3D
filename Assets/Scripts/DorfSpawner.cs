@@ -12,7 +12,7 @@ public class DorfSpawner : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
 
@@ -24,14 +24,15 @@ public class DorfSpawner : MonoBehaviour
             for (int i = 0; i < 1; i++)
             {
                 Vector3Int middleOfMap = new Vector3Int(GridMap.Instance.GetSize().x / 2, 0, GridMap.Instance.GetSize().z / 2);
-                spawnedDorfs.Add(DorfController.InstantiateDorf(middleOfMap).gameObject);
+                spawnedDorfs.Add(DorfComponent.InstantiateDorf(middleOfMap).gameObject);
             }
         }
-        
+
         if (GridMap.Instance.IsGenerationDone() && correctDorfPositions)
         {
             correctDorfPositions = false;
-            foreach(GameObject g in spawnedDorfs){
+            foreach (GameObject g in spawnedDorfs)
+            {
                 GridActor actor = g.GetComponent<GridActor>();
                 Vector3Int pos = actor.Position;
                 Vector3Int newPos = Vector3Int.zero;
@@ -43,7 +44,7 @@ public class DorfSpawner : MonoBehaviour
                         break;
                     }
                 }
-                
+
                 actor.Move(newPos);
 
             }

@@ -27,4 +27,11 @@ public static class SingletonProvider
         set => gridMap = value;
     }
 
+    private static ITimerFactory timerFactory;
+    public static ITimerFactory MainTimerFactory
+    {
+        get => Getter(timerFactory, TimerFactory.Instance);
+        set => timerFactory = value;
+    }
+
 }

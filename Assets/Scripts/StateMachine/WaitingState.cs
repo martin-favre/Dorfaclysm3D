@@ -17,12 +17,12 @@ namespace StateMachineCollection
 
         SaveData data = new SaveData();
 
-        public PausableTimer timer;
+        public ITimer timer;
 
         // If no nextState is specified the machine will terminate on state transition instead
         public WaitingState(float waitDurationMs)
         {
-            timer = new PausableTimer(waitDurationMs);
+            timer = SingletonProvider.MainTimerFactory.GetPausableTimer(waitDurationMs);
             timer.Elapsed += ((a, b) => { data.elapsed = true; });
             timer.Start();
         }
@@ -30,7 +30,7 @@ namespace StateMachineCollection
         public WaitingState(IGenericSaveData saveData) : base(((SaveData)saveData).parent)
         {
             data = (SaveData)saveData;
-            timer = new PausableTimer(data.timerSave);
+            timer = SingletonProvider.MainTimerFactory.GetPausableTimer(data.timerSave);
             if (!data.elapsed)
             {
                 timer.Elapsed += ((a, b) => { data.elapsed = true; });

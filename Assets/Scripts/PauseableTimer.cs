@@ -3,7 +3,18 @@ using System.Timers;
 
 // thanks https://stackoverflow.com/questions/26964192/c-sharp-how-to-pause-a-timer
 
-public class PausableTimer : Timer
+
+// To make it mockable
+public interface ITimer
+{
+    event ElapsedEventHandler Elapsed;
+    double Interval { get; set; }
+    void Dispose();
+    void Start();
+    void Stop();
+    IGenericSaveData GetSave();
+}
+public class PausableTimer : Timer, ITimer
 {
     [System.Serializable]
     private class SaveData : GenericSaveData<PausableTimer>
